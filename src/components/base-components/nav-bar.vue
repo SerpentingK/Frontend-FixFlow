@@ -1,39 +1,53 @@
 <script setup>
-import { ref, inject } from 'vue';
-import {useRoute} from 'vue-router';
+import { ref, inject, onMounted, onBeforeUnmount } from 'vue';
+import { useRoute } from 'vue-router';
 
-const loggedCompany = inject("loggedCompany", ref(null))
-const loggedWorker = inject("loggedWorker", ref(null))
+const loggedCompany = inject("loggedCompany", ref(null));
+const loggedWorker = inject("loggedWorker", ref(null));
 
-const show_navBar = ref(false)
+const show_navBar = ref(false);
 const switch_navBar = () => {
-  show_navBar.value = !show_navBar.value
-}
+  show_navBar.value = !show_navBar.value;
+};
 
-const route = useRoute()
-
+const route = useRoute();
 const isActive = (path) => route.path.startsWith(path);
+
+const navBarRef = ref(null);
+const handleClickOutside = (event) => {
+  if (navBarRef.value && !navBarRef.value.contains(event.target) && show_navBar.value) {
+    switch_navBar();
+  }
+};
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+});
 </script>
 
 <template>
-  <nav class="nav-bar" :class="{ show: show_navBar }">
+  <nav ref="navBarRef" class="nav-bar" :class="{ show: show_navBar }">
     <img src="/src/assets/img/Logo_Nombre2.png" class="logo">
-    <router-link to="/companySession" class="nav-router"
-      :class="{ active: isActive('/companySession') }">Compañia</router-link>
-    <router-link to="/workers" class="nav-router"
-      :class="{active: isActive('/workers')}">Colaboradores</router-link>
-    <router-link to="" class="nav-router">Facturacion</router-link>
+    <router-link to="/companySession" class="nav-router" :class="{ active: isActive('/companySession') }">Compañia</router-link>
+    <router-link to="/workers" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
+    <router-link to="" class="nav-router">Facturación</router-link>
     <router-link to="" class="nav-router">Repuestos</router-link>
     <div class="info-container">
       <span>{{ loggedWorker }}</span>
       <span>{{ loggedCompany }}</span>
     </div>
   </nav>
-  <button class="nav-btn" @click="switch_navBar()">
+  <button class="nav-btn" @click.stop="switch_navBar">
     <ion-icon name="menu" v-if="!show_navBar"></ion-icon>
     <ion-icon name="close" v-if="show_navBar"></ion-icon>
   </button>
 </template>
+
+
 <style scoped>
 .nav-bar {
   z-index: 1000;

@@ -6,7 +6,7 @@ const loggedCompany = inject("loggedCompany", ref(null))
 const isLogin = ref(true) // Propiedad para alternar entre login y registro
 
 const loginCompany = () => {
-    loggedCompany.value = "David"
+    loggedCompany.value = "JUNGLE TECHNOLOGY"
     router.push("/companySession")
 }
 
