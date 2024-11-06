@@ -33,7 +33,7 @@ onBeforeUnmount(() => {
   <nav ref="navBarRef" class="nav-bar" :class="{ show: show_navBar }">
     <img src="/src/assets/img/Logo_Nombre2.png" class="logo">
     <router-link to="/companySession" class="nav-router" :class="{ active: isActive('/companySession') }">Compañia</router-link>
-    <router-link to="/workers" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
+    <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
     <router-link to="" class="nav-router">Facturación</router-link>
     <router-link to="" class="nav-router">Repuestos</router-link>
     <div class="info-container">

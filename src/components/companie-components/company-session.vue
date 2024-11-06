@@ -89,7 +89,7 @@ const loggedCompany = inject("loggedCompany", ref(null))
 .info-container h3 {
     font-family: var(--baseFont);
     text-transform: uppercase;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .close-btn {
