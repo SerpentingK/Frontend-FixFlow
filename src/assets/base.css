@@ -1,0 +1,8 @@
+:root {
+    --baseOrange: rgb(216, 75, 23);
+    --baseGray: rgb(54, 54, 54);
+    --secGray: #adadad;
+    --baseShadow: 0 0 10px 4px rgba(0, 0, 0, 0.676);
+    --secShadow: 0 0 10px 1px rgba(0, 0, 0, 0.801);
+    --baseFont: "Kanit", sans-serif;
+  }
