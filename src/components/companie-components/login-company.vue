@@ -123,6 +123,7 @@ const toggleForm = () => {
     box-shadow: inset -25px -25px 51px #a8a8a8,
         inset 25px 25px 51px #ffffff;
     display: flex;
+    align-items: center;
     width: 80%;
 }
 
@@ -200,6 +201,7 @@ const toggleForm = () => {
 
     .input-container {
         font-size: 20px;
+        padding-left: 20px;
     }
 
     .go-btn {

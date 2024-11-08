@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router';
 
 const loggedCompany = inject("loggedCompany", ref(null));
 const loggedWorker = inject("loggedWorker", ref(null));
+const workerRole = inject('workerRole', ref(null))
 
 const show_navBar = ref(false);
 const switch_navBar = () => {
@@ -34,11 +35,12 @@ onBeforeUnmount(() => {
     <img src="/src/assets/img/Logo_Nombre2.png" class="logo">
     <router-link to="/companySession" class="nav-router" :class="{ active: isActive('/companySession') }">Compañia</router-link>
     <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
-    <router-link to="" class="nav-router">Facturación</router-link>
-    <router-link to="" class="nav-router">Repuestos</router-link>
+    <router-link v-if="loggedWorker" to="/bills" class="nav-router" :class="{ active: isActive('/bills') }">Facturación</router-link>
+    <router-link v-if="loggedWorker" to="" class="nav-router">Repuestos</router-link>
     <div class="info-container">
-      <span>{{ loggedWorker }}</span>
-      <span>{{ loggedCompany }}</span>
+      <span style="text-transform: uppercase;">{{ loggedCompany }}</span>
+      <span style="text-transform: capitalize;">{{ loggedWorker }}</span>
+      <span style="text-transform: capitalize;">{{ workerRole }}</span>
     </div>
   </nav>
   <button class="nav-btn" @click.stop="switch_navBar">
@@ -134,6 +136,8 @@ onBeforeUnmount(() => {
 .info-container {
   padding-top: 30px;
   padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
 }
 /* Tablets: 768px y mayores */
 @media (min-width: 768px) {
@@ -143,11 +147,12 @@ onBeforeUnmount(() => {
 }
 @media (min-width: 1280px) {
     .nav-bar{
-      scale: 1.2;
+      scale: .85;
       gap: 10px;
+      transform: translateX(-500px) translateY(-50px);
     }
     .nav-bar.show{
-      transform: translateX(30px) translateY(40px);
+      transform: translateX(0) translateY(-50px);
     }
     .logo{
       margin-bottom: 20px;

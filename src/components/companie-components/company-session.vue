@@ -20,16 +20,11 @@ const loggedCompany = inject("loggedCompany", ref(null))
             <h3>{{ loggedCompany }}</h3>
         </div>
         <form @submit.prevent="putImage()" class="img-form">
-            <!-- Input de tipo file oculto -->
             <input type="file" id="fileInput" class="img-input" style="display: none;">
-
-            <!-- Label personalizado que actúa como botón de selección -->
             <label for="fileInput" class="file-label">
                 <span>Seleccionar Imagen</span>
                 <ion-icon name="camera-outline"></ion-icon>
             </label>
-
-            <!-- Span para mostrar el nombre del archivo seleccionado -->
             <span class="file-name" v-if="fileName">{{ fileName }}</span>
 
             <button type="submit" class="upload-btn">
@@ -51,9 +46,8 @@ const loggedCompany = inject("loggedCompany", ref(null))
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 20px 10px;
+    padding: 5px;
     width: 75%;
-    height: 70%;
     border-radius: 10px;
     background: #363636;
     box-shadow: -25px -25px 51px #242424,
@@ -89,7 +83,7 @@ const loggedCompany = inject("loggedCompany", ref(null))
 .info-container h3 {
     font-family: var(--baseFont);
     text-transform: uppercase;
-    font-size: 25px;
+    font-size: clamp(15px, 20px, 25px);
 }
 
 .close-btn {
@@ -133,7 +127,8 @@ const loggedCompany = inject("loggedCompany", ref(null))
     gap: 10px;
     transition: background-color 0.3s;
 }
-.file-label ion-icon{
+
+.file-label ion-icon {
     scale: 1.5;
 }
 
@@ -145,7 +140,8 @@ const loggedCompany = inject("loggedCompany", ref(null))
     font-size: 14px;
     color: #333;
 }
-.upload-btn{
+
+.upload-btn {
     all: unset;
     color: white;
     background-color: var(--baseOrange);
@@ -154,8 +150,10 @@ const loggedCompany = inject("loggedCompany", ref(null))
     justify-content: center;
     padding: 10px;
     border-radius: 50%;
+    overflow: hidden;
 }
-.upload-btn ion-icon{
+
+.upload-btn ion-icon {
     scale: 1.4;
 }
 
@@ -182,13 +180,57 @@ const loggedCompany = inject("loggedCompany", ref(null))
     .close-btn {
         scale: 1.3;
     }
+
+    .upload-btn:hover ion-icon {
+        animation: uploadAnimation 1.5s ease 1 forwards;
+    }
+
+    @keyframes uploadAnimation {
+        0% {
+            transform: translateY(0%);
+        }
+
+        25% {
+            transform: translateY(-150%);
+        }
+
+        26% {
+            transform: translateY(150%);
+        }
+
+        60% {
+            transform: translateY(-150%);
+        }
+
+        61% {
+            transform: translateY(150%);
+        }
+
+        100% {
+            transform: translateY(0%);
+        }
+    }
 }
+
 
 /* Computadoras de escritorio: 1280px y mayores */
 @media (min-width: 1280px) {
     .session-container {
-        width: 40%;
+        width: 30%;
+        height: 75%;
         gap: 40px;
+    }
+
+    .info-container ion-icon {
+        font-size: 200px;
+    }
+
+    .info-container h3 {
+        font-size: 25px;
+    }
+
+    .close-btn {
+        scale: .9;
     }
 }
 </style>

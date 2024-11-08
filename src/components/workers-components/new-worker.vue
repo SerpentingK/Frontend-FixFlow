@@ -15,7 +15,7 @@ const registerWorker = () => {
 <template>
     <section class="form-container">
         <h2>Crear Colaborador</h2>
-        <span>Recuerde que si es el primer colaborador tendra que ser de puesto: Gerente</span>
+        <span>Recuerde que si es el primer colaborador tendra que tener el puesto de Gerente</span>
         <form action="" @submit.prevent="registerWorker()">
             <label class="input-container">
                 <ion-icon name="person-circle"></ion-icon>
@@ -61,7 +61,6 @@ const registerWorker = () => {
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
     border: 2px solid var(--baseOrange);
-
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -81,9 +80,8 @@ const registerWorker = () => {
 }
 
 .form-container span {
-    color: #797979;
+    color: var(--secGray);
     text-align: center;
-    font-weight: bold;
 }
 
 .form-container form {
@@ -177,7 +175,6 @@ const registerWorker = () => {
 
 .go-btn:active {
     scale: 0.9;
-
 }
 
 /* Tablets: 768px y mayores */
