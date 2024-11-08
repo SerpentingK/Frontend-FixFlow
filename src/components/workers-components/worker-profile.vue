@@ -1,9 +1,11 @@
 <script setup>
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 import workerBillList from './worker-bill-list.vue';
 
 const loggedWorker = inject("loggedWorker", null);
 const workerRole = inject("workerRole", null);
+
+const listOption = ref("entrance")
 
 const bills = [
     {
@@ -64,13 +66,30 @@ const bills = [
     <section class="info-container">
         <h2>{{ loggedWorker }}</h2>
         <span class="info-span">{{ workerRole }}</span>
-        <span>Facturacion:</span>
+        <h3>Facturación:</h3>
+        <form @submit.prevent="" class="list-options">
+            <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption" class="check-input">
+            <label for="entrance-input" class="check-label">
+                <span>Recibidas</span>
+            </label>
+
+            <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption" class="check-input">
+            <label for="repaired-input" class="check-label">
+                <span>Reparadas</span>
+            </label>
+
+            <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption" class="check-input">
+            <label for="delivery-input" class="check-label">
+                <span>Entregadas</span>
+            </label>
+        </form>
         <workerBillList :bills="bills" />
     </section>
 </template>
 
+
 <style scoped>
-.info-container{
+.info-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -80,11 +99,60 @@ const bills = [
     left: 50%;
     transform: translate(-50%, -50%);
     padding: 5px;
-    width: 75%;
+    width: 80%;
     border-radius: 10px;
     background: #363636;
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
     border: 4px solid var(--baseOrange);
 }
+
+.info-container h2 {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.info-span {
+    color: var(--secGray);
+}
+
+.info-container h3 {
+    color: white;
+    font-size: 18px;
+}
+
+.list-options {
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.check-input {
+    display: none; /* Oculta el input de tipo radio */
+}
+
+.check-label {
+    cursor: pointer;
+    border-radius: 10px;
+    background-color: var(--baseGray);
+    border: 2px solid var(--baseOrange);
+    padding: 5px 7px;
+    transition:0.3s; /* Transición suave */
+    font-weight: bolder;
+    text-transform: capitalize;
+}
+
+/* Cambia el estilo del label cuando el input radio correspondiente está marcado */
+.check-input:checked + .check-label {
+    background-color: var(--baseOrange);
+    border: 2px solid white;
+    color: white;
+    scale: 1.04;
+    box-shadow: var(--secShadow);
+}
+
 </style>

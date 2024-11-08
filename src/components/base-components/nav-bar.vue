@@ -32,7 +32,10 @@ onBeforeUnmount(() => {
 
 <template>
   <nav ref="navBarRef" class="nav-bar" :class="{ show: show_navBar }">
-    <img src="/src/assets/img/Logo_Nombre2.png" class="logo">
+    <div class="logo-container">
+      <img src="/src/assets/img/Logo.png" class="logo">
+      <h1>FIX-FLOW</h1>
+    </div>
     <router-link to="/companySession" class="nav-router" :class="{ active: isActive('/companySession') }">Compañia</router-link>
     <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
     <router-link v-if="loggedWorker" to="/bills" class="nav-router" :class="{ active: isActive('/bills') }">Facturación</router-link>
@@ -67,6 +70,17 @@ onBeforeUnmount(() => {
   transform: translateX(-120%);
   backdrop-filter: blur(5px);
 }
+.logo-container{
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 10px;
+  padding: 10px 0;
+  height: 60px;
+}
+.logo{
+  height: 100%;
+}
 
 .nav-bar.show {
   transform: translateX(0);
@@ -97,12 +111,6 @@ onBeforeUnmount(() => {
   box-shadow: var(--secShadow);
 }
 
-.logo {
-  width: 60%;
-  object-fit: cover;
-  scale: 1.4;
-  transform: translateX(20px);
-}
 
 .nav-btn {
   all: unset;
