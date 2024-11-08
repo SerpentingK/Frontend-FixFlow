@@ -34,7 +34,7 @@ defineProps({
     gap: 10px;
     max-height: 300px;
     overflow: scroll;
-    scrollbar-width: none;
+    scrollbar-width: 0;
     background-color: white;
     width: 90%;
     align-items: center;
@@ -64,5 +64,10 @@ defineProps({
 }
 .bill-list span{
     width: 40%;
+}
+@media (min-width: 1024px) {
+    .bill-list span{
+        width: 22%;
+    }
 }
 </style>

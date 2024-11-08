@@ -130,6 +130,7 @@ onBeforeUnmount(() => {
   transition: .2s;
   height: 18px;
   width: 18px;
+  z-index: 1000;
 }
 
 .nav-btn * {

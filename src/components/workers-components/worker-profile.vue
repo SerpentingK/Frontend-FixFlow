@@ -68,17 +68,20 @@ const bills = [
         <span class="info-span">{{ workerRole }}</span>
         <h3>Facturación:</h3>
         <form @submit.prevent="" class="list-options">
-            <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption" class="check-input">
+            <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption"
+                class="check-input">
             <label for="entrance-input" class="check-label">
                 <span>Recibidas</span>
             </label>
 
-            <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption" class="check-input">
+            <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption"
+                class="check-input">
             <label for="repaired-input" class="check-label">
                 <span>Reparadas</span>
             </label>
 
-            <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption" class="check-input">
+            <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption"
+                class="check-input">
             <label for="delivery-input" class="check-label">
                 <span>Entregadas</span>
             </label>
@@ -132,7 +135,8 @@ const bills = [
 }
 
 .check-input {
-    display: none; /* Oculta el input de tipo radio */
+    display: none;
+    /* Oculta el input de tipo radio */
 }
 
 .check-label {
@@ -141,13 +145,15 @@ const bills = [
     background-color: var(--baseGray);
     border: 2px solid var(--baseOrange);
     padding: 5px 7px;
-    transition:0.3s; /* Transición suave */
+    transition: 0.3s;
+    /* Transición suave */
     font-weight: bolder;
     text-transform: capitalize;
+    color: var(--secGray);
 }
 
 /* Cambia el estilo del label cuando el input radio correspondiente está marcado */
-.check-input:checked + .check-label {
+.check-input:checked+.check-label {
     background-color: var(--baseOrange);
     border: 2px solid white;
     color: white;
@@ -155,4 +161,72 @@ const bills = [
     box-shadow: var(--secShadow);
 }
 
+@media (min-width: 768px) {
+    .info-container {
+        gap: 10px;
+    }
+
+    .info-container h2 {
+        font-size: 1.7rem
+    }
+
+    .info-span {
+        color: var(--secGray);
+        font-size: 1.1rem;
+    }
+
+    .info-container h3 {
+        font-size: 1.5rem;
+    }
+
+    .list-options {
+        width: 90%;
+    }
+
+    .check-label {
+        scale: 1.1;
+    }
+
+    /* Cambia el estilo del label cuando el input radio correspondiente está marcado */
+    .check-input:checked+.check-label {
+        scale: 1.2;
+    }
+}
+@media (min-width: 1024px){
+    .info-container {
+        gap: 0;
+        width: 50%;
+    }
+
+    .info-container h2 {
+        font-size: 1.4rem
+    }
+
+    .info-span {
+        font-size: .9rem;
+    }
+
+    .info-container h3 {
+        font-size: 1.1rem;
+    }
+
+    .list-options {
+        width: 80%;
+    }
+
+    .check-label {
+        scale: 1;
+    }
+
+    /* Cambia el estilo del label cuando el input radio correspondiente está marcado */
+    .check-input:checked+.check-label {
+        scale: 1.1;
+    }
+    .check-label:hover{
+        background-color: var(--baseOrange);
+        box-shadow: var(--secShadow);
+        color: white;
+        cursor: pointer;
+    }
+}
 </style>

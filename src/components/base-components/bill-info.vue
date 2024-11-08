@@ -45,38 +45,38 @@ const switch_sbf = inject("switch_sbf");
 </script>
 
 <template>
-    
+
     <section class="info-container">
         <button @click="switch_sbf()" class="close-btn">
             <ion-icon name="close"></ion-icon>
         </button>
         <h2>{{ bill_number }}</h2>
         <div class="info-row">
-            <span class="info-label">Client Name:</span>
+            <span class="info-label">Cliente:</span>
             <span>{{ client_name }}</span>
         </div>
         <div class="info-row">
-            <span class="info-label">Entry Date:</span>
-            <span>{{ entry_date }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Total Price:</span>
-            <span>{{ total_price }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Due:</span>
-            <span>{{ due }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Payment:</span>
-            <span>{{ payment }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Client Phone:</span>
+            <span class="info-label">Numero de telefono:</span>
             <span>{{ client_phone }}</span>
         </div>
         <div class="info-row">
-            <span class="info-label">Worker Name:</span>
+            <span class="info-label">Fecha de facturacion:</span>
+            <span>{{ entry_date }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Precio total:</span>
+            <span>{{ total_price }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Pendiente:</span>
+            <span>${{ due }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Abono:</span>
+            <span>${{ payment }}</span>
+        </div>
+        <div class="info-row">
+            <span class="info-label">Tecnico que recibio:</span>
             <span>{{ wname }}</span>
         </div>
         <article class="phones-container">
@@ -136,17 +136,22 @@ const switch_sbf = inject("switch_sbf");
     gap: 10px;
     overflow: hidden;
 }
-.info-container h2{
+
+.info-container h2 {
     color: white;
     letter-spacing: 3px;
     text-shadow: 0 0 10px black;
 }
-.info-row{
+
+.info-row {
     display: flex;
     gap: 10px;
     width: 90%;
     justify-content: space-between;
     color: var(--secGray);
+}
+.info-label{
+    text-transform: uppercase;
 }
 
 .phones-container {
@@ -157,8 +162,10 @@ const switch_sbf = inject("switch_sbf");
     display: flex;
     flex-direction: column;
     gap: 10px;
+    scrollbar-width: none;
 }
-.phone-info-container{
+
+.phone-info-container {
     background-color: var(--baseGray);
     border-radius: 10px;
     padding: 10px;
@@ -166,7 +173,8 @@ const switch_sbf = inject("switch_sbf");
     flex-wrap: wrap;
     gap: 10px;
 }
-.info-span{
+
+.info-span {
     background-color: white;
     display: flex;
     gap: 10px;
@@ -181,7 +189,8 @@ const switch_sbf = inject("switch_sbf");
     width: 100%;
     justify-content: space-around;
 }
-.state-btn{
+
+.state-btn {
     all: unset;
     background-color: var(--baseGray);
     padding: 10px;
@@ -192,12 +201,14 @@ const switch_sbf = inject("switch_sbf");
     gap: 5px;
     align-items: center;
 }
-.state-btn.active{
+
+.state-btn.active {
     background-color: var(--baseOrange);
     color: white;
     box-shadow: var(--secShadow);
 }
-.close-btn{
+
+.close-btn {
     all: unset;
     position: absolute;
     right: 10px;
@@ -210,6 +221,21 @@ const switch_sbf = inject("switch_sbf");
     border-radius: 5px;
     box-shadow: var(--secShadow);
     color: white;
+    transition: .3s;
 }
 
+@media (min-width: 768px) {
+    .info-container {
+        font-size: 1.3rem;
+    }
+}
+@media (min-width: 1024px){
+    .info-container {
+        font-size: 1rem;
+        width: 60%;
+    }
+    .close-btn:hover{
+        scale: 1.1;
+    }
+}
 </style>

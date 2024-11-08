@@ -103,7 +103,6 @@ const billData = {
         :client_name="billData.client_name" :entry_date="billData.entry_date" :total_price="billData.total_price"
         :due="billData.due" :payment="billData.payment" :client_phone="billData.client_phone" :wname="billData.wname"
         :phones_list="billData.phones_list" />
-
     </transition>
     <transition name="opacity-in" mode="out-in">
       <navBar v-if="loggedCompany" :key="'navbar'"></navBar>
@@ -140,4 +139,5 @@ const billData = {
   transform: scale(0.1);
   transform-origin: center;
 }
+
 </style>
