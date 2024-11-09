@@ -87,7 +87,12 @@ const bills = [
             </label>
         </form>
         <workerBillList :bills="bills" />
+
     </section>
+    <button class="close-sesion-btn">
+        <span>Cerrar Turno</span>
+        <ion-icon name="log-out"></ion-icon>
+    </button>
 </template>
 
 
@@ -161,6 +166,21 @@ const bills = [
     box-shadow: var(--secShadow);
 }
 
+.close-sesion-btn {
+    all: unset;
+    position: absolute;
+    bottom: 20px;
+    left: 10px;
+    background-color: var(--baseOrange);
+    padding: 5px 10px;
+    color: white;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    box-shadow: var(--secShadow);
+    gap: 10px;
+}
+
 @media (min-width: 768px) {
     .info-container {
         gap: 10px;
@@ -191,8 +211,13 @@ const bills = [
     .check-input:checked+.check-label {
         scale: 1.2;
     }
+    .close-sesion-btn{
+        font-size: 1.3rem;
+        padding: 10px 20px;
+    }
 }
-@media (min-width: 1024px){
+
+@media (min-width: 1024px) {
     .info-container {
         gap: 0;
         width: 50%;
@@ -222,10 +247,21 @@ const bills = [
     .check-input:checked+.check-label {
         scale: 1.1;
     }
-    .check-label:hover{
+
+    .check-label:hover {
         background-color: var(--baseOrange);
         box-shadow: var(--secShadow);
         color: white;
+        cursor: pointer;
+    }
+    .close-sesion-btn{
+        font-size: 1rem;
+        padding: 10px 13px;
+        transition: .3s;
+        border: 4px solid var(--baseOrange);
+    }
+    .close-sesion-btn:hover{
+        background-color: var(--baseGray);
         cursor: pointer;
     }
 }

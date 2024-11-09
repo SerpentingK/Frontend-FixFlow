@@ -8,6 +8,8 @@ import workerProfile from "@/components/workers-components/worker-profile.vue";
 import bills from "@/components/bill-components/bills.vue";
 import billEntrance from "@/components/bill-components/bill-entrance.vue";
 import billList from "@/components/bill-components/bill-list.vue";
+import repairs from "@/components/bill-components/repairs.vue";
+import deliveries from "@/components/bill-components/deliveries.vue";
 
 const routes = [
   {
@@ -62,6 +64,16 @@ const routes = [
         path: "bill-list",
         name: "billList",
         component: billList,
+      },
+      {
+        path: "repairs",
+        name: "repairs",
+        component: repairs,
+      },
+      {
+        path: "deliveries",
+        name: "deliveries",
+        component: deliveries,
       }
     ]
   }

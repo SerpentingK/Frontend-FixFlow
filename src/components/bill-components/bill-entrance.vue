@@ -4,6 +4,9 @@ import { ref } from 'vue';
 const phones_amount = ref(1)
 const selectedBrandName = ref(null)
 const selectedModelName = ref(null)
+const totalPrice = ref(300000)
+const due = ref(150000)
+
 </script>
 <template>
     <section class="container">
@@ -34,7 +37,8 @@ const selectedModelName = ref(null)
                     <label for="`new-brand-${v}`" class="other-container"
                         :class="{ active: selectedBrandName === 'Otro' }">
                         <span>Nueva marca:</span>
-                        <input type="text" placeholder="Nueva marca" class="other-input" id="`new-brand-${v}`" />
+                        <input type="text" placeholder="Nueva marca" class="other-input" id="`new-brand-${v}`"
+                            :disabled="selectedBrandName !== 'Otro'" />
                         <button type="button"><ion-icon name="add-circle"></ion-icon></button>
                     </label>
                 </label>
@@ -48,11 +52,34 @@ const selectedModelName = ref(null)
                     <label for="`new-model-${v}`" class="other-container"
                         :class="{ active: selectedModelName === 'Otro' }">
                         <span>Nuevo modelo:</span>
-                        <input type="text" placeholder="Nueva marca" class="other-input" id="`new-model-${v}`" />
+                        <input type="text" placeholder="Nueva marca" class="other-input" id="`new-model-${v}`"
+                            :disabled="selectedModelName !== 'Otro'" />
                         <button type="button"><ion-icon name="add-circle"></ion-icon></button>
                     </label>
+                    <label for="`price-inp-${v}`" class="fact-inp">
+                        <span>Precio:</span>
+                        <input type="number" id="price-inp-{{ v }}" min="100000" max="1000000" />
+                    </label>
+                    <label for="`desc-inp-${v}`" class="fact-inp">
+                        <span>Descripción:</span>
+                        <input type="text" placeholder="Ej: Pantalla" id="desc-inp-{{ v }}" />
+                    </label>
                 </label>
+
             </fieldset>
+            <span class="info-span">
+                <span>Total:</span>
+                <span>{{ totalPrice }}</span>
+            </span>
+            <span class="fact-inp">
+                <span>Abono:</span>
+                <input type="number">
+            </span>
+            <span class="info-span">
+                <span>Deuda:</span>
+                <span>{{ due }}</span>
+            </span>
+            <button type="submit">Generar Factura</button>
         </form>
     </section>
 </template>
@@ -112,13 +139,14 @@ const selectedModelName = ref(null)
 .input-container ion-icon {
     font-size: 1.2rem;
     color: var(--baseOrange);
+    scale: 1.2;
 }
 
 .phone-form {
     display: flex;
     flex-direction: column;
     border-radius: 8px;
-    border: 1px solid #565656;
+    border: 1px solid var(--secGray);
     padding: 10px;
     background-color: #404040;
     width: 90%;
@@ -137,14 +165,18 @@ const selectedModelName = ref(null)
 
 .phone-input {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
     gap: 10px;
+    width: 90%;
+    flex-wrap: wrap;
 }
 
 .select-label {
     display: flex;
     background-color: white;
-    padding: 8px;
+    padding: 5px 15px;
     border-radius: 8px;
     width: 90%;
     justify-content: space-between;
@@ -171,13 +203,18 @@ const selectedModelName = ref(null)
 .select-label select:focus {
     outline: none;
 }
+.other-container ion-icon{
+    color: var(--baseGray);
+    scale: 1.5;
+}
 
 .other-container {
     display: flex;
     align-items: center;
-    gap: 5px;
-    padding: 8px;
-    background-color: #e8e8e8;
+    gap: 5px 15px;
+    padding: 5px 15px;
+    background-color: var(--secGray);
+    color: white;
     border-radius: 8px;
     width: 90%;
     margin-top: 5px;
@@ -189,7 +226,8 @@ const selectedModelName = ref(null)
     background-color: var(--baseOrange);
     color: white;
 }
-.other-container.active ion-icon{
+
+.other-container.active ion-icon {
     color: white;
     font-size: 1.2rem;
     margin-left: 5px;
@@ -214,5 +252,60 @@ const selectedModelName = ref(null)
 
 .other-container button ion-icon {
     font-size: 1.2rem;
+}
+.fact-inp{
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: space-between;
+    color: var(--secGray);
+}
+.fact-inp input{
+    width: 50%;
+}
+
+@media (min-width: 768px) {
+    * {
+        font-size: 1.3rem;
+    }
+
+    .container {
+        width: 70%;
+        max-height: 80%;
+    }
+
+    .select-label,
+    .other-container {
+        font-size: 1.2rem;
+    }
+
+    .phone-form legend {
+        font-size: 1.4rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    * {
+        font-size: 1rem;
+    }
+
+    .select-label,
+    .other-container {
+        width: 40%;
+    }
+
+    .select-label *,
+    .other-container * {
+        font-size: .8rem;
+    }
+
+    .container {
+        width: 40%;
+        max-height: 70%;
+    }
+
+    .phone-form legend {
+        font-size: 1rem;
+    }
 }
 </style>
