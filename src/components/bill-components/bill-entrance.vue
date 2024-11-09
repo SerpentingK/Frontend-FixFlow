@@ -7,6 +7,18 @@ const selectedModelName = ref(null)
 const totalPrice = ref(300000)
 const due = ref(150000)
 
+const increasePhonesAmount = () => {
+    if((phones_amount.value + 1) > 5){
+        return;
+    }
+    phones_amount.value++
+}
+const decreasePhonesAmount = () => {
+    if((phones_amount.value - 1) < 1){
+        return;
+    }
+    phones_amount.value--
+}
 </script>
 <template>
     <section class="container">
@@ -22,14 +34,21 @@ const due = ref(150000)
             </label>
             <label for="phone-amount-inp" class="input-container">
                 <ion-icon name="phone-portrait"></ion-icon>
-                <input v-model="phones_amount" type="number" placeholder="CANTIDAD DISPOSITIVOS" min="1" max="5"
-                    id="cant-inp" />
+                <span style="font-weight: bolder; scale: 1.2;">{{ phones_amount }}</span>
+                <span class="btn-container">
+                    <button @click="increasePhonesAmount()" class="action-btn">
+                    <ion-icon name="caret-up"></ion-icon>
+                </button>
+                <button @click="decreasePhonesAmount()" class="action-btn">
+                    <ion-icon name="caret-down"></ion-icon>
+                </button>
+                </span>
             </label>
             <fieldset class="phone-form" v-for="v in phones_amount" :key="v">
                 <legend>Celular {{ v }}</legend>
                 <label :for="`brand-select-${v}`" class="phone-input">
                     <label class="select-label">
-                        <span>Seleccione una marca:</span>
+                        <span>Marca:</span>
                         <select v-model="selectedBrandName" id="`brand-select-${v}`">
                             <option value="Otro">Otro</option>
                         </select>
@@ -37,14 +56,14 @@ const due = ref(150000)
                     <label for="`new-brand-${v}`" class="other-container"
                         :class="{ active: selectedBrandName === 'Otro' }">
                         <span>Nueva marca:</span>
-                        <input type="text" placeholder="Nueva marca" class="other-input" id="`new-brand-${v}`"
+                        <input type="text" placeholder="" class="other-input" id="`new-brand-${v}`"
                             :disabled="selectedBrandName !== 'Otro'" />
                         <button type="button"><ion-icon name="add-circle"></ion-icon></button>
                     </label>
                 </label>
                 <label :for="`model-select-${v}`" class="phone-input">
                     <label class="select-label">
-                        <span>Seleccione un modelo:</span>
+                        <span>Modelo:</span>
                         <select v-model="selectedModelName" id="`model-select-${v}`">
                             <option value="Otro">Otro</option>
                         </select>
@@ -52,13 +71,13 @@ const due = ref(150000)
                     <label for="`new-model-${v}`" class="other-container"
                         :class="{ active: selectedModelName === 'Otro' }">
                         <span>Nuevo modelo:</span>
-                        <input type="text" placeholder="Nueva marca" class="other-input" id="`new-model-${v}`"
+                        <input type="text" placeholder="" class="other-input" id="`new-model-${v}`"
                             :disabled="selectedModelName !== 'Otro'" />
                         <button type="button"><ion-icon name="add-circle"></ion-icon></button>
                     </label>
                     <label for="`price-inp-${v}`" class="fact-inp">
                         <span>Precio:</span>
-                        <input type="number" id="price-inp-{{ v }}" min="100000" max="1000000" />
+                        <input type="number" id="price-inp-{{ v }}" min="100000" max="1000000" placeholder="100000"/>
                     </label>
                     <label for="`desc-inp-${v}`" class="fact-inp">
                         <span>Descripción:</span>
@@ -79,7 +98,7 @@ const due = ref(150000)
                 <span>Deuda:</span>
                 <span>{{ due }}</span>
             </span>
-            <button type="submit">Generar Factura</button>
+            <button type="submit" class="go-btn">Generar Factura</button>
         </form>
     </section>
 </template>
@@ -127,6 +146,7 @@ const due = ref(150000)
     display: flex;
     align-items: center;
     box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2);
+    justify-content: space-between;
 }
 
 .input-container input {
@@ -190,8 +210,7 @@ const due = ref(150000)
 }
 
 .select-label select {
-    border: none;
-    background: transparent;
+    border-radius: 10px;
     font-size: 1rem;
     color: #333;
     width: 60%;
@@ -203,9 +222,11 @@ const due = ref(150000)
 .select-label select:focus {
     outline: none;
 }
-.other-container ion-icon{
+
+.other-container ion-icon {
     color: var(--baseGray);
-    scale: 1.5;
+    scale: 1.3;
+    transition: .4s;
 }
 
 .other-container {
@@ -253,16 +274,60 @@ const due = ref(150000)
 .other-container button ion-icon {
     font-size: 1.2rem;
 }
-.fact-inp{
+
+.fact-inp {
     display: flex;
     gap: 10px;
-    width: 100%;
+    width: 90%;
     justify-content: space-between;
     color: var(--secGray);
 }
-.fact-inp input{
+
+.fact-inp input {
     width: 50%;
+    border-radius: 5px;
+    padding: 5px 10px;
 }
+.info-span{
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--secGray);
+}
+.go-btn{
+    all: unset;
+    background-color: var(--baseOrange);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: 2px solid var(--baseOrange);
+    transition: .3s;
+    margin-bottom: 10px;
+}
+.btn-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 70px;
+    gap: 5px;
+}
+.action-btn{
+    all: unset;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    scale: 1.3;
+}
+input[type = number]::-webkit-inner-spin-button{
+    display: none;
+}
+.action-btn:active ion-icon{
+    color: var(--baseGray);
+    scale: .7;
+}
+
 
 @media (min-width: 768px) {
     * {
@@ -300,12 +365,26 @@ const due = ref(150000)
     }
 
     .container {
-        width: 40%;
+        width: 50%;
         max-height: 70%;
     }
 
     .phone-form legend {
         font-size: 1rem;
     }
+
+
+    .input-container {
+        width: 50%;
+    }
+    .phone-input{
+        width: 100%;
+    }
+    .go-btn:hover{
+        scale: 1.1;
+        background-color: var(--baseGray);
+        box-shadow: var(--secShadow);
+    }
+
 }
 </style>

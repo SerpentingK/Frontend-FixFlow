@@ -49,6 +49,7 @@ const isActive = (path)=> route.path === path
     justify-content: center;
     padding: 5px;
     border: 2px solid transparent;
+    transition: all .3s ease-in-out;
 }
 .router.active{
     color: white;
