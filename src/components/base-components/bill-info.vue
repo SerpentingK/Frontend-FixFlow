@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, provide } from "vue";
+import { inject} from "vue";
 defineProps({
     bill_number: {
         type: String,

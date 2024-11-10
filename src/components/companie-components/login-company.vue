@@ -9,6 +9,9 @@ const loginCompany = () => {
     loggedCompany.value = "JUNGLE TECHNOLOGY"
     router.push("/companySession")
 }
+const signupCompany = () => {
+    isLogin.value = true
+}
 
 // Función para alternar la vista
 const toggleForm = () => {
@@ -55,7 +58,7 @@ const toggleForm = () => {
                     <input type="password" id="confirm-pasw-input" class="text-input"
                         placeholder="Confirmar Contraseña">
                 </label>
-                <button class="go-btn">Registrarse</button>
+                <button class="go-btn" @click="signupCompany">Registrarse</button>
                 <button type="button" @click="toggleForm" class="opt-btn">Iniciar Sesion</button>
             </form>
         </section>

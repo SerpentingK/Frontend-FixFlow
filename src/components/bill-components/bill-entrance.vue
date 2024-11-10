@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue';
+import { inject, ref } from 'vue';
+
 
 const phones_amount = ref(1)
 const selectedBrandName = ref(null)
@@ -8,40 +9,76 @@ const totalPrice = ref(300000)
 const due = ref(150000)
 
 const increasePhonesAmount = () => {
-    if((phones_amount.value + 1) > 5){
+    if ((phones_amount.value + 1) > 5) {
         return;
     }
     phones_amount.value++
 }
 const decreasePhonesAmount = () => {
-    if((phones_amount.value - 1) < 1){
+    if ((phones_amount.value - 1) < 1) {
         return;
     }
     phones_amount.value--
 }
+
+const phones_list = [
+    {
+        phone_ref: "0001-A-1",
+        brand_name: "Samsung",
+        device: "Galaxy A21s",
+        details: "Pantalla rota",
+        price: 500000,           // Precio en pesos colombianos
+        delivery_date: "2023-10-20",
+        repaired: true,
+        delivered: false,
+    },
+    {
+        phone_ref: "0001-A-2",
+        brand_name: "Apple",
+        device: "iPhone 12",
+        details: "Batería dañada",
+        price: 450000,           // Precio en pesos colombianos
+        delivery_date: "2023-10-18",
+        repaired: true,
+        delivered: true,
+    },
+    {
+        phone_ref: "0001-A-3",
+        brand_name: "Xiaomi",
+        device: "Redmi Note 10",
+        details: "Problemas de carga",
+        price: 300000,           // Precio en pesos colombianos
+        delivery_date: "2023-10-25",
+        repaired: false,
+        delivered: false,
+    }
+]
+
+
+const switchSBC = inject("switchSBC")
 </script>
 <template>
     <section class="container">
         <h2>Facturación</h2>
-        <form @submit.prevent="" class="bill-form">
+        <form @submit.prevent="switchSBC" class="bill-form">
             <label for="client-name-inp" class="input-container">
                 <ion-icon name="person"></ion-icon>
-                <input type="text" id="client-name-inp">
+                <input type="text" id="client-name-inp" required>
             </label>
             <label for="client-tel-inp" class="input-container">
                 <ion-icon name="call"></ion-icon>
-                <input type="number" id="client-tel-inp">
+                <input type="number" id="client-tel-inp" required>
             </label>
             <label for="phone-amount-inp" class="input-container">
                 <ion-icon name="phone-portrait"></ion-icon>
                 <span style="font-weight: bolder; scale: 1.2;">{{ phones_amount }}</span>
                 <span class="btn-container">
-                    <button @click="increasePhonesAmount()" class="action-btn">
-                    <ion-icon name="caret-up"></ion-icon>
-                </button>
-                <button @click="decreasePhonesAmount()" class="action-btn">
-                    <ion-icon name="caret-down"></ion-icon>
-                </button>
+                    <button @click="increasePhonesAmount()" class="action-btn" type="button">
+                        <ion-icon name="caret-up"></ion-icon>
+                    </button>
+                    <button @click="decreasePhonesAmount()" class="action-btn" type="button">
+                        <ion-icon name="caret-down"></ion-icon>
+                    </button>
                 </span>
             </label>
             <fieldset class="phone-form" v-for="v in phones_amount" :key="v">
@@ -49,14 +86,15 @@ const decreasePhonesAmount = () => {
                 <label :for="`brand-select-${v}`" class="phone-input">
                     <label class="select-label">
                         <span>Marca:</span>
-                        <select v-model="selectedBrandName" id="`brand-select-${v}`">
+                        <select v-model="selectedBrandName" :id="`brand-select-${v}`" required>
+                            <option value="Samsung">Samsung</option>
                             <option value="Otro">Otro</option>
                         </select>
                     </label>
-                    <label for="`new-brand-${v}`" class="other-container"
+                    <label :for="`new-brand-${v}`" class="other-container"
                         :class="{ active: selectedBrandName === 'Otro' }">
                         <span>Nueva marca:</span>
-                        <input type="text" placeholder="" class="other-input" id="`new-brand-${v}`"
+                        <input type="text" placeholder="" class="other-input" :id="`new-brand-${v}`"
                             :disabled="selectedBrandName !== 'Otro'" />
                         <button type="button"><ion-icon name="add-circle"></ion-icon></button>
                     </label>
@@ -64,27 +102,27 @@ const decreasePhonesAmount = () => {
                 <label :for="`model-select-${v}`" class="phone-input">
                     <label class="select-label">
                         <span>Modelo:</span>
-                        <select v-model="selectedModelName" id="`model-select-${v}`">
+                        <select v-model="selectedModelName" :id="`model-select-${v}`" required>
+                            <option value="A14">A14</option>
                             <option value="Otro">Otro</option>
                         </select>
                     </label>
-                    <label for="`new-model-${v}`" class="other-container"
+                    <label :for="`new-model-${v}`" class="other-container"
                         :class="{ active: selectedModelName === 'Otro' }">
                         <span>Nuevo modelo:</span>
-                        <input type="text" placeholder="" class="other-input" id="`new-model-${v}`"
+                        <input type="text" placeholder="" class="other-input" :id="`new-model-${v}`"
                             :disabled="selectedModelName !== 'Otro'" />
                         <button type="button"><ion-icon name="add-circle"></ion-icon></button>
                     </label>
-                    <label for="`price-inp-${v}`" class="fact-inp">
+                    <label :for="`price-inp-${v}`" class="fact-inp">
                         <span>Precio:</span>
-                        <input type="number" id="price-inp-{{ v }}" min="100000" max="1000000" placeholder="100000"/>
+                        <input type="number" :id="`price-inp-${v}`" placeholder="100000" required />
                     </label>
-                    <label for="`desc-inp-${v}`" class="fact-inp">
+                    <label :for="`desc-inp-${v}`" class="fact-inp">
                         <span>Descripción:</span>
-                        <input type="text" placeholder="Ej: Pantalla" id="desc-inp-{{ v }}" />
+                        <input type="text" placeholder="Ej: Pantalla" :id="`desc-inp-${v}`" required />
                     </label>
                 </label>
-
             </fieldset>
             <span class="info-span">
                 <span>Total:</span>
@@ -92,7 +130,7 @@ const decreasePhonesAmount = () => {
             </span>
             <span class="fact-inp">
                 <span>Abono:</span>
-                <input type="number">
+                <input type="number" required>
             </span>
             <span class="info-span">
                 <span>Deuda:</span>
@@ -102,6 +140,7 @@ const decreasePhonesAmount = () => {
         </form>
     </section>
 </template>
+
 <style scoped>
 .container {
     position: fixed;
@@ -111,7 +150,7 @@ const decreasePhonesAmount = () => {
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: #363636;
+    background: var(--baseGray);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
     border: 4px solid var(--baseOrange);
@@ -121,7 +160,7 @@ const decreasePhonesAmount = () => {
     max-height: 70%;
     overflow-y: scroll;
     scrollbar-width: none;
-    transition: max-height .4s ease;
+    transition: all .4s ease;
 }
 
 .container h2 {
@@ -168,7 +207,7 @@ const decreasePhonesAmount = () => {
     border-radius: 8px;
     border: 1px solid var(--secGray);
     padding: 10px;
-    background-color: #404040;
+    background-color: var(--thirdGray);
     width: 90%;
     gap: 10px;
     align-items: center;
@@ -288,14 +327,16 @@ const decreasePhonesAmount = () => {
     border-radius: 5px;
     padding: 5px 10px;
 }
-.info-span{
+
+.info-span {
     width: 90%;
     display: flex;
     align-items: center;
     justify-content: space-between;
     color: var(--secGray);
 }
-.go-btn{
+
+.go-btn {
     all: unset;
     background-color: var(--baseOrange);
     color: white;
@@ -305,7 +346,8 @@ const decreasePhonesAmount = () => {
     transition: .3s;
     margin-bottom: 10px;
 }
-.btn-container{
+
+.btn-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -313,17 +355,20 @@ const decreasePhonesAmount = () => {
     width: 70px;
     gap: 5px;
 }
-.action-btn{
+
+.action-btn {
     all: unset;
     display: flex;
     justify-content: center;
     align-items: center;
     scale: 1.3;
 }
-input[type = number]::-webkit-inner-spin-button{
+
+input[type=number]::-webkit-inner-spin-button {
     display: none;
 }
-.action-btn:active ion-icon{
+
+.action-btn:active ion-icon {
     color: var(--baseGray);
     scale: .7;
 }
@@ -377,10 +422,12 @@ input[type = number]::-webkit-inner-spin-button{
     .input-container {
         width: 50%;
     }
-    .phone-input{
+
+    .phone-input {
         width: 100%;
     }
-    .go-btn:hover{
+
+    .go-btn:hover {
         scale: 1.1;
         background-color: var(--baseGray);
         box-shadow: var(--secShadow);

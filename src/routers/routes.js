@@ -5,6 +5,7 @@ import workers from "@/components/workers-components/workers.vue";
 import loginWorker from "@/components/workers-components/login-worker.vue";
 import newWorker from "@/components/workers-components/new-worker.vue";
 import workerProfile from "@/components/workers-components/worker-profile.vue";
+import workersList from "@/components/workers-components/workers-list.vue";
 import bills from "@/components/bill-components/bills.vue";
 import billEntrance from "@/components/bill-components/bill-entrance.vue";
 import billList from "@/components/bill-components/bill-list.vue";
@@ -45,6 +46,11 @@ const routes = [
         path: "worker-profile",
         name: "workerProfile",
         component: workerProfile,
+      },
+      {
+        path: "workers-list",
+        name: "workersList",
+        component: workersList,
       }
     ]
   },

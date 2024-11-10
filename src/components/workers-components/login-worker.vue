@@ -9,7 +9,7 @@ const router = useRouter()
 
 const loginWorker = () => {
     loggedWorker.value = ("David Carrillo")
-    workerRole.value = "Administrador"
+    workerRole.value = "Gerente"
     router.push('/bills')
 }
 </script>

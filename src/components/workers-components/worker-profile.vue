@@ -5,7 +5,9 @@ import workerBillList from './worker-bill-list.vue';
 const loggedWorker = inject("loggedWorker", null);
 const workerRole = inject("workerRole", null);
 
+
 const listOption = ref("entrance")
+
 
 const bills = [
     {
@@ -71,28 +73,26 @@ const bills = [
             <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption"
                 class="check-input">
             <label for="entrance-input" class="check-label">
-                <span>Recibidas</span>
+                <ion-icon name="enter"></ion-icon>
             </label>
 
             <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption"
                 class="check-input">
             <label for="repaired-input" class="check-label">
-                <span>Reparadas</span>
+                <ion-icon name="construct"></ion-icon>
             </label>
 
             <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption"
                 class="check-input">
             <label for="delivery-input" class="check-label">
-                <span>Entregadas</span>
+                <ion-icon name="exit"></ion-icon>
             </label>
         </form>
         <workerBillList :bills="bills" />
-
+        <router-link to="/workers/workers-list" class="worker-list-btn"  v-if="workerRole === 'Administrador' || workerRole === 'Gerente'">
+            <ion-icon name="list"></ion-icon>
+        </router-link>
     </section>
-    <button class="close-sesion-btn">
-        <span>Cerrar Turno</span>
-        <ion-icon name="log-out"></ion-icon>
-    </button>
 </template>
 
 
@@ -109,7 +109,7 @@ const bills = [
     padding: 5px;
     width: 80%;
     border-radius: 10px;
-    background: #363636;
+    background: var(--baseGray);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
     border: 4px solid var(--baseOrange);
@@ -149,12 +149,14 @@ const bills = [
     border-radius: 10px;
     background-color: var(--baseGray);
     border: 2px solid var(--baseOrange);
-    padding: 5px 7px;
+    padding: 10px;
     transition: 0.3s;
-    /* Transición suave */
     font-weight: bolder;
     text-transform: capitalize;
     color: var(--secGray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Cambia el estilo del label cuando el input radio correspondiente está marcado */
@@ -179,6 +181,21 @@ const bills = [
     border-radius: 5px;
     box-shadow: var(--secShadow);
     gap: 10px;
+}
+.worker-list-btn{
+    all: unset;
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    background-color: var(--baseOrange);
+    padding: 5px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    box-shadow: var(--secShadow);
+    font-size: 1.4rem;
 }
 
 @media (min-width: 768px) {
@@ -211,7 +228,8 @@ const bills = [
     .check-input:checked+.check-label {
         scale: 1.2;
     }
-    .close-sesion-btn{
+
+    .close-sesion-btn {
         font-size: 1.3rem;
         padding: 10px 20px;
     }
@@ -254,13 +272,15 @@ const bills = [
         color: white;
         cursor: pointer;
     }
-    .close-sesion-btn{
+
+    .close-sesion-btn {
         font-size: 1rem;
         padding: 10px 13px;
         transition: .3s;
         border: 4px solid var(--baseOrange);
     }
-    .close-sesion-btn:hover{
+
+    .close-sesion-btn:hover {
         background-color: var(--baseGray);
         cursor: pointer;
     }

@@ -1,6 +1,10 @@
 <script setup>
 import navBar from './components/base-components/nav-bar.vue';
 import billInfo from './components/base-components/bill-info.vue';
+import billsNavBar from './components/bill-components/bills-nav-bar.vue';
+import close_sesion_btn from './components/workers-components/close-sesion-btn.vue';
+import billConfirm from './components/base-components/bill-confirm.vue';
+import backBtn from './components/base-components/back-btn.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -8,6 +12,9 @@ const loggedCompany = ref(null);
 const loggedWorker = ref(null)
 const workersCount = ref(0)
 const workerRole = ref(null)
+
+const inBills = ref(false)
+const inWorkerProfile = ref(false)
 
 provide('loggedCompany', loggedCompany)
 provide('loggedWorker', loggedWorker)
@@ -31,12 +38,26 @@ const route = useRoute();
 const handlePath = () => {
   if (route.path !== '/loginCompany' && loggedCompany.value === null) {
     router.push('/loginCompany')//Redirigir a Inicio de Sesion si no se ha iniciado
+  } else if (route.path === '/loginCompany' && loggedCompany.value) {
+    router.push('/companySession')//Redirigir a session si ya se ha iniciado sesion
   } else if (route.path.startsWith('/workers') && workersCount.value < 1) {
     router.push('/workers/new-worker')
   } else if (route.path.startsWith('/workers') && loggedWorker.value === null && workersCount > 0) {
     router.push('/workers/login-worker')//Redirigir a Inicio de Sesion si no se ha iniciado
   } else if (route.path === '/workers/login-worker' && loggedWorker.value) {
     router.push('/workers/worker-profile')
+  }
+
+  if (route.path.startsWith('/bills')) {
+    inBills.value = true;
+  } else if (!route.path.startsWith('/bills')) {
+    inBills.value = false;
+  }
+
+  if (route.path === '/workers/worker-profile') {
+    inWorkerProfile.value = true;
+  } else if (!(route.path === '/workers/worker-profile')) {
+    inWorkerProfile.value = false;
   }
 }
 onMounted(() => {
@@ -50,6 +71,9 @@ watch(
     }, 150); // Ajusta el retraso según sea necesario
   }
 );
+
+
+
 const billData = {
   bill_number: "0001-A",
   client_name: "Juan Pérez",
@@ -94,6 +118,15 @@ const billData = {
 };
 
 
+const show_bill_confirm = ref(false)
+
+
+const switchSBC = () => {
+  show_bill_confirm.value = !show_bill_confirm.value
+}
+
+provide("switchSBC", switchSBC)
+
 </script>
 
 <template>
@@ -105,11 +138,26 @@ const billData = {
         :phones_list="billData.phones_list" />
     </transition>
     <transition name="opacity-in" mode="out-in">
+      <billConfirm v-if="show_bill_confirm" client_name="Felipe Sierra" :total_price="300000" due="150000"
+        payment="150000" client_phone="3202169321" wname="David Carrillo" :phones_list="billData.phones_list"></billConfirm>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
       <navBar v-if="loggedCompany" :key="'navbar'"></navBar>
     </transition>
     <transition name="opacity-in" mode="ease-in">
       <router-view :key="route.path"></router-view>
     </transition>
+    <transition name="opacity-in" mode="out-in">
+      <billsNavBar v-if="inBills"></billsNavBar>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <close_sesion_btn v-if="inWorkerProfile"></close_sesion_btn>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <backBtn v-if="loggedCompany"></backBtn>
+    </transition>
+    
+
   </section>
 </template>
 
@@ -139,5 +187,4 @@ const billData = {
   transform: scale(0.1);
   transform-origin: center;
 }
-
 </style>
