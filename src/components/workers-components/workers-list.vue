@@ -34,7 +34,7 @@ const goBack = () => {
 
 <template>
     <section class="container">
-        <h2>Lista de colaboradores</h2>
+        <h2>Lista de  <br>colaboradores</h2>
         <ol class="workers-list">
             <li v-for="worker in workers" :key="worker.document">
                 <fieldset class="worker-li">
@@ -103,7 +103,6 @@ const goBack = () => {
 button.cancel-btn {
     background-color: var(--baseOrange);
 }
-
 .container h2,
 .delete-window h3 {
     color: white;

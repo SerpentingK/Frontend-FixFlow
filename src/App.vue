@@ -30,12 +30,22 @@ const switch_sbf = () => {
 
 provide('switch_sbf', switch_sbf)
 
+const showBillConfirm = ref(false)
+
+const switchSBC = () => {
+  showBillConfirm.value = !showBillConfirm.value
+}
+
+provide("switchSBC", switchSBC)
+
 
 // Instancias de router y route
 const router = useRouter();
 const route = useRoute();
 
 const handlePath = () => {
+  showBillInfo.value = false;
+  showBillConfirm.value = false;
   if (route.path !== '/loginCompany' && loggedCompany.value === null) {
     router.push('/loginCompany')//Redirigir a Inicio de Sesion si no se ha iniciado
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
@@ -118,15 +128,6 @@ const billData = {
 };
 
 
-const show_bill_confirm = ref(false)
-
-
-const switchSBC = () => {
-  show_bill_confirm.value = !show_bill_confirm.value
-}
-
-provide("switchSBC", switchSBC)
-
 </script>
 
 <template>
@@ -138,7 +139,7 @@ provide("switchSBC", switchSBC)
         :phones_list="billData.phones_list" />
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <billConfirm v-if="show_bill_confirm" client_name="Felipe Sierra" :total_price="300000" due="150000"
+      <billConfirm v-if="showBillConfirm" client_name="Felipe Sierra" :total_price="300000" due="150000"
         payment="150000" client_phone="3202169321" wname="David Carrillo" :phones_list="billData.phones_list"></billConfirm>
     </transition>
     <transition name="opacity-in" mode="out-in">
@@ -173,7 +174,7 @@ provide("switchSBC", switchSBC)
 
 .opacity-in-enter-active,
 .opacity-in-leave-active {
-  transition: transform 0.8s ease, opacity .8s ease;
+  transition:all .5s ease;
 }
 
 .opacity-in-enter-from {
