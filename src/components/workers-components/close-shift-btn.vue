@@ -1,21 +1,11 @@
 <script setup>
-import { inject, ref } from 'vue';
-import { useRouter } from 'vue-router';
+import { inject } from 'vue';
 
-const loggedWorker = inject("loggedWorker", ref(null));
-const workerRole = inject("workerRole", ref(null));
-
-const router = useRouter()
-
-const logoutWorker = () => {
-    loggedWorker.value = null;
-    workerRole.value = null;
-    router.push("/workers/login-worker")
-}
+const switchCS = inject("switchCS")
 </script>
 
 <template>
-    <button @click="logoutWorker">
+    <button @click="switchCS">
         <span>Cerrar Sesion</span>
         <ion-icon name="exit"></ion-icon>
     </button>

@@ -238,7 +238,7 @@ const bills = [
 @media (min-width: 1024px) {
     .info-container {
         gap: 0;
-        width: 50%;
+        width: 35%;
     }
 
     .info-container h2 {

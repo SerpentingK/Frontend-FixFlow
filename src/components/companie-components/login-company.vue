@@ -7,7 +7,7 @@ const isLogin = ref(true) // Propiedad para alternar entre login y registro
 
 const loginCompany = () => {
     loggedCompany.value = "JUNGLE TECHNOLOGY"
-    router.push("/companySession")
+    router.push("/workers/new-worker")
 }
 const signupCompany = () => {
     isLogin.value = true

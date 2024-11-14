@@ -2,10 +2,11 @@
 import navBar from './components/base-components/nav-bar.vue';
 import billInfo from './components/base-components/bill-info.vue';
 import billsNavBar from './components/bill-components/bills-nav-bar.vue';
-import close_sesion_btn from './components/workers-components/close-sesion-btn.vue';
+import close_sesion_btn from './components/workers-components/close-shift-btn.vue';
 import billConfirm from './components/base-components/bill-confirm.vue';
 import backBtn from './components/base-components/back-btn.vue';
 import repairConfirm from './components/base-components/repair-confirm.vue';
+import closeShift from './components/base-components/close-shift.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -13,6 +14,10 @@ const loggedCompany = ref(null);
 const loggedWorker = ref(null)
 const workersCount = ref(0)
 const workerRole = ref(null)
+const phonesRepaired = ref(0)
+const phonesReceived = ref(0)
+const phonesDelivered = ref(0)
+
 
 const inBills = ref(false)
 const inWorkerProfile = ref(false)
@@ -21,6 +26,9 @@ provide('loggedCompany', loggedCompany)
 provide('loggedWorker', loggedWorker)
 provide('workersCount', workersCount)
 provide('workerRole', workerRole)
+provide('phonesRepaired', phonesRepaired);
+provide('phonesReceived', phonesReceived);
+provide('phonesDelivered', phonesDelivered);
 
 
 const showBillInfo = ref(false)
@@ -38,6 +46,14 @@ const switchSBC = () => {
 }
 
 provide("switchSBC", switchSBC)
+
+const showCloseShift = ref(false)
+
+const switchCS = () => {
+  showCloseShift.value = !showCloseShift.value
+}
+
+provide("switchCS", switchCS)
 
 const showRepairConfirm = ref(false)
 const repairRef = ref("")
@@ -58,7 +74,7 @@ const handlePath = () => {
   if (route.path !== '/loginCompany' && loggedCompany.value === null) {
     router.push('/loginCompany')//Redirigir a Inicio de Sesion si no se ha iniciado
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
-    router.push('/companySession')//Redirigir a session si ya se ha iniciado sesion
+    router.push('/companyShift')//Redirigir a shift si ya se ha iniciado sesion
   } else if (route.path.startsWith('/workers') && workersCount.value < 1) {
     router.push('/workers/new-worker')
   } else if (route.path.startsWith('/workers') && loggedWorker.value === null && workersCount > 0) {
@@ -149,10 +165,14 @@ const billData = {
     </transition>
     <transition name="opacity-in" mode="out-in">
       <billConfirm v-if="showBillConfirm" client_name="Felipe Sierra" :total_price="300000" due="150000"
-        payment="150000" client_phone="3202169321" wname="David Carrillo" :phones_list="billData.phones_list"></billConfirm>
+        payment="150000" client_phone="3202169321" wname="David Carrillo" :phones_list="billData.phones_list">
+      </billConfirm>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <repairConfirm v-if="showRepairConfirm" :ref_num="repairRef"></repairConfirm>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <closeShift v-if="showCloseShift"></closeShift>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <navBar v-if="loggedCompany" :key="'navbar'"></navBar>
@@ -169,7 +189,7 @@ const billData = {
     <transition name="opacity-in" mode="out-in">
       <backBtn v-if="loggedCompany"></backBtn>
     </transition>
-    
+
 
   </section>
 </template>
@@ -186,7 +206,7 @@ const billData = {
 
 .opacity-in-enter-active,
 .opacity-in-leave-active {
-  transition:all .5s ease;
+  transition: all .5s ease;
 }
 
 .opacity-in-enter-from {

@@ -1,6 +1,8 @@
 <script setup>
 import { inject } from 'vue';
 
+const phonesReceived = inject('phonesReceived');
+
 defineProps({
     client_name: {
         type: String,
@@ -35,6 +37,10 @@ defineProps({
 });
 
 const switchSBC = inject("switchSBC")
+
+const updateReceived = () =>{
+    phonesReceived.value++
+}
 </script>
 
 <template>
@@ -81,7 +87,7 @@ const switchSBC = inject("switchSBC")
         </article>
         <div class="btn-container">
             <button @click="switchSBC" class="cancel-btn">Cancelar</button>
-            <button @click="switchSBC" class="confirm-btn">Confirmar</button>
+            <button @click="switchSBC(); updateReceived()" class="confirm-btn">Confirmar</button>
         </div>
     </section>
 </template>
@@ -143,7 +149,8 @@ const switchSBC = inject("switchSBC")
     justify-content: space-between;
 }
 
-.confirm-btn, .cancel-btn {
+.confirm-btn,
+.cancel-btn {
     all: unset;
     padding: 10px 20px;
     color: white;
@@ -154,14 +161,17 @@ const switchSBC = inject("switchSBC")
     border: 2px solid var(--baseOrange);
     transition: .3s;
 }
-.confirm-btn{
+
+.confirm-btn {
     background-color: var(--baseOrange)
 }
-.confirm-btn:active, .cancel-btn:active{
+
+.confirm-btn:active,
+.cancel-btn:active {
     scale: .9;
 }
 
-.btn-container{
+.btn-container {
     display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
@@ -173,8 +183,9 @@ const switchSBC = inject("switchSBC")
         font-size: 1.3rem;
     }
 }
+
 @media (min-width: 1024px) {
-    .info-container{
+    .info-container {
         width: 50%;
         max-height: 70%;
     }

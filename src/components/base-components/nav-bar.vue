@@ -39,7 +39,6 @@ onBeforeUnmount(() => {
     <router-link to="/companySession" class="nav-router" :class="{ active: isActive('/companySession') }">Compañia</router-link>
     <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
     <router-link v-if="loggedWorker" to="/bills" class="nav-router" :class="{ active: isActive('/bills') }">Facturación</router-link>
-    <router-link v-if="loggedWorker" to="" class="nav-router">Repuestos</router-link>
     <div class="info-container">
       <span style="text-transform: uppercase;">{{ loggedCompany }}</span>
       <span style="text-transform: capitalize;">{{ loggedWorker }}</span>

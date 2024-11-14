@@ -1,5 +1,6 @@
 <script setup>
 import { inject } from 'vue';
+const phonesRepaired = inject('phonesRepaired');
 
 defineProps({
     ref_num: {
@@ -16,6 +17,11 @@ defineProps({
 
 const switchSRC = inject("switchSRC")
 
+const updateRepaired = () =>{
+    phonesRepaired.value++
+    alert(phonesRepaired.value)
+}
+
 </script>
 
 <template>
@@ -27,11 +33,11 @@ const switchSRC = inject("switchSRC")
         </div>
         <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
             <button @click="switchSRC">Cancelar</button>
-            <button @click="switchSRC" class="confirm-btn">Confirmar</button>
+            <button @click="switchSRC(); updateRepaired()" class="confirm-btn">Confirmar</button>
         </div>
     </section>
 </template>
-<style>
+<style scoped>
 .container {
     position: fixed;
     left: 50%;
