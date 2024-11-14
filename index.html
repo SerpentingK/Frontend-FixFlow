@@ -10,9 +10,79 @@
 
 <body>
   <div id="app"></div>
+  <div id="particles-js"></div>
   <script type="module" src="/src/main.js"></script>
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+
+  <script>
+    particlesJS('particles-js', {
+      particles: {
+        number: {
+          value: 150, // Número de partículas
+          density: {
+            enable: true,
+            value_area: 1000 // Aumentar el área de dispersión
+          }
+        },
+        color: {
+          value: '#d84b17' // Color rojo para las partículas
+        },
+        shape: {
+          type: 'circle', // Forma triangular
+        },
+        opacity: {
+          value: 0.8, // Opacidad mayor
+          anim: {
+            enable: true,
+            speed: 2,
+            opacity_min: 0.3
+          }
+        },
+        size: {
+          value: 5, // Tamaño de partículas más grande
+          random: true, // Tamaño aleatorio
+          anim: {
+            enable: true,
+            speed: 3,
+            size_min: 2
+          }
+        },
+        line_linked: {
+          enable: true, // Activar líneas entre partículas
+          distance: 100, // Distancia máxima para que las partículas se conecten
+          color: '#363636', // Color de las líneas
+          opacity: 0.5, // Opacidad de las líneas
+          width: 1 // Grosor de las líneas
+        },
+        move: {
+          enable: true,
+          speed: 2, // Mayor velocidad de movimiento
+          direction: 'top', // Dirección hacia arriba
+          random: true, // Movimiento no aleatorio
+          straight: true,
+          out_mode: 'bounce', // Las partículas rebotan al salir
+        }
+      },
+      interactivity: {
+        detect_on: 'canvas',
+        events: {
+          onhover: {
+            enable: true,
+            mode: 'grab' // Las partículas se atraen cuando el mouse pasa sobre ellas
+          },
+          onclick: {
+            enable: true,
+            mode: 'remove' // El clic elimina las partículas
+          }
+        }
+      }
+    });
+
+  </script>
+
+
 </body>
 
 </html>

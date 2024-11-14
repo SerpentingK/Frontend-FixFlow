@@ -5,6 +5,7 @@ import billsNavBar from './components/bill-components/bills-nav-bar.vue';
 import close_sesion_btn from './components/workers-components/close-sesion-btn.vue';
 import billConfirm from './components/base-components/bill-confirm.vue';
 import backBtn from './components/base-components/back-btn.vue';
+import repairConfirm from './components/base-components/repair-confirm.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -38,7 +39,15 @@ const switchSBC = () => {
 
 provide("switchSBC", switchSBC)
 
+const showRepairConfirm = ref(false)
+const repairRef = ref("")
 
+const switchSRC = (ref) => {
+  showRepairConfirm.value = !showRepairConfirm.value
+  repairRef.value = ref
+}
+
+provide("switchSRC", switchSRC)
 // Instancias de router y route
 const router = useRouter();
 const route = useRoute();
@@ -141,6 +150,9 @@ const billData = {
     <transition name="opacity-in" mode="out-in">
       <billConfirm v-if="showBillConfirm" client_name="Felipe Sierra" :total_price="300000" due="150000"
         payment="150000" client_phone="3202169321" wname="David Carrillo" :phones_list="billData.phones_list"></billConfirm>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <repairConfirm v-if="showRepairConfirm" :ref_num="repairRef"></repairConfirm>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <navBar v-if="loggedCompany" :key="'navbar'"></navBar>

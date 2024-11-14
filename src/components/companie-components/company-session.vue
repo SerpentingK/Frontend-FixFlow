@@ -17,7 +17,7 @@ const loggedCompany = inject("loggedCompany", ref(null))
             <ion-icon name="person-circle" v-if="!companyImageExisting"></ion-icon>
             <img v-if="companyImageExisting" src="/src/assets/img/Logo_Nombre.png" alt="Company Image"
                 class="company-img">
-            <h3>{{ loggedCompany }}</h3>
+            <h3 style="color: black;">{{ loggedCompany }}</h3>
         </div>
         <form @submit.prevent="putImage()" class="img-form">
             <input type="file" id="fileInput" class="img-input" style="display: none;">

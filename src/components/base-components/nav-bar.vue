@@ -64,7 +64,7 @@ onBeforeUnmount(() => {
   padding: 10px 20px;
   height: auto;
   border-radius: 10px;
-  top: 20px;
+  top: 30px;
   left: 10px;
   transition: .3s;
   transform: translateX(-120%);

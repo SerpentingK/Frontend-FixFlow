@@ -1,0 +1,3 @@
+<template>
+    close-shift
+</template>
