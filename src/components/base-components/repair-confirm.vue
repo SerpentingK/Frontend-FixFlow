@@ -19,7 +19,6 @@ const switchSRC = inject("switchSRC")
 
 const updateRepaired = () =>{
     phonesRepaired.value++
-    alert(phonesRepaired.value)
 }
 
 </script>
