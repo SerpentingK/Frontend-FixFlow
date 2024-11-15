@@ -3,7 +3,7 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute()
 
-const isActive = (path)=> route.path === path
+const isActive = (path)=> route.path.startsWith(path)
 </script>
 
 <template>
@@ -17,7 +17,7 @@ const isActive = (path)=> route.path === path
         <router-link to="/bills/repairs" class="router" :class="{active: isActive('/bills/repairs')}">
             <ion-icon name="construct"></ion-icon>
         </router-link>
-        <router-link to="/bills/deliveries" class="router" :class="{active: isActive('/bills/deliveries')}">
+        <router-link to="/bills/outflows/deliveries" class="router" :class="{active: isActive('/bills/outflows')}">
             <ion-icon name="log-out"></ion-icon>
         </router-link>
     </nav>

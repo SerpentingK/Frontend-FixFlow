@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <link rel="icon" href="/src/assets/img/Logo.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FIX-FLOW</title>
+  <style>
+    /* Estilos para hacer que el contenedor de partículas se ajuste correctamente en pantallas más pequeñas */
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw; /* Asegura que ocupa el ancho completo de la pantalla */
+      height: 100vh; /* Asegura que ocupa el alto completo de la pantalla */
+      z-index: -1; /* Coloca las partículas detrás del contenido */
+      overflow: hidden;
+    }
+  </style>
 </head>
-
 <body>
   <div id="app"></div>
   <div id="particles-js"></div>
@@ -17,52 +27,53 @@
   <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
 
   <script>
+    // Configuración de partículas
     particlesJS('particles-js', {
       particles: {
         number: {
-          value: 150, // Número de partículas
+          value: 100, // Número ajustado de partículas
           density: {
             enable: true,
-            value_area: 1000 // Aumentar el área de dispersión
+            value_area: window.innerWidth > 768 ? 1000 : 500 // Ajuste de dispersión para dispositivos móviles
           }
         },
         color: {
-          value: '#d84b17' // Color rojo para las partículas
+          value: '#d84b17' // Color de las partículas
         },
         shape: {
-          type: 'circle', // Forma triangular
+          type: 'circle'
         },
         opacity: {
-          value: 0.8, // Opacidad mayor
+          value: 0.7,
           anim: {
             enable: true,
-            speed: 2,
+            speed: 1.5,
             opacity_min: 0.3
           }
         },
         size: {
-          value: 5, // Tamaño de partículas más grande
-          random: true, // Tamaño aleatorio
+          value: 4,
+          random: true,
           anim: {
             enable: true,
-            speed: 3,
-            size_min: 2
+            speed: 2,
+            size_min: 1.5 // Tamaño mínimo ajustado
           }
         },
         line_linked: {
-          enable: true, // Activar líneas entre partículas
-          distance: 100, // Distancia máxima para que las partículas se conecten
-          color: '#363636', // Color de las líneas
-          opacity: 0.5, // Opacidad de las líneas
-          width: 1 // Grosor de las líneas
+          enable: true,
+          distance: 120,
+          color: '#363636',
+          opacity: 0.4,
+          width: 1
         },
         move: {
           enable: true,
-          speed: 2, // Mayor velocidad de movimiento
-          direction: 'top', // Dirección hacia arriba
-          random: true, // Movimiento no aleatorio
-          straight: true,
-          out_mode: 'bounce', // Las partículas rebotan al salir
+          speed: 1.5,
+          direction: 'top',
+          random: false,
+          straight: false,
+          out_mode: 'bounce'
         }
       },
       interactivity: {
@@ -70,19 +81,15 @@
         events: {
           onhover: {
             enable: true,
-            mode: 'grab' // Las partículas se atraen cuando el mouse pasa sobre ellas
+            mode: 'grab'
           },
           onclick: {
             enable: true,
-            mode: 'remove' // El clic elimina las partículas
+            mode: 'remove'
           }
         }
       }
     });
-
   </script>
-
-
 </body>
-
 </html>

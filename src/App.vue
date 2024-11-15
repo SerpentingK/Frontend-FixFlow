@@ -7,6 +7,7 @@ import billConfirm from './components/base-components/bill-confirm.vue';
 import backBtn from './components/base-components/back-btn.vue';
 import repairConfirm from './components/base-components/repair-confirm.vue';
 import closeShift from './components/base-components/close-shift.vue';
+import deliveryConfirm from './components/base-components/delivery-confirm.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
@@ -64,6 +65,17 @@ const switchSRC = (ref) => {
 }
 
 provide("switchSRC", switchSRC)
+
+const showDeliveryConfirm = ref(false)
+const deliveryRef = ref("")
+
+const switchSDC = (ref) => {
+  showDeliveryConfirm.value = !showDeliveryConfirm.value
+  deliveryRef.value = ref
+}
+
+provide("switchSDC", switchSDC)
+
 // Instancias de router y route
 const router = useRouter();
 const route = useRoute();
@@ -173,6 +185,9 @@ const billData = {
     </transition>
     <transition name="opacity-in" mode="out-in">
       <closeShift v-if="showCloseShift"></closeShift>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <deliveryConfirm v-if="showDeliveryConfirm" :ref_num="deliveryRef"></deliveryConfirm>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <navBar v-if="loggedCompany" :key="'navbar'"></navBar>

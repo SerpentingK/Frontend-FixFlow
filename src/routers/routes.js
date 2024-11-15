@@ -11,6 +11,8 @@ import billEntrance from "@/components/bill-components/bill-entrance.vue";
 import billList from "@/components/bill-components/bill-list.vue";
 import repairs from "@/components/bill-components/repairs.vue";
 import deliveries from "@/components/bill-components/deliveries.vue";
+import sales from "@/components/bill-components/sales.vue";
+import outflows from "@/components/bill-components/outflows.vue";
 
 const routes = [
   {
@@ -64,7 +66,6 @@ const routes = [
         path: "bill-entrance",
         name: "billEntrance",
         component: billEntrance,
-
       },
       {
         path: "bill-list",
@@ -77,11 +78,24 @@ const routes = [
         component: repairs,
       },
       {
-        path: "deliveries",
-        name: "deliveries",
-        component: deliveries,
+        path: "outflows",
+        name: "outflows",
+        component: outflows,
+        redirect: "outflows/deliveries",
+        children: [
+          {
+            path: "sales",
+            name: "sales",
+            component: sales,
+          },
+          {
+            path: "deliveries",
+            name: "deliveries",
+            component: deliveries,
+          }
+        ]
       }
-    ]
+]
   }
 
 ]
