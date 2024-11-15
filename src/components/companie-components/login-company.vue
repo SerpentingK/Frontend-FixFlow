@@ -1,10 +1,21 @@
-<script setup>
-import { inject, ref } from 'vue';
+<script>
+import { computed, inject, ref } from 'vue';
 import router from '@/routers/routes';
+import axios from 'axios';
 
-const loggedCompany = inject("loggedCompany", ref(null))
-const isLogin = ref(true) // Propiedad para alternar entre login y registro
+export default {
+  setup() {
+    const loggedCompany = inject("loggedCompany", ref(null));
+    const isLogin = ref(true); // Propiedad para alternar entre login y registro
+    const confirmPassword = ref("");
+    const msg = ref("");
+    const company = ref({
+      company_user: "",
+      mail: "",
+      password: ""
+    });
 
+<<<<<<< Updated upstream
 const loginCompany = () => {
     loggedCompany.value = "JUNGLE TECHNOLOGY"
     router.push("/workers/new-worker")
@@ -12,58 +23,159 @@ const loginCompany = () => {
 const signupCompany = () => {
     isLogin.value = true
 }
+=======
+    // Función de inicio de sesión
+    const loginCompany = async () => {
+      try {
+        const response = await axios.post("http://127.0.0.1:8000/loginCompany", {
+          company: company.value.company,
+          password: company.value.password,
+        });
+>>>>>>> Stashed changes
 
-// Función para alternar la vista
-const toggleForm = () => {
-    isLogin.value = !isLogin.value;
-}
+        if (response.data.success) {
+          loggedCompany.value = response.data.company_name; // O cualquier dato de éxito devuelto por el backend
+          router.push("/companySession"); // Redirige a la sesión de la compañía
+        } else {
+          alert("Credenciales incorrectas. Inténtalo de nuevo.");
+        }
+      } catch (error) {
+        if (error.response && error.response.data) {
+          alert(`Error en el inicio de sesión: ${error.response.data.detail}`);
+          console.error("Error en el inicio de sesión", error.response.data);
+        } else {
+          alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+          console.error(error);
+        }
+      }
+    };
+
+    // Función de registro
+    const signupCompany = async () => {
+      try {
+        if (!passwordMatch.value) {
+          alert("Las contraseñas no coinciden.");
+          return;
+        }
+        const answer = await axios.post("http://127.0.0.1:8000/insertCompany", company.value);
+        msg.value = answer.data.msg;
+        company.value = {
+          company_user: "",
+          mail: "",
+          password: "",
+        };
+        confirmPassword.value = "";
+        isLogin.value = true;
+      } catch (error) {
+        if (error.response && error.response.data) {
+          alert(`Error al registrar empresa: ${error.response.data.detail}`);
+          console.error("Error al registrar empresa", error.response.data);
+        } else {
+          alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+          console.error(error);
+        }
+      }
+    };
+
+    const passwordMatch = computed(() => {
+      return company.value.password === confirmPassword.value;
+    });
+
+    // Función para alternar la vista
+    const toggleForm = () => {
+      isLogin.value = !isLogin.value;
+    };
+
+    return {
+      toggleForm,
+      loginCompany, // Asegúrate de que la función esté exportada
+      signupCompany,
+      company,
+      isLogin,
+      confirmPassword,
+      passwordMatch
+    };
+  }
+};
 </script>
+
 
 <template>
     <transition name="slide-fade">
-        <section v-if="isLogin" key="login" class="login-container">
-            <form class="form" @submit.prevent="loginCompany()">
-                <h2>Inicio de Sesion</h2>
-                <label for="company-input" class="input-container">
-                    <ion-icon name="cube"></ion-icon>
-                    <input type="text" id="company-input" class="text-input" placeholder="Compañia">
-                </label>
-                <label for="pasw-input" class="input-container">
-                    <ion-icon name="lock-closed"></ion-icon>
-                    <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña">
-                </label>
-                <button class="go-btn">Iniciar Sesion</button>
-                <button type="button" @click="toggleForm" class="opt-btn">Registrarse</button>
-                <button type="button" class="opt-btn">¿Olvidaste tu contraseña?</button>
-            </form>
-        </section>
-
-        <section v-else key="signup" class="signup-container">
-            <form class="form" @submit.prevent="">
-                <h2>Registro</h2>
-                <label for="email-input" class="input-container">
-                    <ion-icon name="mail"></ion-icon>
-                    <input type="mail" id="email-input" class="text-input" placeholder="Correo">
-                </label>
-                <label for="company-input" class="input-container">
-                    <ion-icon name="cube"></ion-icon>
-                    <input type="text" id="company-input" class="text-input" placeholder="Nombre Compañia">
-                </label>
-                <label for="pasw-input" class="input-container">
-                    <ion-icon name="lock-closed"></ion-icon>
-                    <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña">
-                </label>
-                <label for="confirm-pasw-input" class="input-container">
-                    <ion-icon name="lock-closed"></ion-icon>
-                    <input type="password" id="confirm-pasw-input" class="text-input"
-                        placeholder="Confirmar Contraseña">
-                </label>
-                <button class="go-btn" @click="signupCompany">Registrarse</button>
-                <button type="button" @click="toggleForm" class="opt-btn">Iniciar Sesion</button>
-            </form>
-        </section>
+      <section v-if="isLogin" key="login" class="login-container">
+        <form class="form" @submit.prevent="loginCompany">
+          <h2>Inicio de Sesión</h2>
+          <label for="company-input" class="input-container">
+            <ion-icon name="cube"></ion-icon>
+            <input
+              type="text"
+              id="company-input"
+              class="text-input"
+              placeholder="Compañía"
+              v-model="company.company" />
+          </label>
+          <label for="pasw-input" class="input-container">
+            <ion-icon name="lock-closed"></ion-icon>
+            <input
+              type="password"
+              id="pasw-input"
+              class="text-input"
+              placeholder="Contraseña"
+              v-model="company.password" />
+          </label>
+          <button class="go-btn">Iniciar Sesión</button>
+          <button type="button" @click="toggleForm" class="opt-btn">Registrarse</button>
+          <button type="button" class="opt-btn">¿Olvidaste tu contraseña?</button>
+        </form>
+      </section>
+  
+      <section v-else key="signup" class="signup-container">
+        <form class="form" @submit.prevent="signupCompany">
+          <h2>Registro</h2>
+          <label for="email-input" class="input-container">
+            <ion-icon name="mail"></ion-icon>
+            <input
+              type="mail"
+              id="email-input"
+              class="text-input"
+              placeholder="Correo"
+              v-model="company.mail" />
+          </label>
+          <label for="company-input" class="input-container">
+            <ion-icon name="cube"></ion-icon>
+            <input
+              type="text"
+              id="company-input"
+              class="text-input"
+              placeholder="Nombre Compañía"
+              v-model="company.company_user" />
+          </label>
+          <label for="pasw-input" class="input-container">
+            <ion-icon name="lock-closed"></ion-icon>
+            <input
+              type="password"
+              id="pasw-input"
+              class="text-input"
+              placeholder="Contraseña"
+              v-model="company.password" />
+          </label>
+          <label for="confirm-pasw-input" class="input-container">
+            <ion-icon name="lock-closed"></ion-icon>
+            <input
+              type="password"
+              id="confirm-pasw-input"
+              class="text-input"
+              v-model="confirmPassword"
+              placeholder="Confirmar Contraseña" />
+          </label>
+          <p v-if="!passwordMatch" style="color: white;">Las contraseñas no coinciden.</p>
+          <button class="go-btn" type="submit" :disabled="!passwordMatch">Registrarse</button>
+          <button type="button" @click="toggleForm" class="opt-btn">Iniciar Sesión</button>
+        </form>
+      </section>
     </transition>
 </template>
+
 
 <style scoped>
 .login-container,
