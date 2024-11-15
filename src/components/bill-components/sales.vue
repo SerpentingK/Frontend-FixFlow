@@ -79,4 +79,9 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
 .confirm-btn:active{
     scale: .9;
 }
+@media (min-width: 1024px) {
+    .out-container{
+        width: 70%;
+    }
+}
 </style>

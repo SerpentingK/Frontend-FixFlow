@@ -10,7 +10,7 @@ const switchSRC = inject("switchSRC")
         <form @submit.prevent="" class="search-form">
             <label for="search-inp" class="input-container">
                 <ion-icon name="albums"></ion-icon>
-                <input type="text" id="search-inp" placeholder="Numero de factura" required>
+                <input type="text" id="search-inp" placeholder="factura" required>
             </label>
             <button>Buscar</button>
         </form>
@@ -61,8 +61,7 @@ const switchSRC = inject("switchSRC")
 .search-form {
     width: 100%;
     display: flex;
-    justify-content: center;
-    gap: 30px;
+    justify-content: space-around;
     align-items: center;
 }
 
@@ -73,6 +72,7 @@ const switchSRC = inject("switchSRC")
     gap: 10px;
     align-items: center;
     border-radius: 5px;
+    width: 60%;
 }
 
 .input-container input {
