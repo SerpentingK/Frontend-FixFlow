@@ -15,15 +15,6 @@ export default {
       password: ""
     });
 
-<<<<<<< Updated upstream
-const loginCompany = () => {
-    loggedCompany.value = "JUNGLE TECHNOLOGY"
-    router.push("/workers/new-worker")
-}
-const signupCompany = () => {
-    isLogin.value = true
-}
-=======
     // Función de inicio de sesión
     const loginCompany = async () => {
       try {
@@ -31,7 +22,6 @@ const signupCompany = () => {
           company: company.value.company,
           password: company.value.password,
         });
->>>>>>> Stashed changes
 
         if (response.data.success) {
           loggedCompany.value = response.data.company_name; // O cualquier dato de éxito devuelto por el backend
