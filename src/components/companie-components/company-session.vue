@@ -1,40 +1,123 @@
-<script setup>
-import { inject, ref } from 'vue';
+<script>
+import { inject, onMounted, ref } from "vue";
+import axios from "axios";
 
-const companyImageExisting = ref(false)
-const fileName = ref(null)
+export default {
+    setup() {
+        const workersCount = inject("workersCount", ref(0));
+        const companyImageExisting = ref(false);
+        const fileName = ref(null);
+        const urlImgCompany = ref(null);
+        const loggedCompany = inject("loggedCompany", ref(null));
+        const isUploading = ref(false);
 
-const putImage = () => {
-    companyImageExisting.value = !companyImageExisting.value
-}
+        const handleFileInput = (event) => {
+            if (event.target.files.length > 0) {
+                fileName.value = event.target.files[0].name;
+            }
+        };
+
+        const fetchCompanyData = async () => {
+        try {
+            const response = await axios.get(`http://127.0.0.1:8000/allcompany/${loggedCompany.value}`);
+            const relativePath = response.data.status;
+            urlImgCompany.value = `http://127.0.0.1:8000/${relativePath}`;
+            console.log(urlImgCompany.value);
+            companyImageExisting.value = true;
+        } catch (error) {
+            console.error("Error fetching company data:", error);
+        }
+};
 
 
-const loggedCompany = inject("loggedCompany", ref(null))
+    const putImage = async () => {
+    try {
+        const formData = new FormData();
+        const inputFile = document.querySelector(".img-input");
+
+        if (inputFile.files.length === 0) {
+            throw new Error("No file selected");
+        }
+
+        formData.append("file", inputFile.files[0]);
+
+        await axios.put(
+            `http://127.0.0.1:8000/putCompanyImage/${loggedCompany.value}`,
+            formData,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
+        );
+
+        // Hacer el GET después del PUT para actualizar la imagen en la interfaz
+        await fetchCompanyData();
+
+        console.log("Image updated successfully");
+    } catch (error) {
+        console.error("Error updating image:", error);
+    }
+};
+
+    const getWorkersCount = async () => {
+            try {
+                if (loggedCompany.value) {
+                const answer = await axios.get(
+                    `http://127.0.0.1:8000/company/${loggedCompany.value}/workers/count`
+                );
+                workersCount.value = answer.data.count;
+                console.log(workersCount.value)
+                }
+            } catch (error) {
+                console.error("Error al obtener el conteo de trabajadores", error);
+            }
+            };
+
+            
+
+onMounted(() => {
+    fetchCompanyData();
+    getWorkersCount();
+})
+
+
+    return {
+            companyImageExisting,
+            fileName,
+            putImage,
+            handleFileInput,
+            isUploading,
+            urlImgCompany,
+            loggedCompany,
+            workersCount
+        };
+    },
+};
 </script>
+
 <template>
     <section class="session-container">
         <div class="info-container">
             <ion-icon name="person-circle" v-if="!companyImageExisting"></ion-icon>
-            <img v-if="companyImageExisting" src="/src/assets/img/Logo_Nombre.png" alt="Company Image"
-                class="company-img">
+            <img v-if="companyImageExisting" :src="urlImgCompany" alt="Company Image" class="company-img">
             <h3 style="color: black;">{{ loggedCompany }}</h3>
         </div>
-        <form @submit.prevent="putImage()" class="img-form">
-            <input type="file" id="fileInput" class="img-input" style="display: none;">
+        <form @submit.prevent="putImage" class="img-form">
+            <input type="file" id="fileInput" class="img-input" @change="handleFileInput" style="display: none;">
             <label for="fileInput" class="file-label">
                 <span>Seleccionar Imagen</span>
                 <ion-icon name="camera-outline"></ion-icon>
             </label>
-            <span class="file-name" v-if="fileName">{{ fileName }}</span>
 
-            <button type="submit" class="upload-btn">
+            <button type="submit" class="upload-btn" :disabled="isUploading">
                 <ion-icon name="cloud-upload"></ion-icon>
             </button>
         </form>
-
         <button class="close-btn">Cerrar Sesion</button>
     </section>
 </template>
+
 <style scoped>
 .session-container {
     display: flex;
