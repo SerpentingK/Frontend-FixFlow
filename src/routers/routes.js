@@ -13,6 +13,7 @@ import repairs from "@/components/bill-components/repairs.vue";
 import deliveries from "@/components/bill-components/deliveries.vue";
 import sales from "@/components/bill-components/sales.vue";
 import outflows from "@/components/bill-components/outflows.vue";
+import outs from "@/components/bill-components/outs.vue";
 
 const routes = [
   {
@@ -92,6 +93,11 @@ const routes = [
             path: "deliveries",
             name: "deliveries",
             component: deliveries,
+          },
+          {
+            path: "outs",
+            name: "outs",
+            component: outs,
           }
         ]
       }
