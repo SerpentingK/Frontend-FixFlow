@@ -1,86 +1,91 @@
 <script setup>
-import { inject } from 'vue';
+import axios from "axios";
+import { inject, onMounted, ref } from "vue";
 
-const switch_sbf = inject("switch_sbf")
+const switch_sbf = inject("switch_sbf");
 
-const bills = [
-    {
-        bill_num: "0001-A",
-        client_name: "John Doe",
-        entry_date: "2022-01-01"
-    },
-    {
-        bill_num: "0002-B",
-        client_name: "Jane Smith",
-        entry_date: "2022-02-15"
-    },
-    {
-        bill_num: "0003-C",
-        client_name: "Alice Johnson",
-        entry_date: "2022-03-10"
-    },
-    {
-        bill_num: "0004-D",
-        client_name: "Bob Brown",
-        entry_date: "2022-04-25"
-    },
-    {
-        bill_num: "0005-E",
-        client_name: "Charlie Green",
-        entry_date: "2022-05-05"
-    },
-    {
-        bill_num: "0006-F",
-        client_name: "Diana White",
-        entry_date: "2022-06-18"
-    },
-    {
-        bill_num: "0007-G",
-        client_name: "Edward Black",
-        entry_date: "2022-07-21"
-    },
-    {
-        bill_num: "0008-H",
-        client_name: "Fiona Blue",
-        entry_date: "2022-08-13"
-    },
-    {
-        bill_num: "0009-I",
-        client_name: "George Gray",
-        entry_date: "2022-09-07"
-    },
-    {
-        bill_num: "0010-J",
-        client_name: "Hannah Red",
-        entry_date: "2022-10-29"
+// Propiedades reactivas
+const bills = ref([]);
+const isLoading = ref(false); // Indicador de carga
+const search = ref(""); // Texto de búsqueda
+const searchType = ref("1"); // Tipo de búsqueda
+
+// Función para cargar todas las facturas
+const loadAllBills = async () => {
+    try {
+        isLoading.value = true; // Activar indicador de carga
+        const answer = await axios.get("http://127.0.0.1:8000/someDataOfBill");
+        bills.value = answer.data;
+    } catch (error) {
+        console.error("Error al cargar todas las facturas:", error);
+    } finally {
+        isLoading.value = false; // Desactivar indicador de carga
     }
-];
+};
 
+// Función de búsqueda
+const searchs = async () => {
+    if (!search.value.trim()) {
+        loadAllBills(); // Mostrar todas las facturas si el campo está vacío
+        return;
+    }
+
+    try {
+        isLoading.value = true; // Activar indicador de carga
+        let url = "";
+
+        // Determinar la URL según el tipo de búsqueda
+        if (searchType.value === "1") {
+            url = `http://127.0.0.1:8000/oneDataOfBill/${search.value}`;
+        } else if (searchType.value === "2") {
+            url = `http://127.0.0.1:8000/billByDate/${search.value}`;
+        } else if (searchType.value === "3") {
+            url = `http://127.0.0.1:8000/billByClient/${search.value}`;
+        }
+
+        // Lista temporal para evitar efectos visuales indeseados
+        const tempBills = await axios.get(url);
+        bills.value = Array.isArray(tempBills.data) ? tempBills.data : [tempBills.data];
+    } catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+    } finally {
+        isLoading.value = false; // Desactivar indicador de carga
+    }
+};
+
+// Cargar todas las facturas al montar el componente
+onMounted(loadAllBills);
 </script>
 
 <template>
     <section class="container">
         <h2>LISTA DE FACTURAS</h2>
-        <form @submit.prevent="" class="search-form">
-            <select>
+        <form @submit.prevent="searchs" class="search-form">
+            <select v-model="searchType">
                 <option value="1">Numero de Factura</option>
                 <option value="2">Fecha</option>
                 <option value="3">Cliente</option>
             </select>
-            <input type="text" placeholder="Buscar" />
-            <button>Buscar</button>
+            <input type="text" placeholder="Buscar" v-model="search" />
+            <button type="submit">Buscar</button>
         </form>
         <ol class="bill-list">
+            <!-- Indicador de carga -->
+            <p v-if="isLoading" class="loading">Cargando...</p>
+
+            <!-- Lista de facturas -->
             <transition-group name="fade">
-                <button v-for="bill in bills" :key="bill" @click="switch_sbf">
+                <button v-for="bill in bills" :key="bill.bill_number" @click="switch_sbf(bill.bill_number)">
                     <fieldset>
-                        <legend>{{ bill.bill_num }}</legend>
+                        <legend>{{ bill.bill_number }}</legend>
                         <span>{{ bill.client_name }}</span>
                         <span>{{ bill.entry_date }}</span>
                     </fieldset>
                 </button>
             </transition-group>
-            <button class="load-btn">Cargar Mas</button>
+
+            <!-- Botón para cargar más -->
+            <button class="load-btn">Cargar Más</button>
         </ol>
     </section>
 </template>
@@ -183,6 +188,13 @@ button.load-btn{
     margin-top: 10px;
     transition: .3s;
 }
+
+.loading {
+    color: var(--baseOrange);
+    text-align: center;
+    margin: 10px 0;
+}
+
 @media (min-width: 768px) {
     *{
         font-size: 1.3rem;

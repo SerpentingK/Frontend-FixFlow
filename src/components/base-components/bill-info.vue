@@ -1,48 +1,58 @@
 <script setup>
-import { inject} from "vue";
-defineProps({
-    bill_number: {
-        type: String,
-        required: true,
-    },
-    client_name: {
-        type: String,
-        required: true,
-    },
-    entry_date: {
-        type: String,
-        required: true,
-    },
-    total_price: {
-        type: Number,
-        required: true,
-    },
-    due: {
-        type: Number,
-        required: false,
-        default: 0,
-    },
-    payment: {
-        type: Number,
-        required: false,
-        default: 0,
-    },
-    client_phone: {
-        type: String,
-        required: true,
-    },
-    wname: {
-        type: String,
-        required: true,
-    },
-    phones_list: {
-        type: Array,
-        required: true,
-    },
-});
+import axios from "axios";
+import { inject, watch, ref, onMounted } from "vue";
 
 const switch_sbf = inject("switch_sbf");
+const bill_number = inject("bill_number");
+
+const infoBill = ref({
+    bill_number: "",
+    due: 0,
+    client_phone: "",
+    document: "",
+    total_price: 0,
+    entry_date: "",
+    client_name: "",
+    payment: 0,
+    phones: []
+});
+
+// Observar cambios en bill_number
+watch(bill_number, async (newVal) => {
+  console.log("bill_number actualizado:", newVal);
+  if (newVal) {
+    await infoData();
+  } 
+});
+
+// Función para cargar los datos de la factura
+const infoData = async () => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/bill/details/${bill_number.value}`);
+    console.log(response.data.phones)
+    infoBill.value = {
+    bill_number: response.data.bill.bill_number,
+    due: response.data.bill.due,
+    client_phone: response.data.bill.client_phone,
+    document: response.data.bill.document,
+    total_price: response.data.bill.total_price,
+    entry_date: response.data.bill.entry_date,
+    client_name: response.data.bill.client_name,
+    payment: response.data.bill.payment,
+    phones: response.data.phones
+};
+  } catch (error) { 
+    console.error("Error al cargar los datos de la factura:", error);
+  }
+};
+
+onMounted(() => {
+  if (bill_number.value) {
+    infoData();
+  }
+});
 </script>
+
 
 <template>
 
@@ -50,37 +60,37 @@ const switch_sbf = inject("switch_sbf");
         <button @click="switch_sbf()" class="close-btn">
             <ion-icon name="close"></ion-icon>
         </button>
-        <h2>{{ bill_number }}</h2>
+        <h2>{{ infoBill.bill_number }}</h2>
         <div class="info-row">
             <span class="info-label">Cliente:</span>
-            <span>{{ client_name }}</span>
+            <span>{{ infoBill.client_name }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Numero de telefono:</span>
-            <span>{{ client_phone }}</span>
+            <span>{{ infoBill.client_phone }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Fecha de facturacion:</span>
-            <span>{{ entry_date }}</span>
+            <span>{{ infoBill.entry_date }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Precio total:</span>
-            <span>{{ total_price }}</span>
+            <span>{{ infoBill.total_price }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Pendiente:</span>
-            <span>${{ due }}</span>
+            <span>${{ infoBill.due }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Abono:</span>
-            <span>${{ payment }}</span>
+            <span>${{ infoBill.payment }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Tecnico que recibio:</span>
-            <span>{{ wname }}</span>
+            <span>{{ infoBill.document }}</span>
         </div>
         <article class="phones-container">
-            <div class="phone-info-container" v-for="phone in phones_list" :key="phone.phone_ref">
+            <div class="phone-info-container" v-for="phone in infoBill.phones" :key="phone.phone_ref">
                 <span class="info-span">
                     <div>Referencia dispositivo:</div>
                     <div>{{ phone.phone_ref }}</div>
@@ -93,9 +103,9 @@ const switch_sbf = inject("switch_sbf");
                     <div>Descripcion:</div>
                     <div>{{ phone.details }}</div>
                 </span>
-                <span class="info-span">
+                <span class="info-span">    
                     <div>Precio:</div>
-                    <div>{{ phone.price }}</div>
+                    <div>{{ phone.individual_price }}</div>
                 </span>
                 <span v-if="phone.delivery_date" class="info-span">
                     <div>Fecha de entrega:</div>

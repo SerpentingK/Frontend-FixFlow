@@ -1,18 +1,23 @@
 <script setup>
-import { inject, ref, computed } from 'vue';
+import axios from 'axios';
+import { inject, ref, computed, watch } from 'vue';
 const phonesDelivered = inject('phonesDelivered');
 
-defineProps({
-    ref_num: {
-        type: String,
-        required: true,
-        default: "0001-A"
-    },
-    phone: {
-        type: String,
-        required: true,
-        default: "Samsung A14"
-    }
+const deliveryBrand = inject("deliveryBrand")
+const deliveryRef = inject("deliveryRef");
+const deliveryDevice = inject("deliveryDevice")
+const getPhonesD = inject('getPhonesD')
+
+watch(deliveryRef, async (newVal) => {
+  console.log("deliveryRef actualizado:", newVal);
+});
+
+watch(deliveryBrand, async (newVal) => {
+  console.log("deliveryBrand actualizado:", newVal);
+});
+
+watch(deliveryDevice, async (newVal) => {
+  console.log("repairBrand actualizado:", newVal);
 });
 
 const switchSDC = inject("switchSDC");
@@ -27,9 +32,14 @@ const isFormComplete = computed(() => saleValue.value && codeValue.value);
 const updateDelivered = () => {
     if (isFormComplete.value) { // Ejecutar solo si el formulario está completo
         phonesDelivered.value++;
-        switchSDC();
     }
 };
+
+const deliveryPhone = async () => {
+    const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}`)
+    await getPhonesD()
+    switchSDC()
+}
 </script>
 
 <template>
@@ -39,11 +49,11 @@ const updateDelivered = () => {
         <form @submit.prevent="">
             <div class="info-container">
                 <span>Referencia: </span>
-                <span>{{ ref_num }}</span>
+                <span>{{ deliveryRef }}</span>
             </div>
             <div class="info-container">
                 <span>Producto: </span>
-                <span>{{ phone }}</span>
+                <span>{{ deliveryBrand }} {{ deliveryDevice }}</span>
             </div>
             <div class="input-container">
                 <span>Venta:</span>
@@ -63,7 +73,7 @@ const updateDelivered = () => {
                 <button 
                     type="submit" 
                     :disabled="!isFormComplete"
-                    @click="updateDelivered"
+                    @click="deliveryPhone(); updateDelivered()"
                     class="confirm-btn"
                 >
                     Confirmar

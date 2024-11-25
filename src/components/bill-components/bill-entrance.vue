@@ -1,142 +1,275 @@
-<script setup>
-import { inject, ref } from 'vue';
+<script>
+import { inject, onMounted, ref, watch, computed, provide } from 'vue';
+import axios from 'axios';
+
+export default {
+  setup() {
+    // Referencias y reactividad
+    const phones = ref([
+      {
+        brand_name: null,
+        device: null,
+        details: '',
+        individual_price: 0,
+        availableDevices: [] // Lista de dispositivos por teléfono
+      },
+    ]);
+    const loggedDocument = inject("loggedDocument", ref(null))
+    const billData = inject('billData');
+    const phones_amount = ref(1);
+    const selectedBrandName = ref(null);
+    const selectedModelName = ref(null);
+    const newBrand = ref(null);
+    const newDevice = ref(null);
+    const brands = ref([]);
+    const devices = ref([]);
+    const individual_price = ref(0);
+    const payment = ref(0);
+    const details = ref(null);
+    const clientName = ref(null)
+    const clientPhone = ref(null)
+
+    const switchSBC = inject('switchSBC');
+
+    // Cálculos computados
+    const totalPrice = computed(() =>
+      phones.value.reduce((total, phone) => total + (phone.individual_price || 0), 0)
+    );
+    const due = computed(() => totalPrice.value - payment.value);
+
+    // Métodos
+    const increasePhonesAmount = () => {
+      if (phones_amount.value < 5) {
+        phones_amount.value++;
+        phones.value.push({
+          brand_name: null,
+          device: null,
+          details: '',
+          individual_price: 0,
+          availableDevices: [] // Añadido para mantener dispositivos por teléfono
+        });
+      }
+    };
+
+    const decreasePhonesAmount = () => {
+      if (phones_amount.value > 1) {
+        phones_amount.value--;
+        phones_list.value.pop();
+      }
+    };
+
+    const fetchBrands = async () => {
+      try {
+        const response = await axios.get('http://127.0.0.1:8000/allBrands');
+        brands.value = response.data;
+      } catch (error) {
+        console.error('Error cargando marcas desde la API:', error);
+      }
+    };
+
+    // Cargar dispositivos para una marca seleccionada en un teléfono específico
+    const fetchDevicesForPhone = async (index, brandName) => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/${brandName}/Devices`);
+        phones.value[index].availableDevices = response.data;
+      } catch (error) {
+        console.error('Error cargando dispositivos para la marca:', error);
+        phones.value[index].availableDevices = [];
+      }
+    };
+
+    const addNewBrand = async () => {
+      if (newBrand.value && !brands.value.some((b) => b.name === newBrand.value)) {
+        try {
+          await axios.post('http://127.0.0.1:8000/newBrand', { name: newBrand.value });
+          brands.value.push({ name: newBrand.value });
+          selectedBrandName.value = newBrand.value;
+          newBrand.value = '';
+        } catch (error) {
+          console.error('Error agregando nueva marca:', error);
+        }
+      }
+    };
+
+    const addNewDevice = async () => {
+      if (newDevice.value && !devices.value.some((d) => d.name === newDevice.value)) {
+        try {
+          await axios.post('http://127.0.0.1:8000/newDevice', {
+            id_brands: selectedBrandName.value,
+            name: newDevice.value,
+          });
+          devices.value.push({ name: newDevice.value });
+          selectedModelName.value = newDevice.value;
+          newDevice.value = '';
+        } catch (error) {
+          console.error('Error agregando nuevo dispositivo:', error);
+        }
+      }
+    };
+
+    // Observador para actualizar los dispositivos cuando se cambia la marca en un teléfono
+    watch(
+      () => phones.value.map((phone) => phone.brand_name),
+      (newBrandNames, oldBrandNames) => {
+        newBrandNames.forEach((brandName, index) => {
+          if (brandName !== oldBrandNames[index]) {
+            fetchDevicesForPhone(index, brandName); // Cargar dispositivos para el teléfono específico
+          }
+        });
+      },
+      { deep: true }
+    );
+
+    // Ciclo de vida
+    onMounted(fetchBrands);
+
+    const submitForm = () => {
+        billData.value.total_price = totalPrice.value;
+        billData.value.due = due.value;
+        billData.value.client_name = clientName.value;
+        billData.value.client_phone = clientPhone.value;
+        billData.value.payment = payment.value
+        billData.value.document = loggedDocument.value // Asumiendo que payment se maneja en este componente
+    // Crear una copia de phones_list excluyendo 'availableDevices'
+        billData.value.phones = phones.value.map(({ availableDevices, ...rest }) => rest);
+
+      switchSBC(); // Cambia a la vista de confirmación
+    };
 
 
-const phones_amount = ref(1)
-const selectedBrandName = ref(null)
-const selectedModelName = ref(null)
-const totalPrice = ref(300000)
-const due = ref(150000)
-
-const increasePhonesAmount = () => {
-    if ((phones_amount.value + 1) > 5) {
-        return;
-    }
-    phones_amount.value++
-}
-const decreasePhonesAmount = () => {
-    if ((phones_amount.value - 1) < 1) {
-        return;
-    }
-    phones_amount.value--
-}
-
-const phones_list = [
-    {
-        phone_ref: "0001-A-1",
-        brand_name: "Samsung",
-        device: "Galaxy A21s",
-        details: "Pantalla rota",
-        price: 500000,           // Precio en pesos colombianos
-        delivery_date: "2023-10-20",
-        repaired: true,
-        delivered: false,
-    },
-    {
-        phone_ref: "0001-A-2",
-        brand_name: "Apple",
-        device: "iPhone 12",
-        details: "Batería dañada",
-        price: 450000,           // Precio en pesos colombianos
-        delivery_date: "2023-10-18",
-        repaired: true,
-        delivered: true,
-    },
-    {
-        phone_ref: "0001-A-3",
-        brand_name: "Xiaomi",
-        device: "Redmi Note 10",
-        details: "Problemas de carga",
-        price: 300000,           // Precio en pesos colombianos
-        delivery_date: "2023-10-25",
-        repaired: false,
-        delivered: false,
-    }
-]
-
-
-const switchSBC = inject("switchSBC")
+    return {
+      phones_amount,
+      selectedBrandName,
+      selectedModelName,
+      totalPrice,
+      due,
+      increasePhonesAmount,
+      decreasePhonesAmount,
+      phones,
+      switchSBC,
+      brands,
+      addNewBrand,
+      newBrand,
+      devices,
+      newDevice,
+      addNewDevice,
+      individual_price,
+      payment,
+      details,
+      clientName,
+      clientPhone,
+      submitForm,
+      loggedDocument
+    };
+  },
+};
 </script>
+
 <template>
     <section class="container">
         <h2>Facturación</h2>
-        <form @submit.prevent="switchSBC" class="bill-form">
+        <form @submit.prevent="submitForm" class="bill-form">
+            <!-- Input de Nombre del Cliente -->
             <label for="client-name-inp" class="input-container">
                 <ion-icon name="person"></ion-icon>
-                <input type="text" id="client-name-inp" required>
+                <input type="text" id="client-name-inp" v-model="clientName" required />
             </label>
+
+            <!-- Input de Teléfono del Cliente -->
             <label for="client-tel-inp" class="input-container">
                 <ion-icon name="call"></ion-icon>
-                <input type="number" id="client-tel-inp" required>
+                <input type="text" id="client-tel-inp" v-model="clientPhone" required />
             </label>
+
+            <!-- Control de Cantidad de Celulares -->
             <label for="phone-amount-inp" class="input-container">
                 <ion-icon name="phone-portrait"></ion-icon>
                 <span style="font-weight: bolder; scale: 1.2;">{{ phones_amount }}</span>
                 <span class="btn-container">
-                    <button @click="increasePhonesAmount()" class="action-btn" type="button">
+                    <button @click="increasePhonesAmount" class="action-btn" type="button">
                         <ion-icon name="caret-up"></ion-icon>
                     </button>
-                    <button @click="decreasePhonesAmount()" class="action-btn" type="button">
+                    <button @click="decreasePhonesAmount" class="action-btn" type="button">
                         <ion-icon name="caret-down"></ion-icon>
                     </button>
                 </span>
             </label>
-            <fieldset class="phone-form" v-for="v in phones_amount" :key="v">
-                <legend>Celular {{ v }}</legend>
-                <label :for="`brand-select-${v}`" class="phone-input">
+
+            <!-- Información de Celulares -->
+            <fieldset class="phone-form" v-for="(phone, index) in phones" :key="index">
+                <legend>Celular {{ index + 1 }}</legend>
+
+                <!-- Selección de Marca -->
+                <label :for="`brand-select-${index}`" class="phone-input">
                     <label class="select-label">
                         <span>Marca:</span>
-                        <select v-model="selectedBrandName" :id="`brand-select-${v}`" required>
-                            <option value="Samsung">Samsung</option>
+                        <select v-model="phone.brand_name" required>
+                            <option v-for="brand in brands" :key="brand.name" :value="brand.name">
+                                {{ brand.name }}
+                            </option>
                             <option value="Otro">Otro</option>
                         </select>
                     </label>
-                    <label :for="`new-brand-${v}`" class="other-container"
-                        :class="{ active: selectedBrandName === 'Otro' }">
+                    <label :for="`new-brand-${index}`" class="other-container" :class="{ active: phone.brand_name === 'Otro' }">
                         <span>Nueva marca:</span>
-                        <input type="text" placeholder="" class="other-input" :id="`new-brand-${v}`"
-                            :disabled="selectedBrandName !== 'Otro'" />
-                        <button type="button"><ion-icon name="add-circle"></ion-icon></button>
+                        <input type="text" class="other-input" :id="`new-brand-${index}`" v-model="newBrand" :disabled="phone.brand_name !== 'Otro'" />
+                        <button type="button" @click="addNewBrand">
+                            <ion-icon name="add-circle"></ion-icon>
+                        </button>
                     </label>
                 </label>
-                <label :for="`model-select-${v}`" class="phone-input">
+
+                <!-- Selección de Modelo -->
+                <label :for="`model-select-${index}`" class="phone-input">
                     <label class="select-label">
                         <span>Modelo:</span>
-                        <select v-model="selectedModelName" :id="`model-select-${v}`" required>
-                            <option value="A14">A14</option>
+                        <select v-model="phone.device" :id="`model-select-${index}`" required>
+                            <option v-for="device in phone.availableDevices" :key="device.id" :value="device.name">
+                                {{ device.name }}
+                            </option>
                             <option value="Otro">Otro</option>
                         </select>
                     </label>
-                    <label :for="`new-model-${v}`" class="other-container"
-                        :class="{ active: selectedModelName === 'Otro' }">
+                    <label :for="`new-model-${index}`" class="other-container" :class="{ active: phone.device === 'Otro' }">
                         <span>Nuevo modelo:</span>
-                        <input type="text" placeholder="" class="other-input" :id="`new-model-${v}`"
-                            :disabled="selectedModelName !== 'Otro'" />
-                        <button type="button"><ion-icon name="add-circle"></ion-icon></button>
-                    </label>
-                    <label :for="`price-inp-${v}`" class="fact-inp">
-                        <span>Precio:</span>
-                        <input type="number" :id="`price-inp-${v}`" placeholder="100000" required />
-                    </label>
-                    <label :for="`desc-inp-${v}`" class="fact-inp">
-                        <span>Descripción:</span>
-                        <input type="text" placeholder="Ej: Pantalla" :id="`desc-inp-${v}`" required />
+                        <input type="text" class="other-input" :id="`new-model-${index}`" v-model="newDevice" :disabled="phone.device !== 'Otro'" />
+                        <button type="button" @click="addNewDevice">
+                            <ion-icon name="add-circle"></ion-icon>
+                        </button>
                     </label>
                 </label>
+
+                <!-- Input de Precio -->
+                <label :for="`price-inp-${index}`" class="fact-inp">
+                    <span>Precio:</span>
+                    <input type="number" :id="`price-inp-${index}`" v-model.number="phone.individual_price" required />
+                </label>
+
+                <!-- Detalles -->
+                <label :for="`details-inp-${index}`" class="fact-inp">
+                    <span>Detalles:</span>
+                    <input type="text" :id="`details-inp-${index}`" v-model="phone.details" />
+                </label>
             </fieldset>
-            <span class="info-span">
-                <span>Total:</span>
-                <span>{{ totalPrice }}</span>
-            </span>
-            <span class="fact-inp">
-                <span>Abono:</span>
-                <input type="number" required>
-            </span>
-            <span class="info-span">
-                <span>Deuda:</span>
-                <span>{{ due }}</span>
-            </span>
-            <button type="submit" class="go-btn">Generar Factura</button>
+
+        <!-- Información General -->
+                <span class="info-span">
+                    <span>Total:</span>
+                    <span>{{ totalPrice }}</span>
+                </span>
+                <span class="fact-inp">
+                    <span>Abono:</span>
+                    <input type="number" v-model.number="payment" required />
+                </span>
+                <span class="info-span">
+                    <span>Deuda:</span>
+                    <span>{{ due }}</span>
+                </span>
+
+            <!-- Botón de Enviar -->
+            <div class="buttons-container">
+                <button type="submit" class="submit-btn">Generar factura</button>
+            </div>
         </form>
     </section>
 </template>

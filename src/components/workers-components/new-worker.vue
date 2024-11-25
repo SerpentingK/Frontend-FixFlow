@@ -20,15 +20,23 @@ export default {
 
     const registerWorker = async () => {
         try {
-            if(workersCount.value >= 1){
+            if(workersCount.value == 0){
+                const answer = await axios.post(
+                "http://127.0.0.1:8000/insertWorker",
+                worker.value
+                );
+                msg.value = answer.data.msg;
+                workersCount.value++
                 router.push("/workers/login-worker");
+            }else{
+                const answer = await axios.post(
+                "http://127.0.0.1:8000/insertWorker",
+                worker.value
+                );
+                msg.value = answer.data.msg;
+                workersCount.value++
+                router.push("/workers/workers-list");
             }
-            const answer = await axios.post(
-            "http://127.0.0.1:8000/insertWorker",
-            worker.value
-            );
-            msg.value = answer.data.msg;
-            workersCount.value++
         } catch (error) {
             if (error.response && error.response.data) {
             alert(`Error al registrar empresa: ${error.response.data.detail}`);

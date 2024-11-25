@@ -1,67 +1,38 @@
 <script setup>
-import { inject, ref } from 'vue';
+import { inject, ref, onMounted } from 'vue';
 import workerBillList from './worker-bill-list.vue';
+import axios from 'axios';
 
 const loggedWorker = inject("loggedWorker", null);
 const workerRole = inject("workerRole", null);
+const loggedDocument = inject("loggedDocument", null)
 
 
 const listOption = ref("entrance")
 
 
-const bills = [
-    {
-        bill_num: "0001-A",
-        client_name: "John Doe",
-        entry_date: "2022-01-01"
-    },
-    {
-        bill_num: "0002-B",
-        client_name: "Jane Smith",
-        entry_date: "2022-02-15"
-    },
-    {
-        bill_num: "0003-C",
-        client_name: "Alice Johnson",
-        entry_date: "2022-03-10"
-    },
-    {
-        bill_num: "0004-D",
-        client_name: "Bob Brown",
-        entry_date: "2022-04-25"
-    },
-    {
-        bill_num: "0005-E",
-        client_name: "Charlie Green",
-        entry_date: "2022-05-05"
-    },
-    {
-        bill_num: "0006-F",
-        client_name: "Diana White",
-        entry_date: "2022-06-18"
-    },
-    {
-        bill_num: "0007-G",
-        client_name: "Edward Black",
-        entry_date: "2022-07-21"
-    },
-    {
-        bill_num: "0008-H",
-        client_name: "Fiona Blue",
-        entry_date: "2022-08-13"
-    },
-    {
-        bill_num: "0009-I",
-        client_name: "George Gray",
-        entry_date: "2022-09-07"
-    },
-    {
-        bill_num: "0010-J",
-        client_name: "Hannah Red",
-        entry_date: "2022-10-29"
-    }
-];
+const bills = ref([])
 
+const getList =  async () => {
+    let url = "";
+    try{
+    if (listOption.value === "entrance") {
+            url = `http://127.0.0.1:8000/billCreatesWorker/${loggedDocument.value}`;
+        } else if (listOption.value === "repaired") {
+            url = `http://127.0.0.1:8000/billRepairWorker/${loggedDocument.value}`;
+        } else if (listOption.value === "delivery") {
+            url = `http://127.0.0.1:8000/billDeliveredWorker/${loggedDocument.value}`;
+        }
+    const ansawer = await axios.get(url)
+    bills.value = ansawer.data
+    }catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+    }
+}
+
+onMounted(() => {
+    getList()
+})
 </script>
 
 <template>
@@ -69,20 +40,20 @@ const bills = [
         <h2>{{ loggedWorker }}</h2>
         <span class="info-span">{{ workerRole }}</span>
         <h3>Facturación:</h3>
-        <form @submit.prevent="" class="list-options">
-            <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption"
+        <form @submit.prevent="getList" class="list-options">
+            <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption" @change="getList"
                 class="check-input">
             <label for="entrance-input" class="check-label">
                 <ion-icon name="enter"></ion-icon>
             </label>
 
-            <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption"
+            <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption" @change="getList"
                 class="check-input">
             <label for="repaired-input" class="check-label">
                 <ion-icon name="construct"></ion-icon>
             </label>
 
-            <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption"
+            <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption" @change="getList"
                 class="check-input">
             <label for="delivery-input" class="check-label">
                 <ion-icon name="exit"></ion-icon>

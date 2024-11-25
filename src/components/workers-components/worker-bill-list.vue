@@ -13,9 +13,10 @@ defineProps({
 <template>
     <ol class="bill-list">
         <li v-for="bill in bills" :key="bill">
-            <button @click="switch_sbf()">
-                <span>{{ bill.bill_num }}</span>
+            <button @click="switch_sbf(bill.bill_number)">
+                <span>{{ bill.bill_number }}</span>
                 <span>{{ bill.client_name }}</span>
+                <span>{{ bill.phone_ref }}</span>
                 <br>
                 <span>{{ bill.entry_date }}</span>
             </button>

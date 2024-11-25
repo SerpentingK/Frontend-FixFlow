@@ -6,6 +6,7 @@ import axios from 'axios';
 export default{
     setup(){
     const loggedWorker = inject("loggedWorker", ref(null))
+    const loggedDocument = inject("loggedDocument", ref(null))
     const workerRole = inject("workerRole", ref(null))
     const loggedCompany = inject("loggedCompany", ref(null));
     const sessionworker = ref({
@@ -23,6 +24,7 @@ export default{
             document: sessionworker.value.document,
             password: sessionworker.value.password,
             });
+            loggedDocument.value = sessionworker.value.document
             msg.value = answer.data.status;
             loggedWorker.value = answer.data.wname;
             workerRole.value = answer.data.role;

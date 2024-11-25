@@ -6,11 +6,13 @@ export default{
     setup(){
     const workerRole = inject("workerRole", ref(null))
     const loggedCompany = inject("loggedCompany", ref(null));
+    const workerToDelete = ref(null)
 
     const showDeleteWindow = ref(false)
 
-    const switchSDW = () => {
+    const switchSDW = (document) => {
         showDeleteWindow.value = !showDeleteWindow.value
+        workerToDelete.value = document;
     }
 
     const workers = ref([]);
@@ -29,11 +31,26 @@ export default{
     }
     };
 
+    const deleteWorker = async (document) => {
+    try {
+        await axios.delete(`http://127.0.0.1:8000/deleteCollaborators/${loggedCompany.value}/${document}`);
+        workers.value = workers.value.filter(worker => worker.document !== document);
+        showDeleteWindow.value = false;
+        workerToDelete.value = null
+    } catch (error) {
+        console.error("Error eliminando el trabajador:", error.data);
+        alert("Error al eliminar el trabajador.");
+    }
+    };
+
 
     return{
         workers,
         workerRole,
-        switchSDW
+        showDeleteWindow,
+        workerToDelete,
+        switchSDW,
+        deleteWorker
     }
     }
 }
@@ -50,7 +67,7 @@ export default{
                     <legend>{{ worker.wname }}</legend>
                     <span>Rol: {{ worker.wrole }}</span>
                     <span>Documento: {{ worker.document }}</span>
-                    <button class="delete-btn" @click="switchSDW()"><ion-icon name="close-circle"></ion-icon></button>
+                    <button class="delete-btn" @click="switchSDW(worker.document)"><ion-icon name="close-circle"></ion-icon></button>
                 </fieldset>
             </li>
         </ol>
@@ -59,7 +76,7 @@ export default{
                 <h3>¿Eliminar técnico?</h3>
                 <span>
                     <button @click="switchSDW()" class="cancel-btn">No</button>
-                    <button @click="switchSDW()" class="confirm-btn">Sí</button>
+                    <button @click="deleteWorker(workerToDelete)" class="confirm-btn">Sí</button>
                 </span>
             </div>
         </transition>
