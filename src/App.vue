@@ -11,7 +11,7 @@ import deliveryConfirm from './components/base-components/delivery-confirm.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
-const loggedCompany = ref("Jungle Technology");
+const loggedCompany = ref(null);
 const loggedWorker = ref("David Carrillo")
 const workersCount = ref(1)
 const workerRole = ref("Gerente")

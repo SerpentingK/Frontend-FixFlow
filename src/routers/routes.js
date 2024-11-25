@@ -14,6 +14,7 @@ import deliveries from "@/components/bill-components/deliveries.vue";
 import sales from "@/components/bill-components/sales.vue";
 import outflows from "@/components/bill-components/outflows.vue";
 import outs from "@/components/bill-components/outs.vue";
+import shifts from "@/components/shifts-components/shifts.vue";
 
 const routes = [
   {
@@ -56,6 +57,11 @@ const routes = [
         component: workersList,
       }
     ]
+  },
+  {
+    path: "/shifts",
+    name: "shifts",
+    component: shifts
   },
   {
     path: "/bills",

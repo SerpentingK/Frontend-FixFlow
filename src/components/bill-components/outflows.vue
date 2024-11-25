@@ -80,7 +80,7 @@ const isActive = (path) => route.path === path
 
 @media (min-width: 1024px){
     .container{
-        width: 40%;
+        width: 30%;
     }
     .outs-nav{
         width: 60%;

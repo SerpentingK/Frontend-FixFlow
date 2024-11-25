@@ -232,7 +232,7 @@ const switch_sbf = inject("switch_sbf");
 @media (min-width: 1024px){
     .info-container {
         font-size: 1rem;
-        width: 60%;
+        width: 40%;
     }
     .close-btn:hover{
         scale: 1.1;
