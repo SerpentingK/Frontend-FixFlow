@@ -93,16 +93,16 @@
 <template>
   <transition name="slide-fade">
     <section v-if="isLogin" key="login" class="login-container">
-      <form class="form" @submit.prevent="  ">
+      <form class="form" @submit.prevent="loginCompany()">
         <h2>Inicio de Sesión</h2>
         <label for="company-input" class="input-container">
           <ion-icon name="cube"></ion-icon>
-          <input type="text" id="company-input" class="text-input" placeholder="Compañía" v-model="company.company" />
+          <input type="text" id="company-input" class="text-input" placeholder="Compañía" v-model="sesion.identifier" />
         </label>
         <label for="pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>
           <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
-            v-model="company.password" />
+            v-model="sesion.password" />
         </label>
         <button class="go-btn">Iniciar Sesión</button>
         <button type="button" @click="toggleForm" class="opt-btn">Registrarse</button>
