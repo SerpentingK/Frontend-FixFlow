@@ -152,7 +152,7 @@ export default {
   width: 75%;
   height: auto;
   border-radius: 10px;
-  background: #363636;
+  background: var(--baseGray);
   box-shadow: -25px -25px 51px #242424,
     25px 25px 51px #484848;
   border: 2px solid var(--baseOrange);

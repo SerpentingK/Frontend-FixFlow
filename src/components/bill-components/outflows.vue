@@ -8,15 +8,16 @@ const isActive = (path) => route.path === path
 
 <template>
     <section class="container">
-        <h2>Entregas y Ventas</h2>
+        <h2>Entregas-Ventas-salidas</h2>
         <nav class="outs-nav">
             <router-link to="/bills/outflows/deliveries" class="router" :class="{active: isActive('/bills/outflows/deliveries')}">
                 <ion-icon name="phone-portrait"></ion-icon>
-                <span>Entregas</span>
             </router-link>
             <router-link to="/bills/outflows/sales" class="router" :class="{active: isActive('/bills/outflows/sales')}">
                 <ion-icon name="cash"></ion-icon>
-                <span>Ventas</span>
+            </router-link>
+            <router-link to="/bills/outflows/outs" class="router" :class="{active: isActive('/bills/outflows/outs')}">
+                <ion-icon name="log-out"></ion-icon>
             </router-link>
         </nav>
         <router-view></router-view>
@@ -79,7 +80,7 @@ const isActive = (path) => route.path === path
 
 @media (min-width: 1024px){
     .container{
-        width: 40%;
+        width: 30%;
     }
     .outs-nav{
         width: 60%;

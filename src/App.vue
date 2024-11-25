@@ -8,13 +8,14 @@ import backBtn from './components/base-components/back-btn.vue';
 import repairConfirm from './components/base-components/repair-confirm.vue';
 import closeShift from './components/base-components/close-shift.vue';
 import deliveryConfirm from './components/base-components/delivery-confirm.vue';
+import shiftInfo from './components/base-components/shift-info.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 
-const loggedCompany = ref(null);
-const loggedWorker = ref(null)
-const workersCount = ref(0)
-const workerRole = ref(null)
+const loggedCompany = ref("Jungle Technology");
+const loggedWorker = ref("David Carrillo")
+const workersCount = ref(1)
+const workerRole = ref("Gerente")
 const phonesRepaired = ref(0)
 const phonesReceived = ref(0)
 const phonesDelivered = ref(0)
@@ -76,6 +77,33 @@ const switchSDC = (ref) => {
 
 provide("switchSDC", switchSDC)
 
+const shift = {
+        ref_shift: "090604-2",
+        wname: "Carlos García",
+        start_time: "10:00",
+        finish_time: "18:00",
+        total_received: 1100000, // Valor en pesos colombianos (COP)
+        total_gain: 850000,      // Valor en pesos colombianos (COP)
+        total_out: 250000,       // Valor en pesos colombianos (COP)
+        date: "2009-06-04"       // Fecha derivada de ref_shift
+}
+
+const showShiftInfo = ref(false)
+
+const switchSI = (newShift) => {
+  shift.ref_shift = newShift.ref_shift;
+  shift.wname = newShift.wname;
+  shift.start_time = newShift.start_time;
+  shift.finish_time = newShift.finish_time;
+  shift.total_received = newShift.total_received;
+  shift.total_gain = newShift.total_gain;
+  shift.total_out = newShift.total_out;
+  shift.date = newShift.date;
+  showShiftInfo.value =!showShiftInfo.value;
+}
+
+provide("switchSI", switchSI)
+
 // Instancias de router y route
 const router = useRouter();
 const route = useRoute();
@@ -83,6 +111,10 @@ const route = useRoute();
 const handlePath = () => {
   showBillInfo.value = false;
   showBillConfirm.value = false;
+  showCloseShift.value = false;
+  showRepairConfirm.value = false;
+  showDeliveryConfirm.value = false;
+  showShiftInfo.value = false;
   if (route.path !== '/loginCompany' && loggedCompany.value === null) {
     router.push('/loginCompany')//Redirigir a Inicio de Sesion si no se ha iniciado
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
@@ -203,6 +235,9 @@ const billData = {
     </transition>
     <transition name="opacity-in" mode="out-in">
       <backBtn v-if="loggedCompany"></backBtn>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <shiftInfo v-if="showShiftInfo" :shift="shift"></shiftInfo>
     </transition>
 
 
