@@ -1,13 +1,46 @@
+<script setup>
+import axios from 'axios';
+import { ref, inject } from 'vue';
+
+
+const startShift = inject("startShift");
+const msg = ref("");
+const total_outs = inject("total_outs")
+
+const outFlows = ref({
+        ref_shift : startShift.value,
+        details:"",
+        price: 0
+    });
+
+
+const postOutFlows = async () => {
+    try {
+        const ansawer = await axios.post('http://127.0.0.1:8000/insertOutflow', outFlows.value)
+        msg.value = ansawer.data.msg;
+
+        total_outs.value += outFlows.value.price
+        outFlows.value = {
+            ref_shift : "",
+            details:"",
+            price: 0
+        };
+    } catch (error) {
+        console.error('Error en ventas: ', error);
+    }
+}
+</script>
+
 <template>
     <section class="out-container">
-        <form @submit.prevent="">
+        <form @submit.prevent="postOutFlows">
             <div class="input-container">
                 <span>Razon: </span>
-                <input type="text" placeholder="Ej: Almuerzo" required/>
+                <input type="text" placeholder="Ej: Almuerzo" v-model="outFlows.details" required/>
             </div>
             <div class="input-container">
                 <span>Salida:</span>
-                <input type="number" required/>
+                <input type="number" v-model="outFlows.price" required/>
             </div>
             <button class="confirm-btn">Confirmar</button>
         </form>

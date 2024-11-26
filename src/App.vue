@@ -22,11 +22,17 @@ const workerRole = ref(null)
 const phonesRepaired = ref(0)
 const phonesReceived = ref(0)
 const phonesDelivered = ref(0)
-
-
+const startShift = ref(null);
 const inBills = ref(false)
 const inWorkerProfile = ref(false)
+const total_sales = ref(0)
+const total_revenue = ref(0)
+const total_outs = ref(0)
 
+provide('total_outs', total_outs)
+provide('total_revenue', total_revenue)
+provide('total_sales', total_sales)
+provide('startShift', startShift)
 provide('loggedCompany', loggedCompany)
 provide('loggedWorker', loggedWorker)
 provide('loggedDocument', loggedDocument)
@@ -141,21 +147,21 @@ provide("deliveryBrand", deliveryBrand)
 provide("switchSDC", switchSDC)
 
 const shift = {
-        ref_shift: "090604-2",
-        wname: "Carlos García",
-        start_time: "10:00",
-        finish_time: "18:00",
-        total_received: 1100000, // Valor en pesos colombianos (COP)
-        total_gain: 850000,      // Valor en pesos colombianos (COP)
-        total_out: 250000,       // Valor en pesos colombianos (COP)
-        date: "2009-06-04"       // Fecha derivada de ref_shift
+        ref_shift: "",
+        wname: "",
+        start_time: "",
+        finish_time: "",
+        total_received: 0, // Valor en pesos colombianos (COP)
+        total_gain: 0,      // Valor en pesos colombianos (COP)
+        total_out: 0,       // Valor en pesos colombianos (COP)
+        date: ""       // Fecha derivada de ref_shift
 }
 
 const showShiftInfo = ref(false)
 
 const switchSI = (newShift) => {
   shift.ref_shift = newShift.ref_shift;
-  shift.wname = newShift.wname;
+  shift.document = newShift.document;
   shift.start_time = newShift.start_time;
   shift.finish_time = newShift.finish_time;
   shift.total_received = newShift.total_received;

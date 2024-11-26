@@ -1,21 +1,66 @@
+<script setup>
+import axios from 'axios';
+import { ref, computed, inject } from 'vue';
+
+const sale = ref(0);
+const original_price = ref(0);
+const revenue_price = computed(() => sale.value - original_price.value);
+const startShift = inject("startShift");
+const total_sales = inject("total_sales")
+const total_revenue = inject("total_revenue")
+const msg = ref("");
+
+
+const sales = ref({
+        ref_shift : startShift.value,
+        product:"",
+        sale: sale,
+        original_price: original_price,
+        revenue_price: revenue_price
+    });
+
+
+const postSales = async () => {
+    try {
+        const ansawer = await axios.post('http://127.0.0.1:8000/insertdelivery', sales.value)
+        msg.value = ansawer.data.msg;
+        total_sales.value += sale.value
+        total_revenue.value += revenue_price.value
+        sales.value = {
+            ref_shift : "",
+            product:"",
+            sale: 0,
+            original_price: 0,
+            revenue_price: 0
+        };
+        sale.value = 0
+        original_price.value = 0
+        revenue_price.value = 0
+    } catch (error) {
+        console.error('Error en ventas: ', error);
+    }
+}
+</script>
+
+
 <template>
     <section class="out-container">
-        <form @submit.prevent="">
+        <form @submit.prevent="postSales">
             <div class="input-container">
                 <span>Producto: </span>
-                <input type="text" placeholder="Ej: Airpods Pro" required/>
+                <input type="text" placeholder="Ej: Airpods Pro" required v-model="sales.product"/>
             </div>
             <div class="input-container">
                 <span>Venta:</span>
-                <input type="number" placeholder="100000" required/>
+                <input type="number" placeholder="100000" required v-model="sale"/>
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
-                <input type="number" placeholder="30000" required/>
+                <input type="number" placeholder="30000" required v-model="original_price"/>
             </div>
             <div class="info-container">
                 <span>Ganancia:</span>
-                <span>70000</span>
+                <span>{{revenue_price}}</span>
             </div>
             <button class="confirm-btn">Confirmar</button>
         </form>

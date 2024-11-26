@@ -9,6 +9,7 @@ export default{
     const loggedDocument = inject("loggedDocument", ref(null))
     const workerRole = inject("workerRole", ref(null))
     const loggedCompany = inject("loggedCompany", ref(null));
+    const startShift = inject("startShift", ref(null));
     const sessionworker = ref({
         document: "",
         password: "",
@@ -28,6 +29,7 @@ export default{
             msg.value = answer.data.status;
             loggedWorker.value = answer.data.wname;
             workerRole.value = answer.data.role;
+            startShift.value = answer.data.shift
             router.push('/bills')
         } catch (error) {
             if (error.response && error.response.data) {

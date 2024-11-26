@@ -23,8 +23,13 @@ watch(deliveryDevice, async (newVal) => {
 const switchSDC = inject("switchSDC");
 
 // Referencias para los valores de los inputs
-const saleValue = ref('');
-const codeValue = ref('');
+const saleValue = ref(0);
+const codeValue = ref(0);
+
+const revenue_price = computed(() => saleValue.value - codeValue.value);
+const startShift = inject("startShift");
+const total_sales = inject("total_sales")
+const total_revenue = inject("total_revenue")
 
 // Computed para verificar si los campos están completos
 const isFormComplete = computed(() => saleValue.value && codeValue.value);
@@ -35,10 +40,42 @@ const updateDelivered = () => {
     }
 };
 
-const deliveryPhone = async () => {
-    const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}`)
-    await getPhonesD()
-    switchSDC()
+const sales = ref({
+        ref_shift : startShift.value,
+        product:`${deliveryBrand.value} ${deliveryDevice.value}`,
+        sale: saleValue,
+        original_price: codeValue,
+        revenue_price: revenue_price
+    });
+
+    const deliveryPhone = async () => {
+    try {
+        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}`, sales.value);
+
+        total_revenue.value += revenue_price.value
+        total_sales.value += saleValue.value
+
+        sales.value = {
+            ref_shift: "",
+            product: "",
+            sale: 0,
+            original_price: 0,
+            revenue_price: 0
+        };
+
+        saleValue.value = 0;
+        codeValue.value = 0;
+
+
+        updateDelivered();
+
+
+        await getPhonesD();
+
+        switchSDC();
+    } catch (error) {
+        console.error("Error al entregar el teléfono:", error);
+    }
 }
 </script>
 
@@ -46,7 +83,7 @@ const deliveryPhone = async () => {
     <section class="container">
         <h3>¿Confirmar entrega?</h3>
         
-        <form @submit.prevent="">
+        <form @submit.prevent="deliveryPhone">
             <div class="info-container">
                 <span>Referencia: </span>
                 <span>{{ deliveryRef }}</span>
@@ -65,7 +102,7 @@ const deliveryPhone = async () => {
             </div>
             <div class="info-container">
                 <span>Ganancia:</span>
-                <span>70000</span>
+                <span>{{ revenue_price }}</span>
             </div>
 
             <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
@@ -73,7 +110,6 @@ const deliveryPhone = async () => {
                 <button 
                     type="submit" 
                     :disabled="!isFormComplete"
-                    @click="deliveryPhone(); updateDelivered()"
                     class="confirm-btn"
                 >
                     Confirmar

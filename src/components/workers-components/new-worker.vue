@@ -39,7 +39,7 @@ export default {
             }
         } catch (error) {
             if (error.response && error.response.data) {
-            alert(`Error al registrar empresa: ${error.response.data.detail}`);
+            alert(`Error al registrar trabajador: ${error.response.data.detail}`);
             console.error("Error al registrar empresa", error.response.data);
             } else {
             alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");

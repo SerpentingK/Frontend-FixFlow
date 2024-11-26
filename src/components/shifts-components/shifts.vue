@@ -1,72 +1,30 @@
 <script setup>
-import { inject } from 'vue';
+import axios from 'axios';
+import { inject, onMounted, ref } from 'vue';
 
 
 const switchSI = inject("switchSI")
 
-const shifts = [
-    {
-        ref_shift: "080604-1",
-        wname: "Juan Pérez",
-        start_time: "08:00",
-        finish_time: "16:00",
-        total_received: 1000000, // Valor en pesos colombianos (COP)
-        total_gain: 800000,     // Valor en pesos colombianos (COP)
-        total_out: 200000,      // Valor en pesos colombianos (COP)
-        date: "2008-06-04"      // Fecha derivada de ref_shift
-    },
-    {
-        ref_shift: "090604-1",
-        wname: "Ana López",
-        start_time: "09:00",
-        finish_time: "17:00",
-        total_received: 1200000, // Valor en pesos colombianos (COP)
-        total_gain: 900000,      // Valor en pesos colombianos (COP)
-        total_out: 300000,       // Valor en pesos colombianos (COP)
-        date: "2009-06-04"       // Fecha derivada de ref_shift
-    },
-    {
-        ref_shift: "090604-2",
-        wname: "Carlos García",
-        start_time: "10:00",
-        finish_time: "18:00",
-        total_received: 1100000, // Valor en pesos colombianos (COP)
-        total_gain: 850000,      // Valor en pesos colombianos (COP)
-        total_out: 250000,       // Valor en pesos colombianos (COP)
-        date: "2009-06-04"       // Fecha derivada de ref_shift
-    },
-    {
-        ref_shift: "080604-1",
-        wname: "Juan Pérez",
-        start_time: "08:00",
-        finish_time: "16:00",
-        total_received: 1000000, // Valor en pesos colombianos (COP)
-        total_gain: 800000,     // Valor en pesos colombianos (COP)
-        total_out: 200000,      // Valor en pesos colombianos (COP)
-        date: "2008-06-04"      // Fecha derivada de ref_shift
-    },
-    {
-        ref_shift: "090604-1",
-        wname: "Ana López",
-        start_time: "09:00",
-        finish_time: "17:00",
-        total_received: 1200000, // Valor en pesos colombianos (COP)
-        total_gain: 900000,      // Valor en pesos colombianos (COP)
-        total_out: 300000,       // Valor en pesos colombianos (COP)
-        date: "2009-06-04"       // Fecha derivada de ref_shift
-    },
-    {
-        ref_shift: "090604-2",
-        wname: "Carlos García",
-        start_time: "10:00",
-        finish_time: "18:00",
-        total_received: 1100000, // Valor en pesos colombianos (COP)
-        total_gain: 850000,      // Valor en pesos colombianos (COP)
-        total_out: 250000,       // Valor en pesos colombianos (COP)
-        date: "2009-06-04"       // Fecha derivada de ref_shift
-    },
-];
+const shifts = ref([]);
 
+const loadAllShifts = async () => {
+    try {
+        const answer = await axios.get("http://127.0.0.1:8000/allShift");
+        shifts.value = answer.data.map(shift => {
+            const dateObj = new Date(shift.start_time); // Convierte a objeto Date
+            const formattedDate = dateObj.toISOString().split('T')[0]; // Obtiene solo la fecha en formato YYYY-MM-DD
+            return {
+                ...shift,
+                start_time: formattedDate // Reemplaza start_time con la fecha formateada
+            };
+        });
+    } catch (error) {
+        console.error("Error al cargar todas las facturas:", error);
+    }
+};
+
+
+onMounted(loadAllShifts)
 </script>
 
 <template>
@@ -80,8 +38,8 @@ const shifts = [
             <li v-for="shift in shifts" :key="shift" class="shift">
                 <fieldset @click="switchSI(shift)">
                     <legend>{{ shift.ref_shift }}</legend>
-                    <span>{{ shift.wname }}</span>
-                    <span>{{ shift.date }}</span>
+                    <span>{{ shift.document }}</span>
+                    <span>{{ shift.start_time }}</span>
                 </fieldset>
             </li>
         </ul>
