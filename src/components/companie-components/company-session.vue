@@ -10,6 +10,7 @@ export default {
         const urlImgCompany = ref(null);
         const loggedCompany = inject("loggedCompany", ref(null));
         const isUploading = ref(false);
+        const closeSession = inject("closeSession")
 
         const handleFileInput = (event) => {
             if (event.target.files.length > 0) {
@@ -90,7 +91,8 @@ onMounted(() => {
             isUploading,
             urlImgCompany,
             loggedCompany,
-            workersCount
+            workersCount,
+            closeSession
         };
     },
 };
@@ -114,7 +116,7 @@ onMounted(() => {
                 <ion-icon name="cloud-upload"></ion-icon>
             </button>
         </form>
-        <button class="close-btn">Cerrar Sesion</button>
+        <button class="close-btn" @click="closeSession">Cerrar Sesion</button>
     </section>
 </template>
 

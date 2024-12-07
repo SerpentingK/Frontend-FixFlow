@@ -94,6 +94,7 @@
   <transition name="slide-fade">
     <section v-if="isLogin" key="login" class="login-container">
       <form class="form" @submit.prevent="loginCompany()">
+        <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0;"><span style="color: var(--secGray);">FIX</span><span style="color: white;">-</span><span style="color: var(--baseOrange);">FLOW</span></h1>
         <h2>Inicio de Sesión</h2>
         <label for="company-input" class="input-container">
           <ion-icon name="cube"></ion-icon>
@@ -150,7 +151,6 @@
   transform: translate(-50%, -50%);
   padding: 20px 10px;
   width: 75%;
-  height: auto;
   border-radius: 10px;
   background: var(--baseGray);
   box-shadow: -25px -25px 51px #242424,
@@ -159,7 +159,7 @@
   overflow-y: auto;
   scrollbar-width: none;
   display: flex;
-  align-items: start;
+  align-items: center;
 }
 
 /* Transición personalizada */

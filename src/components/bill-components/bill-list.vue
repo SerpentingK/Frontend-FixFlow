@@ -9,12 +9,13 @@ const bills = ref([]);
 const isLoading = ref(false); // Indicador de carga
 const search = ref(""); // Texto de búsqueda
 const searchType = ref("1"); // Tipo de búsqueda
+const loggedCompany = inject("loggedCompany", ref(null));
 
 // Función para cargar todas las facturas
 const loadAllBills = async () => {
     try {
         isLoading.value = true; // Activar indicador de carga
-        const answer = await axios.get("http://127.0.0.1:8000/someDataOfBill");
+        const answer = await axios.get(`http://127.0.0.1:8000/someDataOfBill/${loggedCompany.value}`);
         bills.value = answer.data;
     } catch (error) {
         console.error("Error al cargar todas las facturas:", error);

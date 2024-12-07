@@ -42,7 +42,7 @@ const switchSDC = inject("switchSDC")
                 <span>{{ phone.details }}</span>
                 <span>{{ phone.entry_date }}</span>
             </div>
-            <button class="repair-btn" @click="switchSDC(phone.phone_ref, phone.brand_name, phone.device)"><ion-icon name="construct"></ion-icon></button>
+            <button class="delivery-btn" @click="switchSDC(phone.phone_ref, phone.brand_name, phone.device)"><ion-icon name="log-out"></ion-icon></button>
         </fieldset>
     </section>
 </template>

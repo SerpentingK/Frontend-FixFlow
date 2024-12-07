@@ -220,6 +220,13 @@ watch(
   }
 );
 
+const closeSession = () => {
+  loggedCompany.value = null
+  router.push("/loginCompany")
+}
+
+provide("closeSession", closeSession)
+
 
 </script>
 
