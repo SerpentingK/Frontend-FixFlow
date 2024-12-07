@@ -1,38 +1,47 @@
 <script setup>
-import { inject } from 'vue';
-const phonesRepaired = inject('phonesRepaired');
+import axios from 'axios';
+import { inject, watch } from 'vue';
 
-defineProps({
-    ref_num: {
-        type: String,
-        required: true,
-        default: "0001-A"
-    },
-    phone: {
-        type: String,
-        required: true,
-        default: "Samsung A14"
-    }
-})
+const phonesRepaired = inject('phonesRepaired');
+const repairBrand = inject("repairBrand")
+const repairRef = inject("repairRef");
+const repairDevice = inject("repairDevice")
+const getPhonesR = inject('getPhonesR')
+
+watch(repairRef, async (newVal) => {
+  console.log("repairRef actualizado:", newVal);
+});
+
+watch(repairBrand, async (newVal) => {
+  console.log("repairBrand actualizado:", newVal);
+});
+
+watch(repairDevice, async (newVal) => {
+  console.log("repairBrand actualizado:", newVal);
+});
 
 const switchSRC = inject("switchSRC")
 
 const updateRepaired = () =>{
     phonesRepaired.value++
 }
-
+const repairPhone = async () => {
+    const ansawer = await axios.put(`http://127.0.0.1:8000/repairphone/${repairRef.value}`)
+    await getPhonesR()
+    switchSRC()
+}
 </script>
 
 <template>
     <section class="container">
         <h3>¿Confirmar reparacion?</h3>
         <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
-            <span>{{ ref_num }}</span>
-            <span>{{ phone }}</span>
+            <span>{{ repairRef }}</span>
+            <span>{{ repairBrand }} {{ repairDevice }}</span>
         </div>
         <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
-            <button @click="switchSRC">Cancelar</button>
-            <button @click="switchSRC(); updateRepaired()" class="confirm-btn">Confirmar</button>
+            <button @click="switchSRC()">Cancelar</button>
+            <button @click="repairPhone(); updateRepaired()" class="confirm-btn">Confirmar</button>
         </div>
     </section>
 </template>

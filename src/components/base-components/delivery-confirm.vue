@@ -1,25 +1,35 @@
 <script setup>
-import { inject, ref, computed } from 'vue';
+import axios from 'axios';
+import { inject, ref, computed, watch } from 'vue';
 const phonesDelivered = inject('phonesDelivered');
 
-defineProps({
-    ref_num: {
-        type: String,
-        required: true,
-        default: "0001-A"
-    },
-    phone: {
-        type: String,
-        required: true,
-        default: "Samsung A14"
-    }
+const deliveryBrand = inject("deliveryBrand")
+const deliveryRef = inject("deliveryRef");
+const deliveryDevice = inject("deliveryDevice")
+const getPhonesD = inject('getPhonesD')
+
+watch(deliveryRef, async (newVal) => {
+  console.log("deliveryRef actualizado:", newVal);
+});
+
+watch(deliveryBrand, async (newVal) => {
+  console.log("deliveryBrand actualizado:", newVal);
+});
+
+watch(deliveryDevice, async (newVal) => {
+  console.log("repairBrand actualizado:", newVal);
 });
 
 const switchSDC = inject("switchSDC");
 
 // Referencias para los valores de los inputs
-const saleValue = ref('');
-const codeValue = ref('');
+const saleValue = ref(0);
+const codeValue = ref(0);
+
+const revenue_price = computed(() => saleValue.value - codeValue.value);
+const startShift = inject("startShift");
+const total_sales = inject("total_sales")
+const total_revenue = inject("total_revenue")
 
 // Computed para verificar si los campos están completos
 const isFormComplete = computed(() => saleValue.value && codeValue.value);
@@ -27,23 +37,60 @@ const isFormComplete = computed(() => saleValue.value && codeValue.value);
 const updateDelivered = () => {
     if (isFormComplete.value) { // Ejecutar solo si el formulario está completo
         phonesDelivered.value++;
-        switchSDC();
     }
 };
+
+const sales = ref({
+        ref_shift : startShift.value,
+        product:`${deliveryBrand.value} ${deliveryDevice.value}`,
+        sale: saleValue,
+        original_price: codeValue,
+        revenue_price: revenue_price
+    });
+
+    const deliveryPhone = async () => {
+    try {
+        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}`, sales.value);
+
+        total_revenue.value += revenue_price.value
+        total_sales.value += saleValue.value
+
+        sales.value = {
+            ref_shift: "",
+            product: "",
+            sale: 0,
+            original_price: 0,
+            revenue_price: 0
+        };
+
+        saleValue.value = 0;
+        codeValue.value = 0;
+
+
+        updateDelivered();
+
+
+        await getPhonesD();
+
+        switchSDC();
+    } catch (error) {
+        console.error("Error al entregar el teléfono:", error);
+    }
+}
 </script>
 
 <template>
     <section class="container">
         <h3>¿Confirmar entrega?</h3>
         
-        <form @submit.prevent="">
+        <form @submit.prevent="deliveryPhone">
             <div class="info-container">
                 <span>Referencia: </span>
-                <span>{{ ref_num }}</span>
+                <span>{{ deliveryRef }}</span>
             </div>
             <div class="info-container">
                 <span>Producto: </span>
-                <span>{{ phone }}</span>
+                <span>{{ deliveryBrand }} {{ deliveryDevice }}</span>
             </div>
             <div class="input-container">
                 <span>Venta:</span>
@@ -55,7 +102,7 @@ const updateDelivered = () => {
             </div>
             <div class="info-container">
                 <span>Ganancia:</span>
-                <span>70000</span>
+                <span>{{ revenue_price }}</span>
             </div>
 
             <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
@@ -63,7 +110,6 @@ const updateDelivered = () => {
                 <button 
                     type="submit" 
                     :disabled="!isFormComplete"
-                    @click="updateDelivered"
                     class="confirm-btn"
                 >
                     Confirmar

@@ -1,5 +1,28 @@
 <script setup>
-import { inject } from 'vue';
+import axios from 'axios';
+import { inject, onMounted, ref } from 'vue';
+
+const phonesRepair = inject('phonesRepair')
+const getPhonesR = inject('getPhonesR')
+const search = ref("");
+
+const searchs = async () => {
+    if(!search.value.trim()){
+        getPhonesR()
+        return
+    }
+    try {
+        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearch/${search.value}`)
+        phonesRepair.value = ansawer.data
+    } catch (error) {
+        
+    }
+}
+
+onMounted(async()=>{
+     await getPhonesR()
+})
+
 
 const switchSRC = inject("switchSRC")
 </script>
@@ -7,22 +30,22 @@ const switchSRC = inject("switchSRC")
 <template>
     <section class="container">
         <h2>REPARACIONES</h2>
-        <form @submit.prevent="" class="search-form">
+        <form @submit.prevent="searchs" class="search-form">
             <label for="search-inp" class="input-container">
                 <ion-icon name="albums"></ion-icon>
-                <input type="text" id="search-inp" placeholder="factura" required>
+                <input type="text" id="search-inp" placeholder="factura" v-model="search">
             </label>
             <button>Buscar</button>
         </form>
 
-        <fieldset v-for="i in 6" key="i" class="phone-container">
-            <legend>0001-A-{{ i }}</legend>
+        <fieldset v-for="phone in phonesRepair" :key="phone.phone_ref" class="phone-container">
+            <legend>{{ phone.phone_ref }}</legend>
             <div class="info-container">
-                <span>Samsung A14</span>
-                <span>Cambio Pantalla</span>
-                <span>08/06/2024</span>
+                <span>{{phone.brand_name}} {{ phone.device }}</span>
+                <span>{{ phone.details }}</span>
+                <span>{{ phone.entry_date }}</span>
             </div>
-            <button class="repair-btn" @click="switchSRC('0003-A')"><ion-icon name="construct"></ion-icon></button>
+            <button class="repair-btn" @click="switchSRC(phone.phone_ref, phone.brand_name, phone.device)"><ion-icon name="construct"></ion-icon></button>
         </fieldset>
     </section>
 </template>

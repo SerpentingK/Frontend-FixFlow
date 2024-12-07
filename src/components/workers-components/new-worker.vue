@@ -1,14 +1,59 @@
-<script setup>
+<script>
 import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-const workersCount = inject("workersCount", ref(0)); // Inyección de la referencia
+export default {
+    setup(){
+    const workersCount = inject("workersCount", ref(0));
+    const loggedCompany = inject("loggedCompany", ref(null))
+    const worker = ref({
+        wname: "",
+        password: "",
+        document: "",
+        company: loggedCompany.value,
+        wrole: "Gerente",
+    });
+    const msg = ref("");
 
-const router = useRouter();
+    const router = useRouter();
 
-const registerWorker = () => {
-    workersCount.value++; // Incrementa el valor de la referencia correctamente
-    router.push('/workers/login-worker'); // Redirige después de registrar
+    const registerWorker = async () => {
+        try {
+            if(workersCount.value == 0){
+                const answer = await axios.post(
+                "http://127.0.0.1:8000/insertWorker",
+                worker.value
+                );
+                msg.value = answer.data.msg;
+                workersCount.value++
+                router.push("/workers/login-worker");
+            }else{
+                const answer = await axios.post(
+                "http://127.0.0.1:8000/insertWorker",
+                worker.value
+                );
+                msg.value = answer.data.msg;
+                workersCount.value++
+                router.push("/workers/workers-list");
+            }
+        } catch (error) {
+            if (error.response && error.response.data) {
+            alert(`Error al registrar trabajador: ${error.response.data.detail}`);
+            console.error("Error al registrar empresa", error.response.data);
+            } else {
+            alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+            console.error(error);
+            }
+        }
+    }
+
+    return {
+        worker,
+        registerWorker
+    };
+
+    }
 }
 </script>
 
@@ -19,27 +64,27 @@ const registerWorker = () => {
         <form action="" @submit.prevent="registerWorker()">
             <label class="input-container">
                 <ion-icon name="person-circle"></ion-icon>
-                <input type="text" name="" placeholder="Nombre">
+                <input type="text" name="" placeholder="Nombre" required v-model="worker.wname">
             </label>
             <label class="input-container">
                 <ion-icon name="finger-print"></ion-icon>
-                <input type="text" name="" placeholder="Documento">
+                <input type="text" name="" placeholder="Documento" required v-model="worker.document">
             </label>
             <label class="input-container">
                 <ion-icon name="lock-closed"></ion-icon>
-                <input type="password" name="" placeholder="Clave">
+                <input type="password" name="" placeholder="Clave" required v-model="worker.password">
             </label>
             <div class="radio-inputs">
                 <label for="ger-inp" class="radio">
-                    <input type="radio" name="radio" id="ger-inp">
+                    <input type="radio" name="radio" id="ger-inp" v-model="worker.wrole" value="Gerente">
                     <span class="name">Gerente</span>
                 </label>
                 <label for="adm-inp" class="radio">
-                    <input type="radio" name="radio" id="adm-inp">
+                    <input type="radio" name="radio" id="adm-inp" v-model="worker.wrole" value="Administrador">
                     <span class="name">Administrador</span>
                 </label>
                 <label for="tec-inp" class="radio">
-                    <input type="radio" name="radio" id="tec-inp">
+                    <input type="radio" name="radio" id="tec-inp" v-model="worker.wrole" value="Tecnico">
                     <span class="name">Tecnico</span>
                 </label>
             </div>

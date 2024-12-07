@@ -1,42 +1,39 @@
 <script setup>
 import { inject } from 'vue';
+import axios from 'axios';
+import { useRouter } from 'vue-router';
 
 const phonesReceived = inject('phonesReceived');
 
-defineProps({
-    client_name: {
-        type: String,
-        required: true,
-    },
-    total_price: {
-        type: Number,
-        required: true,
-    },
-    due: {
-        type: Number,
-        required: false,
-        default: 0,
-    },
-    payment: {
-        type: Number,
-        required: false,
-        default: 0,
-    },
-    client_phone: {
-        type: String,
-        required: true,
-    },
-    wname: {
-        type: String,
-        required: true,
-    },
-    phones_list: {
-        type: Array,
-        required: true,
-    },
-});
+const router = useRouter();
+
+const billData = inject('billData');
 
 const switchSBC = inject("switchSBC")
+
+
+const postbill = async () => {
+    try {
+        console.log(billData.value);
+        const answer = await axios.post(
+            "http://127.0.0.1:8000/createBillwithPhones",
+            billData.value
+            );
+            // Resetear el formulario
+            billData.value = {
+            total_price:0,
+            due:0,
+            client_name:"",
+            client_phone:"",
+            payment:0,
+            document:"",
+            phones: []
+            };
+            router.push("/bills/bill-list");
+        } catch (error) {
+            console.error("Error al enviar la factura:", error.response.data);
+        }
+}
 
 const updateReceived = () =>{
     phonesReceived.value++
@@ -47,30 +44,30 @@ const updateReceived = () =>{
     <section class="info-container">
         <div class="info-row">
             <span class="info-label">Cliente:</span>
-            <span>{{ client_name }}</span>
+            <span>{{ billData.client_name }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Numero de telefono:</span>
-            <span>{{ client_phone }}</span>
+            <span>{{ billData.client_phone }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Precio total:</span>
-            <span>{{ total_price }}</span>
+            <span>{{ billData.total_price }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Pendiente:</span>
-            <span>${{ due }}</span>
+            <span>${{ billData.due }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Abono:</span>
-            <span>${{ payment }}</span>
+            <span>${{ billData.payment }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Tecnico que recibe:</span>
-            <span>{{ wname }}</span>
+            <span>{{ billData.document }}</span>
         </div>
         <article class="phones-container">
-            <div class="phone-info-container" v-for="phone in phones_list" :key="phone.phone_ref">
+            <div class="phone-info-container" v-for="phone in billData.phones" :key="phone.phone_ref">
                 <span class="info-span">
                     <div>Dispositivo:</div>
                     <div>{{ phone.brand_name }} {{ phone.device }}</div>
@@ -81,13 +78,13 @@ const updateReceived = () =>{
                 </span>
                 <span class="info-span">
                     <div>Precio:</div>
-                    <div>{{ phone.price }}</div>
+                    <div>{{ phone.individual_price }}</div>
                 </span>
             </div>
         </article>
         <div class="btn-container">
             <button @click="switchSBC" class="cancel-btn">Cancelar</button>
-            <button @click="switchSBC(); updateReceived()" class="confirm-btn">Confirmar</button>
+            <button @click="postbill(); updateReceived()" class="confirm-btn">Confirmar</button>
         </div>
     </section>
 </template>

@@ -11,33 +11,60 @@ import deliveryConfirm from './components/base-components/delivery-confirm.vue';
 import shiftInfo from './components/base-components/shift-info.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import axios from 'axios';
 
-const loggedCompany = ref("Jungle Technology");
-const loggedWorker = ref("David Carrillo")
-const workersCount = ref(1)
-const workerRole = ref("Gerente")
+
+const loggedCompany = ref(null);
+const loggedWorker = ref(null)
+const loggedDocument = ref(null)
+const workersCount = ref(0)
+const workerRole = ref(null)
 const phonesRepaired = ref(0)
 const phonesReceived = ref(0)
 const phonesDelivered = ref(0)
-
-
+const startShift = ref(null);
 const inBills = ref(false)
 const inWorkerProfile = ref(false)
+const total_sales = ref(0)
+const total_revenue = ref(0)
+const total_outs = ref(0)
 
+provide('total_outs', total_outs)
+provide('total_revenue', total_revenue)
+provide('total_sales', total_sales)
+provide('startShift', startShift)
 provide('loggedCompany', loggedCompany)
 provide('loggedWorker', loggedWorker)
+provide('loggedDocument', loggedDocument)
 provide('workersCount', workersCount)
 provide('workerRole', workerRole)
 provide('phonesRepaired', phonesRepaired);
 provide('phonesReceived', phonesReceived);
 provide('phonesDelivered', phonesDelivered);
 
+const billData = ref({
+  total_price: 0,
+  due: 0,
+  client_name: '',
+  client_phone: '',
+  payment: 0,
+  document: "",
+  phones: [],
+});
+provide('billData', billData);
+
 
 const showBillInfo = ref(false)
 
-const switch_sbf = () => {
+const bill_number = ref(null)
+
+const switch_sbf = (newBillNumber) => {
+  bill_number.value = newBillNumber;
   showBillInfo.value = !showBillInfo.value;
-}
+  console.log("Número de factura seleccionado:", bill_number.value);
+};
+
+provide('bill_number', bill_number)
 
 provide('switch_sbf', switch_sbf)
 
@@ -59,40 +86,82 @@ provide("switchCS", switchCS)
 
 const showRepairConfirm = ref(false)
 const repairRef = ref("")
+const repairBrand = ref("")
+const repairDevice = ref("")
 
-const switchSRC = (ref) => {
-  showRepairConfirm.value = !showRepairConfirm.value
-  repairRef.value = ref
+const phonesRepair = ref([])
+
+const getPhonesR = async () => {
+    try {
+        const ansawer = await axios.get('http://127.0.0.1:8000/someDataPhone')
+        phonesRepair.value = ansawer.data
+    } catch (error) {
+        
+    }
 }
 
+const switchSRC = (newPhoneRef, newrepairB, newrepairD) => {
+  showRepairConfirm.value = !showRepairConfirm.value
+  repairRef.value = newPhoneRef
+  repairBrand.value = newrepairB
+  repairDevice.value = newrepairD
+}
+
+provide("phonesRepair", phonesRepair)
+provide("getPhonesR", getPhonesR)
+provide("repairDevice", repairDevice)
+provide("repairRef", repairRef)
+provide("repairBrand", repairBrand)
 provide("switchSRC", switchSRC)
+
+
 
 const showDeliveryConfirm = ref(false)
 const deliveryRef = ref("")
+const deliveryBrand = ref("")
+const deliveryDevice = ref("")
 
-const switchSDC = (ref) => {
-  showDeliveryConfirm.value = !showDeliveryConfirm.value
-  deliveryRef.value = ref
+const deliveredPhone = ref([])
+
+const getPhonesD = async () => {
+    try {
+        const ansawer = await axios.get('http://127.0.0.1:8000/someDataPhoneDelivered')
+        deliveredPhone.value = ansawer.data
+    } catch (error) {
+        
+    }
 }
 
+const switchSDC = (newPhoneRef, newdeliveredB, newdeliveredD) => {
+  showDeliveryConfirm.value = !showDeliveryConfirm.value
+  deliveryRef.value = newPhoneRef
+  deliveryBrand.value = newdeliveredB
+  deliveryDevice.value = newdeliveredD
+}
+
+provide("deliveredPhone", deliveredPhone)
+provide("getPhonesD", getPhonesD)
+provide("deliveryDevice", deliveryDevice)
+provide("deliveryRef", deliveryRef)
+provide("deliveryBrand", deliveryBrand)
 provide("switchSDC", switchSDC)
 
 const shift = {
-        ref_shift: "090604-2",
-        wname: "Carlos García",
-        start_time: "10:00",
-        finish_time: "18:00",
-        total_received: 1100000, // Valor en pesos colombianos (COP)
-        total_gain: 850000,      // Valor en pesos colombianos (COP)
-        total_out: 250000,       // Valor en pesos colombianos (COP)
-        date: "2009-06-04"       // Fecha derivada de ref_shift
+        ref_shift: "",
+        wname: "",
+        start_time: "",
+        finish_time: "",
+        total_received: 0, // Valor en pesos colombianos (COP)
+        total_gain: 0,      // Valor en pesos colombianos (COP)
+        total_out: 0,       // Valor en pesos colombianos (COP)
+        date: ""       // Fecha derivada de ref_shift
 }
 
 const showShiftInfo = ref(false)
 
 const switchSI = (newShift) => {
   shift.ref_shift = newShift.ref_shift;
-  shift.wname = newShift.wname;
+  shift.document = newShift.document;
   shift.start_time = newShift.start_time;
   shift.finish_time = newShift.finish_time;
   shift.total_received = newShift.total_received;
@@ -151,50 +220,12 @@ watch(
   }
 );
 
+const closeSession = () => {
+  loggedCompany.value = null
+  router.push("/loginCompany")
+}
 
-
-const billData = {
-  bill_number: "0001-A",
-  client_name: "Juan Pérez",
-  entry_date: "2023-10-12",
-  total_price: 1250000, // Total en pesos colombianos
-  due: 250000,          // Cantidad pendiente en pesos colombianos
-  payment: 1000000,     // Cantidad pagada en pesos colombianos
-  client_phone: "315-555-1234",
-  wname: "Carlos Rodríguez",
-  phones_list: [
-    {
-      phone_ref: "0001-A-1",
-      brand_name: "Samsung",
-      device: "Galaxy A21s",
-      details: "Pantalla rota",
-      price: 500000,           // Precio en pesos colombianos
-      delivery_date: "2023-10-20",
-      repaired: true,
-      delivered: false,
-    },
-    {
-      phone_ref: "0001-A-2",
-      brand_name: "Apple",
-      device: "iPhone 12",
-      details: "Batería dañada",
-      price: 450000,           // Precio en pesos colombianos
-      delivery_date: "2023-10-18",
-      repaired: true,
-      delivered: true,
-    },
-    {
-      phone_ref: "0001-A-3",
-      brand_name: "Xiaomi",
-      device: "Redmi Note 10",
-      details: "Problemas de carga",
-      price: 300000,           // Precio en pesos colombianos
-      delivery_date: "2023-10-25",
-      repaired: false,
-      delivered: false,
-    }
-  ]
-};
+provide("closeSession", closeSession)
 
 
 </script>
@@ -202,18 +233,14 @@ const billData = {
 <template>
   <section class="body">
     <transition name="opacity-in" mode="out-in">
-      <billInfo v-if="showBillInfo" :key="'billInfo'" :bill_number="billData.bill_number"
-        :client_name="billData.client_name" :entry_date="billData.entry_date" :total_price="billData.total_price"
-        :due="billData.due" :payment="billData.payment" :client_phone="billData.client_phone" :wname="billData.wname"
-        :phones_list="billData.phones_list" />
+      <billInfo v-if="showBillInfo"/>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <billConfirm v-if="showBillConfirm" client_name="Felipe Sierra" :total_price="300000" due="150000"
-        payment="150000" client_phone="3202169321" wname="David Carrillo" :phones_list="billData.phones_list">
+      <billConfirm v-if="showBillConfirm">
       </billConfirm>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <repairConfirm v-if="showRepairConfirm" :ref_num="repairRef"></repairConfirm>
+      <repairConfirm v-if="showRepairConfirm"></repairConfirm>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <closeShift v-if="showCloseShift"></closeShift>

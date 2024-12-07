@@ -1,26 +1,48 @@
 <script setup>
-import { inject } from 'vue';
+import axios from 'axios';
+import { inject, ref, onMounted } from 'vue';
+
+const deliveredPhone = inject('deliveredPhone')
+const getPhonesD = inject('getPhonesD')
+const search = ref("");
+
+const searchs = async () => {
+    if(!search.value.trim()){
+        getPhonesD()
+        return
+    }
+    try {
+        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearchDelivered/${search.value}`)
+        deliveredPhone.value = ansawer.data
+    } catch (error) {
+        
+    }
+}
+
+onMounted(async()=>{
+     await getPhonesD()
+})
 
 const switchSDC = inject("switchSDC")
 </script>
 
 <template>
     <section class="out-container">
-        <form @submit.prevent="" class="search-form">
+        <form @submit.prevent="searchs" class="search-form">
             <label for="search-inp" class="input-container">
                 <ion-icon name="albums"></ion-icon>
-                <input type="text" id="search-inp" placeholder="Numero de factura" required>
+                <input type="text" id="search-inp" placeholder="Numero de factura" v-model="search">
             </label>
             <button>Buscar</button>
         </form>
-        <fieldset v-for="i in 6" key="i" class="phone-container">
-            <legend>0001-A-{{ i }}</legend>
+        <fieldset v-for="phone in deliveredPhone" :key="phone.phone_ref" class="phone-container">
+            <legend>{{ phone.phone_ref }}</legend>
             <div class="info-container">
-                <span>Samsung A14</span>
-                <span>Cambio Pantalla</span>
-                <span>08/06/2024</span>
+                <span>{{phone.brand_name}} {{ phone.device }}</span>
+                <span>{{ phone.details }}</span>
+                <span>{{ phone.entry_date }}</span>
             </div>
-            <button class="delivery-btn" @click="switchSDC('0001-A-1')"><ion-icon name="exit"></ion-icon></button>
+            <button class="delivery-btn" @click="switchSDC(phone.phone_ref, phone.brand_name, phone.device)"><ion-icon name="log-out"></ion-icon></button>
         </fieldset>
     </section>
 </template>

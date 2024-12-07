@@ -1,34 +1,60 @@
-<script setup>
-import { inject, ref } from 'vue';
-import { useRouter } from 'vue-router';
+<script>
+import { inject, ref, onMounted } from 'vue';
+import axios from 'axios';
 
-const workerRole = inject("workerRole", ref(null))
+export default{
+    setup(){
+    const workerRole = inject("workerRole", ref(null))
+    const loggedCompany = inject("loggedCompany", ref(null));
+    const workerToDelete = ref(null)
 
-const showDeleteWindow = ref(false)
+    const showDeleteWindow = ref(false)
 
-const switchSDW = () => {
-    showDeleteWindow.value = !showDeleteWindow.value
+    const switchSDW = (document) => {
+        showDeleteWindow.value = !showDeleteWindow.value
+        workerToDelete.value = document;
+    }
+
+    const workers = ref([]);
+
+    onMounted(async () => {
+    await fetchWorkers();
+    });
+
+    const fetchWorkers = async () => {
+    try {
+        const answer = await axios.get(`http://127.0.0.1:8000/collaborators/${loggedCompany.value}/workers`);
+        workers.value = answer.data;
+        console.log(workers.value)
+    } catch (error) {
+        console.error(error);
+    }
+    };
+
+    const deleteWorker = async (document) => {
+    try {
+        await axios.delete(`http://127.0.0.1:8000/deleteCollaborators/${loggedCompany.value}/${document}`);
+        workers.value = workers.value.filter(worker => worker.document !== document);
+        showDeleteWindow.value = false;
+        workerToDelete.value = null
+    } catch (error) {
+        console.error("Error eliminando el trabajador:", error.data);
+        alert("Error al eliminar el trabajador.");
+    }
+    };
+
+
+    return{
+        workers,
+        workerRole,
+        showDeleteWindow,
+        workerToDelete,
+        switchSDW,
+        deleteWorker
+    }
+    }
 }
 
-const workers = ref([
-    { wname: "David Carrillo", role: "Gerente", document: "1019983157", pasw: "2004" },
-    { wname: "Maria Perez", role: "Tecnico", document: "1023981111", pasw: "1020" },
-    { wname: "Carlos Diaz", role: "Administrador", document: "1034992222", pasw: "3030" },
-    { wname: "Ana Suarez", role: "Gerente", document: "1045983333", pasw: "2021" },
-    { wname: "Juan Martinez", role: "Tecnico", document: "1056984444", pasw: "4012" },
-    { wname: "Luis Gomez", role: "Administrador", document: "1067985555", pasw: "5500" },
-    { wname: "Sandra Lopez", role: "Tecnico", document: "1078986666", pasw: "2015" },
-    { wname: "Ricardo Torres", role: "Gerente", document: "1089987777", pasw: "3344" },
-    { wname: "Elena Rios", role: "Administrador", document: "1090988888", pasw: "1999" },
-    { wname: "Fernando Chavez", role: "Tecnico", document: "1101989999", pasw: "8888" }
-]);
-
-
-const router = useRouter()
-
-const goBack = () => {
-    router.push("/workers/worker-profile")
-}
 
 </script>
 
@@ -39,11 +65,9 @@ const goBack = () => {
             <li v-for="worker in workers" :key="worker.document">
                 <fieldset class="worker-li">
                     <legend>{{ worker.wname }}</legend>
-                    <span>Rol: {{ worker.role }}</span>
+                    <span>Rol: {{ worker.wrole }}</span>
                     <span>Documento: {{ worker.document }}</span>
-                    <!-- Muestra la clave solo si el rol coincide con el rol de inyección -->
-                    <span v-if="workerRole === 'Gerente'">Clave: {{ worker.pasw }}</span>
-                    <button class="delete-btn" @click="switchSDW()"><ion-icon name="close-circle"></ion-icon></button>
+                    <button class="delete-btn" @click="switchSDW(worker.document)"><ion-icon name="close-circle"></ion-icon></button>
                 </fieldset>
             </li>
         </ol>
@@ -52,7 +76,7 @@ const goBack = () => {
                 <h3>¿Eliminar técnico?</h3>
                 <span>
                     <button @click="switchSDW()" class="cancel-btn">No</button>
-                    <button @click="switchSDW()" class="confirm-btn">Sí</button>
+                    <button @click="deleteWorker(workerToDelete)" class="confirm-btn">Sí</button>
                 </span>
             </div>
         </transition>

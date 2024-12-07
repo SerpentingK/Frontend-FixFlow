@@ -1,17 +1,53 @@
-<script setup>
+<script>
 import { inject, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
 
-const loggedWorker = inject("loggedWorker", ref(null))
-const workerRole = inject("workerRole", ref(null))
+export default{
+    setup(){
+    const loggedWorker = inject("loggedWorker", ref(null))
+    const loggedDocument = inject("loggedDocument", ref(null))
+    const workerRole = inject("workerRole", ref(null))
+    const loggedCompany = inject("loggedCompany", ref(null));
+    const startShift = inject("startShift", ref(null));
+    const sessionworker = ref({
+        document: "",
+        password: "",
+    });
+    const msg = ref("");
 
-const router = useRouter()
+    const router = useRouter()
 
-const loginWorker = () => {
-    loggedWorker.value = ("David Carrillo")
-    workerRole.value = "Gerente"
-    router.push('/bills')
+    const loginWorker = async () => {
+        try {
+            console.log("loggedCompany:", loggedCompany.value);
+            const answer = await axios.post(`http://127.0.0.1:8000/loginWorker/${loggedCompany.value}`, {
+            document: sessionworker.value.document,
+            password: sessionworker.value.password,
+            });
+            loggedDocument.value = sessionworker.value.document
+            msg.value = answer.data.status;
+            loggedWorker.value = answer.data.wname;
+            workerRole.value = answer.data.role;
+            startShift.value = answer.data.shift
+            router.push('/bills')
+        } catch (error) {
+            if (error.response && error.response.data) {
+            alert(`Error al iniciar sesión: ${error.response.data.detail}`);
+            console.error("Error al iniciar sesión", error.response.data);
+            } else {
+            alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+            console.error(error);
+            }
+        }
+    }
+    return{
+        loginWorker,
+        sessionworker
+    }
+    }
 }
+
 </script>
 <template>
     <section class="login-container">
@@ -21,11 +57,11 @@ const loginWorker = () => {
         <form @submit.prevent="loginWorker()" class="login-form">
             <label for="doc-inp" class="input-container">
                 <ion-icon name="finger-print"></ion-icon>
-                <input type="text" placeholder="Documento" required />
+                <input v-model="sessionworker.document" type="text" placeholder="Documento" required />
             </label>
             <label for="pasw-inp" class="input-container">
                 <ion-icon name="lock-closed"></ion-icon>
-                <input type="password" placeholder="Contraseña" required />
+                <input v-model="sessionworker.password" type="password" placeholder="Contraseña" required />
             </label>
             <button type="submit" class="go-btn">Iniciar Turno</button>
         </form>
