@@ -54,7 +54,7 @@ export default {
     const decreasePhonesAmount = () => {
       if (phones_amount.value > 1) {
         phones_amount.value--;
-        phones_list.value.pop();
+        phones.value.pop();
       }
     };
 
