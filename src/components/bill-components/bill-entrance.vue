@@ -54,7 +54,7 @@ export default {
     const decreasePhonesAmount = () => {
       if (phones_amount.value > 1) {
         phones_amount.value--;
-        phones_list.value.pop();
+        phones.value.pop();
       }
     };
 
@@ -505,6 +505,17 @@ input[type=number]::-webkit-inner-spin-button {
     color: var(--baseGray);
     scale: .7;
 }
+.submit-btn{
+    background: var(--baseOrange);
+    border: none;
+    cursor: pointer;
+    color: white;
+    padding: 5px 20px;
+    border-radius: 5px;
+    border: 2px solid var(--baseOrange);
+    transition: .3s;
+    margin-bottom: 10px;
+}
 
 
 @media (min-width: 768px) {
@@ -565,6 +576,10 @@ input[type=number]::-webkit-inner-spin-button {
         background-color: var(--baseGray);
         box-shadow: var(--secShadow);
     }
-
+    .submit-btn:hover{
+        transform: scale(1.1);
+        background-color: var(--baseGray);
+        box-shadow: var(--secShadow);
+    }
 }
 </style>
