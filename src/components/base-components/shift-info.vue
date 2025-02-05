@@ -1,80 +1,53 @@
 <script setup>
+import axios from 'axios';
 import workerBillList from '../workers-components/worker-bill-list.vue';
-import { inject, ref } from 'vue';
+import { inject, ref, onMounted } from 'vue';
 
-defineProps({
+const props = defineProps({
   shift: {
     type: Object,
     required: true,
     default: () => ({
       ref_shift: "080604-1",
-      wname: "Juan Pérez",
+      document: "Juan Pérez",
       start_time: "08:00",
       finish_time: "16:00",
-      total_received: 1000000, // Valor en pesos colombianos (COP)
-      total_gain: 800000,     // Valor en pesos colombianos (COP)
-      total_out: 200000,      // Valor en pesos colombianos (COP)
-      date: "2008-06-04"      // Fecha derivada de ref_shift
+      total_received: 1000000,
+      total_gain: 800000,
+      total_out: 200000,
+      date: "2008-06-04"
     })
   }
 });
 
+
+
 const listOption = ref("entrance")
 
-const bills = [
-    {
-        bill_num: "0001-A",
-        client_name: "John Doe",
-        entry_date: "2022-01-01"
-    },
-    {
-        bill_num: "0002-B",
-        client_name: "Jane Smith",
-        entry_date: "2022-02-15"
-    },
-    {
-        bill_num: "0003-C",
-        client_name: "Alice Johnson",
-        entry_date: "2022-03-10"
-    },
-    {
-        bill_num: "0004-D",
-        client_name: "Bob Brown",
-        entry_date: "2022-04-25"
-    },
-    {
-        bill_num: "0005-E",
-        client_name: "Charlie Green",
-        entry_date: "2022-05-05"
-    },
-    {
-        bill_num: "0006-F",
-        client_name: "Diana White",
-        entry_date: "2022-06-18"
-    },
-    {
-        bill_num: "0007-G",
-        client_name: "Edward Black",
-        entry_date: "2022-07-21"
-    },
-    {
-        bill_num: "0008-H",
-        client_name: "Fiona Blue",
-        entry_date: "2022-08-13"
-    },
-    {
-        bill_num: "0009-I",
-        client_name: "George Gray",
-        entry_date: "2022-09-07"
-    },
-    {
-        bill_num: "0010-J",
-        client_name: "Hannah Red",
-        entry_date: "2022-10-29"
-    }
-];
+const bills = ref([])
 
 const switchSI = inject("switchSI")
+
+const getList =  async () => {
+    let url = "";
+    try{
+    if (listOption.value === "entrance") {
+            url = `http://127.0.0.1:8000/shiftReceived/${props.shift.ref_shift}`;
+        } else if (listOption.value === "repaired") {
+            url = `http://127.0.0.1:8000/shiftRepaired/${props.shift.ref_shift}`;
+        } else if (listOption.value === "delivery") {
+            url = `http://127.0.0.1:8000/billDeliveredWorker/${loggedDocument.value}`;
+        }
+    const ansawer = await axios.get(url)
+    bills.value = ansawer.data
+    }catch (error) {
+        console.error("Error al realizar la búsqueda:", error);
+    }
+}
+
+onMounted(() => {
+    getList()
+})
 </script>
 
 
@@ -86,7 +59,7 @@ const switchSI = inject("switchSI")
         <h2>{{ shift.ref_shift }}</h2>
         <div class="info-div">
             <span>Colaborador:</span>
-            <span>{{ shift.wname }}</span>
+            <span>{{ shift.document }}</span>
         </div>
         <div class="info-div">
             <span>Horario:</span>
@@ -106,22 +79,22 @@ const switchSI = inject("switchSI")
         </div>
         <div class="info-div">
             <span>Fecha:</span>
-            <span>{{ shift.date }}</span>
+            <span>{{ shift.date_shift }}</span>
         </div>
-        <form @submit.prevent="" class="list-options">
-            <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption"
+        <form @submit.prevent="getList" class="list-options">
+            <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption" @change="getList"
                 class="check-input">
             <label for="entrance-input" class="check-label">
                 <ion-icon name="enter"></ion-icon>
             </label>
 
-            <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption"
+            <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption" @change="getList"
                 class="check-input">
             <label for="repaired-input" class="check-label">
                 <ion-icon name="construct"></ion-icon>
             </label>
 
-            <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption"
+            <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption" @change="getList"
                 class="check-input">
             <label for="delivery-input" class="check-label">
                 <ion-icon name="exit"></ion-icon>

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const phonesReceived = inject('phonesReceived');
-
+const loggedCompany = inject("loggedCompany");
 const router = useRouter();
 
 const billData = inject('billData');
@@ -16,7 +16,7 @@ const postbill = async () => {
     try {
         console.log(billData.value);
         const answer = await axios.post(
-            "http://127.0.0.1:8000/createBillwithPhones",
+            `http://127.0.0.1:8000/createBillwithPhones/${loggedCompany.value}`,
             billData.value
             );
             // Resetear el formulario
@@ -26,7 +26,8 @@ const postbill = async () => {
             client_name:"",
             client_phone:"",
             payment:0,
-            document:"",
+            wname:"",
+            ref_shift:"",
             phones: []
             };
             router.push("/bills/bill-list");
@@ -64,7 +65,7 @@ const updateReceived = () =>{
         </div>
         <div class="info-row">
             <span class="info-label">Tecnico que recibe:</span>
-            <span>{{ billData.document }}</span>
+            <span>{{ billData.wname }}</span>
         </div>
         <article class="phones-container">
             <div class="phone-info-container" v-for="phone in billData.phones" :key="phone.phone_ref">

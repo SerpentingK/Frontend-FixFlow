@@ -9,7 +9,7 @@ const infoBill = ref({
     bill_number: "",
     due: 0,
     client_phone: "",
-    document: "",
+    wname: "",
     total_price: 0,
     entry_date: "",
     client_name: "",
@@ -34,7 +34,7 @@ const infoData = async () => {
     bill_number: response.data.bill.bill_number,
     due: response.data.bill.due,
     client_phone: response.data.bill.client_phone,
-    document: response.data.bill.document,
+    wname: response.data.bill.wname,
     total_price: response.data.bill.total_price,
     entry_date: response.data.bill.entry_date,
     client_name: response.data.bill.client_name,
@@ -60,7 +60,7 @@ onMounted(() => {
         <button @click="switch_sbf()" class="close-btn">
             <ion-icon name="close"></ion-icon>
         </button>
-        <h2>{{ infoBill.bill_number }}</h2>
+        <h2>{{ infoBill.bill_number.split('-').slice(1).join('-') }}</h2>
         <div class="info-row">
             <span class="info-label">Cliente:</span>
             <span>{{ infoBill.client_name }}</span>
@@ -87,13 +87,13 @@ onMounted(() => {
         </div>
         <div class="info-row">
             <span class="info-label">Tecnico que recibio:</span>
-            <span>{{ infoBill.document }}</span>
+            <span>{{ infoBill.wname }}</span>
         </div>
         <article class="phones-container">
             <div class="phone-info-container" v-for="phone in infoBill.phones" :key="phone.phone_ref">
                 <span class="info-span">
                     <div>Referencia dispositivo:</div>
-                    <div>{{ phone.phone_ref }}</div>
+                    <div>{{ phone.phone_ref.split('-').slice(1).join('-') }}</div>
                 </span>
                 <span class="info-span">
                     <div>Dispositivo:</div>

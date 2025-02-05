@@ -1,26 +1,30 @@
 <script setup>
 import axios from 'axios';
-import { inject, onMounted, ref } from 'vue';
+import { inject, onMounted, ref, watch } from 'vue';
+import debounce from "lodash/debounce";
 
 const phonesRepair = inject('phonesRepair')
 const getPhonesR = inject('getPhonesR')
 const search = ref("");
+const loggedCompany = inject("loggedCompany", ref(null));
 
-const searchs = async () => {
+const searchs = debounce(async () => {
     if(!search.value.trim()){
         getPhonesR()
         return
     }
     try {
-        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearch/${search.value}`)
+        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearch/${loggedCompany.value}/${search.value}`)
         phonesRepair.value = ansawer.data
     } catch (error) {
         
     }
-}
+}, 900)
+
+watch(search, searchs);
 
 onMounted(async()=>{
-     await getPhonesR()
+    await getPhonesR()
 })
 
 
@@ -39,7 +43,7 @@ const switchSRC = inject("switchSRC")
         </form>
 
         <fieldset v-for="phone in phonesRepair" :key="phone.phone_ref" class="phone-container">
-            <legend>{{ phone.phone_ref }}</legend>
+            <legend>{{ phone.phone_ref.split('-').slice(1).join('-') }}</legend>
             <div class="info-container">
                 <span>{{phone.brand_name}} {{ phone.device }}</span>
                 <span>{{ phone.details }}</span>

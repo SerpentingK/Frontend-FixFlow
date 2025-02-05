@@ -4,22 +4,33 @@ import { inject, onMounted, ref } from 'vue';
 
 
 const switchSI = inject("switchSI")
+const loggedCompany = inject('loggedCompany')
 
 const shifts = ref([]);
 
 const loadAllShifts = async () => {
     try {
-        const answer = await axios.get("http://127.0.0.1:8000/allShift");
+        const answer = await axios.get(`http://127.0.0.1:8000/allShiftCompany/${loggedCompany.value}`);
+
+        // Función auxiliar para formatear la hora
+        const formatTime = (dateString) => {
+            const dateObj = new Date(dateString);
+            let hours = dateObj.getHours();
+            const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+            const period = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12; // Convierte 0 (medianoche) a 12
+            return `${hours}:${minutes} ${period}`;
+        };
+
         shifts.value = answer.data.map(shift => {
-            const dateObj = new Date(shift.start_time); // Convierte a objeto Date
-            const formattedDate = dateObj.toISOString().split('T')[0]; // Obtiene solo la fecha en formato YYYY-MM-DD
             return {
                 ...shift,
-                start_time: formattedDate // Reemplaza start_time con la fecha formateada
+                start_time: formatTime(shift.start_time), // Reemplaza start_time con la fecha formateada
+                finish_time: formatTime(shift.finish_time) // Reemplaza finish_time con la fecha formateada
             };
         });
     } catch (error) {
-        console.error("Error al cargar todas las facturas:", error);
+        console.error("Error al cargar todos los turnos:", error);
     }
 };
 
@@ -39,7 +50,7 @@ onMounted(loadAllShifts)
                 <fieldset @click="switchSI(shift)">
                     <legend>{{ shift.ref_shift }}</legend>
                     <span>{{ shift.document }}</span>
-                    <span>{{ shift.start_time }}</span>
+                    <span>{{ shift.date_shift }}</span>
                 </fieldset>
             </li>
         </ul>

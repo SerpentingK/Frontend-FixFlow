@@ -9,14 +9,15 @@ defineProps({
         required: true
     }
 })
+
 </script>
 <template>
     <ol class="bill-list">
         <li v-for="bill in bills" :key="bill">
             <button @click="switch_sbf(bill.bill_number)">
-                <span>{{ bill.bill_number }}</span>
+                <span>{{ bill.bill_number?.split('-').slice(1).join('-') }}</span>
                 <span>{{ bill.client_name }}</span>
-                <span>{{ bill.phone_ref }}</span>
+                <span>{{ bill.phone_ref?.split('-').slice(1).join('-') }}</span>
                 <br>
                 <span>{{ bill.entry_date }}</span>
             </button>

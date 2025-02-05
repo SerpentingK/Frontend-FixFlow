@@ -36,7 +36,7 @@ const switchSDC = inject("switchSDC")
             <button>Buscar</button>
         </form>
         <fieldset v-for="phone in deliveredPhone" :key="phone.phone_ref" class="phone-container">
-            <legend>{{ phone.phone_ref }}</legend>
+            <legend>{{ phone.phone_ref.split('-').slice(1).join('-') }}</legend>
             <div class="info-container">
                 <span>{{phone.brand_name}} {{ phone.device }}</span>
                 <span>{{ phone.details }}</span>

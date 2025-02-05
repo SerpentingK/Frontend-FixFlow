@@ -7,6 +7,7 @@ const repairBrand = inject("repairBrand")
 const repairRef = inject("repairRef");
 const repairDevice = inject("repairDevice")
 const getPhonesR = inject('getPhonesR')
+const startShift = inject('startShift')
 
 watch(repairRef, async (newVal) => {
   console.log("repairRef actualizado:", newVal);
@@ -26,7 +27,8 @@ const updateRepaired = () =>{
     phonesRepaired.value++
 }
 const repairPhone = async () => {
-    const ansawer = await axios.put(`http://127.0.0.1:8000/repairphone/${repairRef.value}`)
+    console.log(startShift.value)
+    const ansawer = await axios.put(`http://127.0.0.1:8000/repairphone/${repairRef.value}/${startShift.value}`)
     await getPhonesR()
     switchSRC()
 }
@@ -36,7 +38,7 @@ const repairPhone = async () => {
     <section class="container">
         <h3>¿Confirmar reparacion?</h3>
         <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
-            <span>{{ repairRef }}</span>
+            <span>{{ repairRef.split('-').slice(1).join('-') }}</span>
             <span>{{ repairBrand }} {{ repairDevice }}</span>
         </div>
         <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
