@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios';
-import { ref, inject } from 'vue';
+import { ref, inject, watch } from 'vue';
 
 
 const startShift = inject("startShift");
@@ -13,6 +13,9 @@ const outFlows = ref({
         price: 0
     });
 
+watch(total_outs, (newVal) => {
+    localStorage.setItem("total_outs", JSON.stringify(newVal))
+})
 
 const postOutFlows = async () => {
     try {
@@ -20,6 +23,9 @@ const postOutFlows = async () => {
         msg.value = ansawer.data.msg;
 
         total_outs.value += outFlows.value.price
+
+        localStorage.setItem("total_outs", JSON.stringify(total_outs.value))
+
         outFlows.value = {
             ref_shift : "",
             details:"",
@@ -29,6 +35,7 @@ const postOutFlows = async () => {
         console.error('Error en ventas: ', error);
     }
 }
+
 </script>
 
 <template>

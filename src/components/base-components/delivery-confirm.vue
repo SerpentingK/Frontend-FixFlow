@@ -8,6 +8,10 @@ const deliveryRef = inject("deliveryRef");
 const deliveryDevice = inject("deliveryDevice")
 const getPhonesD = inject('getPhonesD')
 
+watch(phonesDelivered, (newVal) => {
+    localStorage.setItem("phonesDelivered", JSON.stringify(newVal))
+})
+
 watch(deliveryRef, async (newVal) => {
   console.log("deliveryRef actualizado:", newVal);
 });
@@ -36,6 +40,7 @@ const isFormComplete = computed(() => saleValue.value && codeValue.value);
 const updateDelivered = () => {
     if (isFormComplete.value) { // Ejecutar solo si el formulario está completo
         phonesDelivered.value++;
+        localStorage.setItem("phonesDelivered", JSON.stringify(phonesDelivered.value))
     }
 };
 
@@ -66,12 +71,23 @@ const sales = ref({
         revenue_price: revenue_price
     });
 
+watch(total_sales, (newVal) => {
+    localStorage.setItem("total_sales", JSON.stringify(newVal))
+})
+watch(total_revenue, (newVal) => {
+    localStorage.setItem("total_revenue", JSON.stringify(newVal));
+});
+
 const deliveryPhone = async () => {
     try {
         const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();
         total_revenue.value += revenue_price.value
         total_sales.value += saleValue.value
+
+        localStorage.setItem("total_sales", JSON.stringify(total_sales.value))
+        localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value))
+
 
         sales.value = {
             ref_shift: "",

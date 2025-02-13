@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios';
-import { inject, watch } from 'vue';
+import { inject, watch, ref, onMounted } from 'vue';
 
 const phonesRepaired = inject('phonesRepaired');
 const repairBrand = inject("repairBrand")
@@ -8,6 +8,7 @@ const repairRef = inject("repairRef");
 const repairDevice = inject("repairDevice")
 const getPhonesR = inject('getPhonesR')
 const startShift = inject('startShift')
+const bill_number = ref("");
 
 watch(repairRef, async (newVal) => {
   console.log("repairRef actualizado:", newVal);
@@ -23,15 +24,26 @@ watch(repairDevice, async (newVal) => {
 
 const switchSRC = inject("switchSRC")
 
+
+watch(phonesRepaired, (newVal) => {
+    localStorage.setItem("phonesRepaired", JSON.stringify(newVal))
+})
+
 const updateRepaired = () =>{
     phonesRepaired.value++
+    localStorage.setItem("phonesRepaired", JSON.stringify(phonesRepaired.value))
+}
+
+const getbillnumber = async() => {
+    const ansawer = await axios.get(`http://127.0.0.1:8000/getBillNumber/${repairRef.value}`)
+    bill_number.value = ansawer.data[0].bill_number
 }
 const repairPhone = async () => {
-    console.log(startShift.value)
-    const ansawer = await axios.put(`http://127.0.0.1:8000/repairphone/${repairRef.value}/${startShift.value}`)
+    const ansawer = await axios.put(`http://127.0.0.1:8000/repairphone/${repairRef.value}/${startShift.value}/${bill_number.value}`)
     await getPhonesR()
     switchSRC()
 }
+onMounted(getbillnumber)
 </script>
 
 <template>

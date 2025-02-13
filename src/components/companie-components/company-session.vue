@@ -1,5 +1,6 @@
 <script>
 import { inject, onMounted, ref } from "vue";
+import router from '@/routers/routes';
 import axios from "axios";
 
 export default {
@@ -10,7 +11,6 @@ export default {
         const urlImgCompany = ref(null);
         const loggedCompany = inject("loggedCompany", ref(null));
         const isUploading = ref(false);
-        const closeSession = inject("closeSession")
 
         const handleFileInput = (event) => {
             if (event.target.files.length > 0) {
@@ -82,7 +82,11 @@ onMounted(() => {
     getWorkersCount();
 })
 
-
+const closeCompany = () => {
+    localStorage.removeItem("loggedCompany");
+    loggedCompany.value = null
+    router.push("/loginCompany")
+}
     return {
             companyImageExisting,
             fileName,
@@ -92,7 +96,7 @@ onMounted(() => {
             urlImgCompany,
             loggedCompany,
             workersCount,
-            closeSession
+            closeCompany
         };
     },
 };
@@ -116,7 +120,7 @@ onMounted(() => {
                 <ion-icon name="cloud-upload"></ion-icon>
             </button>
         </form>
-        <button class="close-btn" @click="closeSession">Cerrar Sesion</button>
+        <button class="close-btn" @click="closeCompany">Cerrar Sesion</button>
     </section>
 </template>
 

@@ -1,5 +1,5 @@
   <script>
-  import { computed, inject, ref } from 'vue';
+  import { computed, inject, ref, onMounted } from 'vue';
   import router from '@/routers/routes';
   import axios from 'axios';
 
@@ -20,24 +20,30 @@
       })
 
       const loginCompany = async () => {
-        try {
-          const response = await axios.post("http://127.0.0.1:8000/loginCompany", {
-            identifier: sesion.value.identifier,
-            password: sesion.value.password,
-          });
-          msg.value = response.data
-          loggedCompany.value = response.data.name; 
-          router.push("/companySession"); 
-        } catch (error) {
-          if (error.response && error.response.data) {
-            alert(`Error en el inicio de sesión: ${error.response.data.detail}`);
-            console.error("Error en el inicio de sesión", error.response.data);
-          } else {
-            alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
-            console.error(error);
-          }
+      try {
+        const response = await axios.post("http://127.0.0.1:8000/loginCompany", {
+          identifier: sesion.value.identifier,
+          password: sesion.value.password,
+        });
+
+        msg.value = response.data;
+        loggedCompany.value = response.data.name; 
+      
+        // Guardar en localStorage
+        localStorage.setItem("loggedCompany", JSON.stringify(response.data));
+
+        router.push("/companySession");
+      } catch (error) {
+        if (error.response && error.response.data) {
+          alert(`Error en el inicio de sesión: ${error.response.data.detail}`);
+          console.error("Error en el inicio de sesión", error.response.data);
+        } else {
+          alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+          console.error(error);
         }
-      };
+      }
+    };
+
 
       const signupCompany = async () => {
         try {
@@ -74,6 +80,15 @@
         isLogin.value = !isLogin.value;
       };
 
+      onMounted(() => {
+      const storedUser = localStorage.getItem("loggedCompany");
+      if (storedUser) {
+        loggedCompany.value = JSON.parse(storedUser).name; 
+        router.push("/companySession");
+      }
+    });
+
+
       return {
         toggleForm,
         loginCompany, 
@@ -83,7 +98,7 @@
         confirmPassword,
         passwordMatch,
         sesion,
-        msg,
+        msg
       };
     }
   };

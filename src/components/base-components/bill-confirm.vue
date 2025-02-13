@@ -1,5 +1,5 @@
 <script setup>
-import { inject } from 'vue';
+import { inject, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
@@ -36,8 +36,13 @@ const postbill = async () => {
         }
 }
 
+watch(phonesReceived, (newVal) => {
+    localStorage.setItem("phonesReceived", JSON.stringify(newVal))
+})
+
 const updateReceived = () =>{
     phonesReceived.value++
+    localStorage.setItem("phonesReceived", JSON.stringify(phonesReceived.value))
 }
 </script>
 

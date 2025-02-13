@@ -1,46 +1,65 @@
 <script setup>
 import axios from 'axios';
-import { ref, computed, inject } from 'vue';
+import { ref, computed, inject, watch } from 'vue';
 
+// Variables
 const sale = ref(0);
 const original_price = ref(0);
 const revenue_price = computed(() => sale.value - original_price.value);
+
+// Inyecta las variables globales
 const startShift = inject("startShift");
-const total_sales = inject("total_sales")
-const total_revenue = inject("total_revenue")
+const total_sales = inject("total_sales");
+const total_revenue = inject("total_revenue");
 const msg = ref("");
 
-
+// Estructura de ventas
 const sales = ref({
-        ref_shift : startShift.value,
-        product:"",
-        sale: sale,
-        original_price: original_price,
-        revenue_price: revenue_price
-    });
+    ref_shift: startShift.value,
+    product: "",
+    sale: 0,
+    original_price: 0,
+    revenue_price: 0
+});
 
+// Observadores para guardar en localStorage
+watch(total_sales, (newVal) => {
+    localStorage.setItem("total_sales", JSON.stringify(newVal));
+});
+watch(total_revenue, (newVal) => {
+    localStorage.setItem("total_revenue", JSON.stringify(newVal));
+});
 
+// Función para registrar ventas
 const postSales = async () => {
     try {
-        const ansawer = await axios.post('http://127.0.0.1:8000/insertdelivery', sales.value)
-        msg.value = ansawer.data.msg;
-        total_sales.value += sale.value
-        total_revenue.value += revenue_price.value
-        sales.value = {
-            ref_shift : "",
-            product:"",
-            sale: 0,
-            original_price: 0,
-            revenue_price: 0
-        };
-        sale.value = 0
-        original_price.value = 0
-        revenue_price.value = 0
+        sales.value.sale = sale.value;
+        sales.value.original_price = original_price.value;
+        sales.value.revenue_price = revenue_price.value;
+
+        const response = await axios.post('http://127.0.0.1:8000/insertdelivery', sales.value);
+        msg.value = response.data.msg;
+
+        // Actualizar valores globales
+        total_sales.value += sale.value;
+        total_revenue.value += revenue_price.value;
+
+        // Guardar en localStorage
+        localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
+        localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
+
+        // Resetear valores
+        sale.value = 0;
+        original_price.value = 0;
+        sales.value.product = "";
+
     } catch (error) {
         console.error('Error en ventas: ', error);
     }
 }
+
 </script>
+
 
 
 <template>

@@ -36,10 +36,10 @@ const getList =  async () => {
         } else if (listOption.value === "repaired") {
             url = `http://127.0.0.1:8000/shiftRepaired/${props.shift.ref_shift}`;
         } else if (listOption.value === "delivery") {
-            url = `http://127.0.0.1:8000/billDeliveredWorker/${loggedDocument.value}`;
+            url = `http://127.0.0.1:8000/shiftDelivery/${props.shift.ref_shift}`;
         }
     const ansawer = await axios.get(url)
-    bills.value = ansawer.data
+    bills.value = ansawer.data  
     }catch (error) {
         console.error("Error al realizar la búsqueda:", error);
     }

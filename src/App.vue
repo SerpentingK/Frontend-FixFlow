@@ -221,14 +221,6 @@ watch(
   }
 );
 
-const closeSession = () => {
-  loggedCompany.value = null
-  loggedDocument.value = null
-  loggedWorker.value = null
-  router.push("/loginCompany")
-}
-
-provide("closeSession", closeSession)
 
 
 </script>
