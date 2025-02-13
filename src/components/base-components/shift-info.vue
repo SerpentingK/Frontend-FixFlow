@@ -11,7 +11,7 @@ const props = defineProps({
       ref_shift: "080604-1",
       document: "Juan Pérez",
       start_time: "08:00",
-      finish_time: "16:00",
+      finish_time: "00:00",
       total_received: 1000000,
       total_gain: 800000,
       total_out: 200000,

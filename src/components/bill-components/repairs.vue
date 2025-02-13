@@ -6,7 +6,7 @@ import debounce from "lodash/debounce";
 const phonesRepair = inject('phonesRepair')
 const getPhonesR = inject('getPhonesR')
 const search = ref("");
-const loggedCompany = inject("loggedCompany", ref(null));
+const loggedCompany = inject("loggedCompany");
 
 const searchs = debounce(async () => {
     if(!search.value.trim()){
@@ -19,7 +19,7 @@ const searchs = debounce(async () => {
     } catch (error) {
         
     }
-}, 900)
+}, 500)
 
 watch(search, searchs);
 
@@ -39,7 +39,6 @@ const switchSRC = inject("switchSRC")
                 <ion-icon name="albums"></ion-icon>
                 <input type="text" id="search-inp" placeholder="factura" v-model="search">
             </label>
-            <button>Buscar</button>
         </form>
 
         <fieldset v-for="phone in phonesRepair" :key="phone.phone_ref" class="phone-container">

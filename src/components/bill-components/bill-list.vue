@@ -10,7 +10,7 @@ const bills = ref([]);
 const isLoading = ref(false); // Indicador de carga
 const search = ref(""); // Texto de búsqueda
 const searchType = ref("1"); // Tipo de búsqueda
-const loggedCompany = inject("loggedCompany", ref(null));
+const loggedCompany = inject("loggedCompany");
 
 // Función para cargar todas las facturas
 const loadAllBills = async () => {
@@ -57,7 +57,7 @@ const searchBills = debounce(async () => {
   } finally {
     isLoading.value = false; // Desactivar indicador de carga
   }
-}, 900); // Retardo de 900 ms
+}, 500); // Retardo de 900 ms
 
 // Observador para activar la búsqueda mientras el usuario escribe
 watch(search, searchBills);
@@ -79,7 +79,6 @@ onMounted(loadAllBills);
                 <option value="3">Cliente</option>
             </select>
             <input type="text" placeholder="Buscar" v-model="search" />
-            <button type="submit">Buscar</button>
         </form>
         <ol class="bill-list">
             <!-- Lista de facturas -->

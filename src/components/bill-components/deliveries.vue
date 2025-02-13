@@ -1,23 +1,28 @@
 <script setup>
 import axios from 'axios';
-import { inject, ref, onMounted } from 'vue';
+import debounce from "lodash/debounce";
+import { inject, ref, onMounted, watch } from 'vue';
 
 const deliveredPhone = inject('deliveredPhone')
 const getPhonesD = inject('getPhonesD')
 const search = ref("");
 
-const searchs = async () => {
+const loggedCompany = inject("loggedCompany");
+
+const searchs = debounce(async () => {
     if(!search.value.trim()){
         getPhonesD()
         return
     }
     try {
-        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearchDelivered/${search.value}`)
+        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearchDelivered/${loggedCompany.value}/${search.value}`)
         deliveredPhone.value = ansawer.data
     } catch (error) {
         
     }
-}
+}, 500)
+
+watch(search, searchs)
 
 onMounted(async()=>{
      await getPhonesD()
@@ -33,7 +38,6 @@ const switchSDC = inject("switchSDC")
                 <ion-icon name="albums"></ion-icon>
                 <input type="text" id="search-inp" placeholder="Numero de factura" v-model="search">
             </label>
-            <button>Buscar</button>
         </form>
         <fieldset v-for="phone in deliveredPhone" :key="phone.phone_ref" class="phone-container">
             <legend>{{ phone.phone_ref.split('-').slice(1).join('-') }}</legend>
