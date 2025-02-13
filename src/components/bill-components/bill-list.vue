@@ -1,6 +1,7 @@
 <script setup>
 import axios from "axios";
-import { inject, onMounted, ref } from "vue";
+import { inject, onMounted, ref, watch } from "vue";
+import debounce from "lodash/debounce";
 
 const switch_sbf = inject("switch_sbf");
 
@@ -13,46 +14,53 @@ const loggedCompany = inject("loggedCompany", ref(null));
 
 // Función para cargar todas las facturas
 const loadAllBills = async () => {
-    try {
-        isLoading.value = true; // Activar indicador de carga
-        const answer = await axios.get(`http://127.0.0.1:8000/someDataOfBill/${loggedCompany.value}`);
-        bills.value = answer.data;
-    } catch (error) {
-        console.error("Error al cargar todas las facturas:", error);
-    } finally {
-        isLoading.value = false; // Desactivar indicador de carga
-    }
+  try {
+    isLoading.value = true; // Activar indicador de carga
+    const answer = await axios.get(
+      `http://127.0.0.1:8000/someDataOfBill/${loggedCompany.value}`
+    );
+    bills.value = answer.data;
+  } catch (error) {
+    console.error("Error al cargar todas las facturas:", error);
+  } finally {
+    isLoading.value = false; // Desactivar indicador de carga
+  }
 };
 
 // Función de búsqueda
-const searchs = async () => {
-    if (!search.value.trim()) {
-        loadAllBills(); // Mostrar todas las facturas si el campo está vacío
-        return;
+const searchBills = debounce(async () => {
+  if (!search.value.trim()) {
+    loadAllBills(); // Mostrar todas las facturas si el campo está vacío
+    return;
+  }
+
+  try {
+    isLoading.value = true; // Activar indicador de carga
+    let url = "";
+
+    // Determinar la URL según el tipo de búsqueda
+    if (searchType.value === "1") {
+      // Filtrar por número de factura
+      url = `http://127.0.0.1:8000/searchBillsByNumber/${loggedCompany.value}/${search.value}`;
+    } else if (searchType.value === "2") {  
+      // Filtrar por fecha
+      url = `http://127.0.0.1:8000/searchBillsByDate/${loggedCompany.value}/${search.value}`;
+    } else if (searchType.value === "3") {
+      // Filtrar por cliente
+      url = `http://127.0.0.1:8000/searchBillsByName/${loggedCompany.value}/${search.value}`;
     }
 
-    try {
-        isLoading.value = true; // Activar indicador de carga
-        let url = "";
+    const tempBills = await axios.get(url);
+    bills.value = Array.isArray(tempBills.data) ? tempBills.data : [tempBills.data];
+  } catch (error) {
+    console.error("Error al realizar la búsqueda:", error);
+  } finally {
+    isLoading.value = false; // Desactivar indicador de carga
+  }
+}, 900); // Retardo de 900 ms
 
-        // Determinar la URL según el tipo de búsqueda
-        if (searchType.value === "1") {
-            url = `http://127.0.0.1:8000/oneDataOfBill/${search.value}`;
-        } else if (searchType.value === "2") {
-            url = `http://127.0.0.1:8000/billByDate/${search.value}`;
-        } else if (searchType.value === "3") {
-            url = `http://127.0.0.1:8000/billByClient/${search.value}`;
-        }
-
-        // Lista temporal para evitar efectos visuales indeseados
-        const tempBills = await axios.get(url);
-        bills.value = Array.isArray(tempBills.data) ? tempBills.data : [tempBills.data];
-    } catch (error) {
-        console.error("Error al realizar la búsqueda:", error);
-    } finally {
-        isLoading.value = false; // Desactivar indicador de carga
-    }
-};
+// Observador para activar la búsqueda mientras el usuario escribe
+watch(search, searchBills);
 
 // Cargar todas las facturas al montar el componente
 onMounted(loadAllBills);
@@ -60,8 +68,11 @@ onMounted(loadAllBills);
 
 <template>
     <section class="container">
+        <div v-if="isLoading" class="overlay">
+            <div class="spinner"></div>
+        </div>
         <h2>LISTA DE FACTURAS</h2>
-        <form @submit.prevent="searchs" class="search-form">
+        <form @submit.prevent="searchBills" class="search-form">
             <select v-model="searchType">
                 <option value="1">Numero de Factura</option>
                 <option value="2">Fecha</option>
@@ -71,25 +82,24 @@ onMounted(loadAllBills);
             <button type="submit">Buscar</button>
         </form>
         <ol class="bill-list">
-            <!-- Indicador de carga -->
-            <p v-if="isLoading" class="loading">Cargando...</p>
-
             <!-- Lista de facturas -->
             <transition-group name="fade">
-                <button v-for="bill in bills" :key="bill.bill_number" @click="switch_sbf(bill.bill_number)">
+                <button 
+                    v-for="bill in bills" 
+                    :key="bill.bill_number" 
+                    @click="switch_sbf(bill.bill_number)"
+                >
                     <fieldset>
-                        <legend>{{ bill.bill_number }}</legend>
+                        <legend>{{ bill.bill_number.split('-').slice(1).join('-') }}</legend>
                         <span>{{ bill.client_name }}</span>
                         <span>{{ bill.entry_date }}</span>
                     </fieldset>
                 </button>
             </transition-group>
-
-            <!-- Botón para cargar más -->
-            <button class="load-btn">Cargar Más</button>
         </ol>
     </section>
 </template>
+
 <style scoped>
 .container {
     position: fixed;
@@ -190,10 +200,35 @@ button.load-btn{
     transition: .3s;
 }
 
-.loading {
-    color: var(--baseOrange);
-    text-align: center;
-    margin: 10px 0;
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid var(--baseOrange);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 @media (min-width: 768px) {

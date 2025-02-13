@@ -33,6 +33,7 @@ const getList =  async () => {
 onMounted(() => {
     getList()
 })
+
 </script>
 
 <template>

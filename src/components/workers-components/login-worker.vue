@@ -1,5 +1,5 @@
 <script>
-import { inject, ref } from 'vue';
+import { inject, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -26,10 +26,14 @@ export default{
             password: sessionworker.value.password,
             });
             loggedDocument.value = sessionworker.value.document
+            localStorage.setItem("loggedDocument", JSON.stringify(sessionworker.value.document));
             msg.value = answer.data.status;
             loggedWorker.value = answer.data.wname;
+            localStorage.setItem("loggedWorker", JSON.stringify(answer.data.wname));
             workerRole.value = answer.data.role;
+            localStorage.setItem("workerRole", JSON.stringify(answer.data.role));
             startShift.value = answer.data.shift
+            localStorage.setItem("startShift", JSON.stringify(answer.data.shift));
             router.push('/bills')
         } catch (error) {
             if (error.response && error.response.data) {
@@ -41,6 +45,25 @@ export default{
             }
         }
     }
+    onMounted(() => {
+    const storedDocument = localStorage.getItem("loggedDocument");
+    const storedWorker = localStorage.getItem("loggedWorker");
+    const storedRole = localStorage.getItem("workerRole");
+    const storedShift = localStorage.getItem("startShift");
+
+    if (storedDocument && storedWorker && storedRole && storedShift) {
+        loggedDocument.value = JSON.parse(storedDocument);
+        loggedWorker.value = JSON.parse(storedWorker);
+        workerRole.value = JSON.parse(storedRole);
+        startShift.value = JSON.parse(storedShift);
+
+        // 🔄 Forzar actualización de Vue
+        setTimeout(() => {
+        router.push("/workers/worker-profile");
+        }, 100);
+    }
+    });
+
     return{
         loginWorker,
         sessionworker

@@ -14,11 +14,10 @@ export default {
         availableDevices: [] // Lista de dispositivos por teléfono
       },
     ]);
-    const loggedDocument = inject("loggedDocument", ref(null))
+    const loggedWorker = inject("loggedWorker", ref(null))
+    const startShift = inject("startShift", ref(null));
     const billData = inject('billData');
-    const phones_amount = ref(1);
-    const selectedBrandName = ref(null);
-    const selectedModelName = ref(null);
+    const phones_amount = ref(1);   
     const newBrand = ref(null);
     const newDevice = ref(null);
     const brands = ref([]);
@@ -78,34 +77,49 @@ export default {
       }
     };
 
-    const addNewBrand = async () => {
-      if (newBrand.value && !brands.value.some((b) => b.name === newBrand.value)) {
+    const addNewBrand = async (index) => {
+    if (newBrand.value && !brands.value.some((b) => b.name === newBrand.value)) {
         try {
-          await axios.post('http://127.0.0.1:8000/newBrand', { name: newBrand.value });
-          brands.value.push({ name: newBrand.value });
-          selectedBrandName.value = newBrand.value;
-          newBrand.value = '';
+        // Agregar nueva marca a la API
+        await axios.post('http://127.0.0.1:8000/newBrand', { name: newBrand.value });
+        // Añadir la marca a la lista local
+        brands.value.push({ name: newBrand.value });
+        // Asignar la nueva marca como seleccionada
+        phones.value[index].brand_name = newBrand.value;
+        // Limpiar el campo de entrada de nueva marca
+        newBrand.value = '';
         } catch (error) {
-          console.error('Error agregando nueva marca:', error);
+        console.error('Error agregando nueva marca:', error);
         }
-      }
-    };
+    }
+};
 
-    const addNewDevice = async () => {
-      if (newDevice.value && !devices.value.some((d) => d.name === newDevice.value)) {
-        try {
-          await axios.post('http://127.0.0.1:8000/newDevice', {
-            id_brands: selectedBrandName.value,
-            name: newDevice.value,
-          });
-          devices.value.push({ name: newDevice.value });
-          selectedModelName.value = newDevice.value;
-          newDevice.value = '';
-        } catch (error) {
-          console.error('Error agregando nuevo dispositivo:', error);
-        }
-      }
-    };
+
+const addNewDevice = async (index) => {
+  const brandName = phones.value[index].brand_name; // Marca seleccionada del teléfono
+  if (!brandName) {
+    console.error('No se ha seleccionado una marca.');
+    return;
+  }
+  if (newDevice.value && !phones.value[index].availableDevices.some((d) => d.name === newDevice.value)) {
+    try {
+      // Agregar nuevo dispositivo a la API
+      await axios.post('http://127.0.0.1:8000/newDevice', {
+        id_brands: brandName,
+        name: newDevice.value,
+      });
+      // Añadir dispositivo a la lista local de dispositivos disponibles
+      phones.value[index].availableDevices.push({ name: newDevice.value });
+      // Asignar el dispositivo nuevo como seleccionado
+      phones.value[index].device = newDevice.value;
+      // Limpiar el campo de entrada del nuevo dispositivo
+      newDevice.value = '';
+    } catch (error) {
+      console.error('Error agregando nuevo dispositivo:', error);
+    }
+  }
+};
+
 
     // Observador para actualizar los dispositivos cuando se cambia la marca en un teléfono
     watch(
@@ -129,18 +143,16 @@ export default {
         billData.value.client_name = clientName.value;
         billData.value.client_phone = clientPhone.value;
         billData.value.payment = payment.value
-        billData.value.document = loggedDocument.value // Asumiendo que payment se maneja en este componente
+        billData.value.wname = loggedWorker.value 
+        billData.value.ref_shift = startShift.value
     // Crear una copia de phones_list excluyendo 'availableDevices'
         billData.value.phones = phones.value.map(({ availableDevices, ...rest }) => rest);
 
       switchSBC(); // Cambia a la vista de confirmación
     };
 
-
     return {
       phones_amount,
-      selectedBrandName,
-      selectedModelName,
       totalPrice,
       due,
       increasePhonesAmount,
@@ -159,7 +171,8 @@ export default {
       clientName,
       clientPhone,
       submitForm,
-      loggedDocument
+      loggedWorker,
+      startShift
     };
   },
 };
@@ -213,7 +226,7 @@ export default {
                     <label :for="`new-brand-${index}`" class="other-container" :class="{ active: phone.brand_name === 'Otro' }">
                         <span>Nueva marca:</span>
                         <input type="text" class="other-input" :id="`new-brand-${index}`" v-model="newBrand" :disabled="phone.brand_name !== 'Otro'" />
-                        <button type="button" @click="addNewBrand">
+                        <button type="button" @click="addNewBrand(index)">
                             <ion-icon name="add-circle"></ion-icon>
                         </button>
                     </label>
@@ -233,7 +246,7 @@ export default {
                     <label :for="`new-model-${index}`" class="other-container" :class="{ active: phone.device === 'Otro' }">
                         <span>Nuevo modelo:</span>
                         <input type="text" class="other-input" :id="`new-model-${index}`" v-model="newDevice" :disabled="phone.device !== 'Otro'" />
-                        <button type="button" @click="addNewDevice">
+                        <button type="button" @click="addNewDevice(index)">
                             <ion-icon name="add-circle"></ion-icon>
                         </button>
                     </label>

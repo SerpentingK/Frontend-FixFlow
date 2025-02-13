@@ -29,13 +29,26 @@ const router = useRouter()
 const putShift = async () => {
     try {
         const response = await axios.put(`http://127.0.0.1:8000/closeshift/${startShift.value}`, shiftclose.value)
-        loggedWorker.value = null;
-        workerRole.value = null;
-        loggedDocument.value = null;
+        localStorage.removeItem("total_sales");
         total_sales.value = 0;
+        localStorage.removeItem("total_outs");
         total_outs.value = 0;
+        localStorage.removeItem("total_revenue");
         total_revenue.value = 0;
-
+        localStorage.removeItem("loggedDocument");
+        loggedDocument.value = null
+        localStorage.removeItem("loggedWorker");
+        loggedWorker.value = null
+        localStorage.removeItem("workerRole");
+        workerRole.value = null
+        localStorage.removeItem("startShift");
+        startShift.value = null
+        localStorage.removeItem("phonesDelivered");
+        phonesDelivered.value = 0;
+        localStorage.removeItem("phonesReceived");
+        phonesReceived.value = 0;
+        localStorage.removeItem("phonesRepaired");
+        phonesRepaired.value = 0;
 
         router.push("/workers/login-worker")
         switchCS()
@@ -66,6 +79,22 @@ onMounted(async () => {
     }
 });
 
+// Cargar valores guardados al iniciar
+onMounted(() => {
+    const storedSales = localStorage.getItem("total_sales");
+    const storedRevenue = localStorage.getItem("total_revenue");
+    const storedOuts = localStorage.getItem("total_outs")
+    const storedDelivered = localStorage.getItem("phonesDelivered")
+    const storedReceived = localStorage.getItem("phonesReceived")
+    const storedRepaired = localStorage.getItem("phonesRepaired")
+
+    if (storedSales) total_sales.value = JSON.parse(storedSales);
+    if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);  
+    if (storedOuts) total_outs.value = JSON.parse(storedOuts)
+    if (storedDelivered) phonesDelivered.value = JSON.parse(storedDelivered)
+    if (storedReceived) phonesReceived.value = JSON.parse(storedReceived)
+    if (storedRepaired) phonesRepaired.value = JSON.parse(storedRepaired)
+});
 
 </script>
 

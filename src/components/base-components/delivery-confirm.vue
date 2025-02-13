@@ -1,12 +1,16 @@
 <script setup>
 import axios from 'axios';
-import { inject, ref, computed, watch } from 'vue';
+import { inject, ref, computed, watch, onMounted } from 'vue';
 const phonesDelivered = inject('phonesDelivered');
 
 const deliveryBrand = inject("deliveryBrand")
 const deliveryRef = inject("deliveryRef");
 const deliveryDevice = inject("deliveryDevice")
 const getPhonesD = inject('getPhonesD')
+
+watch(phonesDelivered, (newVal) => {
+    localStorage.setItem("phonesDelivered", JSON.stringify(newVal))
+})
 
 watch(deliveryRef, async (newVal) => {
   console.log("deliveryRef actualizado:", newVal);
@@ -23,12 +27,11 @@ watch(deliveryDevice, async (newVal) => {
 const switchSDC = inject("switchSDC");
 
 // Referencias para los valores de los inputs
-const saleValue = ref(0);
-const codeValue = ref(0);
-
-const revenue_price = computed(() => saleValue.value - codeValue.value);
+const saleValue = ref(null);
+const codeValue = ref(null);
+const due = ref(null)
 const startShift = inject("startShift");
-const total_sales = inject("total_sales")
+const total_sales = inject("total_sales")       
 const total_revenue = inject("total_revenue")
 
 // Computed para verificar si los campos están completos
@@ -37,8 +40,28 @@ const isFormComplete = computed(() => saleValue.value && codeValue.value);
 const updateDelivered = () => {
     if (isFormComplete.value) { // Ejecutar solo si el formulario está completo
         phonesDelivered.value++;
+        localStorage.setItem("phonesDelivered", JSON.stringify(phonesDelivered.value))
     }
 };
+
+const bill_number = ref(null)
+const client_name  = ref(null)
+const payment = ref(null)
+
+const getBillRepair = async () =>{
+    try{
+        const response = await axios.get(`http://127.0.0.1:8000/billRepairPhone/${deliveryRef.value}`)
+        due.value = response.data[0].due
+        client_name.value = response.data[0].client_name
+        payment.value = response.data[0].payment
+        bill_number.value = response.data[0].bill_number
+    }catch{
+
+    }
+}
+
+
+const revenue_price = computed(() => payment.value + saleValue.value - codeValue.value);
 
 const sales = ref({
         ref_shift : startShift.value,
@@ -48,12 +71,23 @@ const sales = ref({
         revenue_price: revenue_price
     });
 
-    const deliveryPhone = async () => {
-    try {
-        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}`, sales.value);
+watch(total_sales, (newVal) => {
+    localStorage.setItem("total_sales", JSON.stringify(newVal))
+})
+watch(total_revenue, (newVal) => {
+    localStorage.setItem("total_revenue", JSON.stringify(newVal));
+});
 
+const deliveryPhone = async () => {
+    try {
+        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
+        updateDelivered();
         total_revenue.value += revenue_price.value
         total_sales.value += saleValue.value
+
+        localStorage.setItem("total_sales", JSON.stringify(total_sales.value))
+        localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value))
+
 
         sales.value = {
             ref_shift: "",
@@ -66,10 +100,6 @@ const sales = ref({
         saleValue.value = 0;
         codeValue.value = 0;
 
-
-        updateDelivered();
-
-
         await getPhonesD();
 
         switchSDC();
@@ -77,6 +107,8 @@ const sales = ref({
         console.error("Error al entregar el teléfono:", error);
     }
 }
+
+onMounted(getBillRepair)
 </script>
 
 <template>
@@ -84,21 +116,29 @@ const sales = ref({
         <h3>¿Confirmar entrega?</h3>
         
         <form @submit.prevent="deliveryPhone">
-            <div class="info-container">
+            <div class="info-container">    
                 <span>Referencia: </span>
-                <span>{{ deliveryRef }}</span>
+                <span>{{ deliveryRef.split('-').slice(1).join('-') }}</span>
             </div>
             <div class="info-container">
                 <span>Producto: </span>
                 <span>{{ deliveryBrand }} {{ deliveryDevice }}</span>
             </div>
+            <div class="info-container">
+                <span>Nombre Cliente: </span>
+                <span>{{ client_name }}</span>
+            </div>
+            <div class="info-container">
+                <span>Abono:     </span>
+                <span>{{ payment }}</span>
+            </div>
             <div class="input-container">
-                <span>Venta:</span>
-                <input type="number" v-model="saleValue" placeholder="100000" required />
+                <span>Deuda:</span>
+                <input type="number" v-model="saleValue" :placeholder="due" required />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
-                <input type="number" v-model="codeValue" placeholder="30000" required />
+                <input type="number" v-model="codeValue" placeholder="0" required />
             </div>
             <div class="info-container">
                 <span>Ganancia:</span>

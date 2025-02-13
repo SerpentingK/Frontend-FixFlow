@@ -48,7 +48,8 @@ const billData = ref({
   client_name: '',
   client_phone: '',
   payment: 0,
-  document: "",
+  wname: "",
+  ref_shift: "",
   phones: [],
 });
 provide('billData', billData);
@@ -93,7 +94,7 @@ const phonesRepair = ref([])
 
 const getPhonesR = async () => {
     try {
-        const ansawer = await axios.get('http://127.0.0.1:8000/someDataPhone')
+        const ansawer = await axios.get(`http://127.0.0.1:8000/someDataPhone/${loggedCompany.value}`)
         phonesRepair.value = ansawer.data
     } catch (error) {
         
@@ -148,13 +149,13 @@ provide("switchSDC", switchSDC)
 
 const shift = {
         ref_shift: "",
-        wname: "",
+        document: "",
         start_time: "",
         finish_time: "",
         total_received: 0, // Valor en pesos colombianos (COP)
         total_gain: 0,      // Valor en pesos colombianos (COP)
         total_out: 0,       // Valor en pesos colombianos (COP)
-        date: ""       // Fecha derivada de ref_shift
+        date_shift: ""       // Fecha derivada de ref_shift
 }
 
 const showShiftInfo = ref(false)
@@ -167,7 +168,7 @@ const switchSI = (newShift) => {
   shift.total_received = newShift.total_received;
   shift.total_gain = newShift.total_gain;
   shift.total_out = newShift.total_out;
-  shift.date = newShift.date;
+  shift.date_shift = newShift.date_shift;
   showShiftInfo.value =!showShiftInfo.value;
 }
 
@@ -220,12 +221,6 @@ watch(
   }
 );
 
-const closeSession = () => {
-  loggedCompany.value = null
-  router.push("/loginCompany")
-}
-
-provide("closeSession", closeSession)
 
 
 </script>
