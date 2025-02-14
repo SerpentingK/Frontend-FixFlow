@@ -3,32 +3,50 @@ import axios from 'axios';
 import debounce from "lodash/debounce";
 import { inject, ref, onMounted, watch } from 'vue';
 
-const deliveredPhone = inject('deliveredPhone')
-const getPhonesD = inject('getPhonesD')
+const deliveredPhone = inject('deliveredPhone');
+const getPhonesD = inject('getPhonesD');
 const search = ref("");
 
 const loggedCompany = inject("loggedCompany");
 
+const isEmpty = ref(false);
+
 const searchs = debounce(async () => {
-    if(!search.value.trim()){
-        getPhonesD()
-        return
+    if (!search.value.trim()) {
+        await getPhonesD();
+        isEmpty.value = deliveredPhone.value.length === 0;
+        return;
     }
+    
     try {
-        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearchDelivered/${loggedCompany.value}/${search.value}`)
-        deliveredPhone.value = ansawer.data
+        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearchDelivered/${loggedCompany.value}/${search.value}`);
+        deliveredPhone.value = ansawer.data;
+        isEmpty.value = deliveredPhone.value.length === 0;
     } catch (error) {
-        
+        console.error(error);
     }
-}, 500)
+}, 500);
 
-watch(search, searchs)
+// Observar cambios en deliveredPhone para actualizar isEmpty en tiempo real
+watch(deliveredPhone, (newVal) => {
+    isEmpty.value = newVal.length === 0;
+}, { deep: true });
 
-onMounted(async()=>{
-     await getPhonesD()
-})
+onMounted(async () => {
+    await getPhonesD();
+    isEmpty.value = deliveredPhone.value.length === 0;
+});
 
-const switchSDC = inject("switchSDC")
+const switchSDC = inject("switchSDC");
+
+const handleDelivery = async (phoneRef, brandName, device) => {
+    try {
+        await switchSDC(phoneRef, brandName, device);
+        await getPhonesD(); // 🔄 Recargar datos después de la entrega
+    } catch (error) {
+        console.error("Error al entregar el teléfono:", error);
+    }
+};
 </script>
 
 <template>
@@ -39,21 +57,28 @@ const switchSDC = inject("switchSDC")
                 <input type="text" id="search-inp" placeholder="Numero de factura" v-model="search">
             </label>
         </form>
+
+        <!-- ✅ Mensaje se mostrará inmediatamente si la lista está vacía -->
+        <p v-if="isEmpty" class="no-phones-message">No hay teléfonos disponibles para entregar.</p>
+
+        <!-- Muestra la lista de celulares entregados -->
         <fieldset v-for="phone in deliveredPhone" :key="phone.phone_ref" class="phone-container">
             <legend>{{ phone.phone_ref.split('-').slice(1).join('-') }}</legend>
             <div class="info-container">
-                <span>{{phone.brand_name}} {{ phone.device }}</span>
+                <span>{{ phone.brand_name }} {{ phone.device }}</span>
                 <span>{{ phone.details }}</span>
                 <span>{{ phone.entry_date }}</span>
             </div>
-            <button class="delivery-btn" @click="switchSDC(phone.phone_ref, phone.brand_name, phone.device)"><ion-icon name="log-out"></ion-icon></button>
+            <button class="delivery-btn" @click="handleDelivery(phone.phone_ref, phone.brand_name, phone.device)">
+                <ion-icon name="log-out"></ion-icon>
+            </button>
         </fieldset>
     </section>
 </template>
 
-<style scoped>
 
-.out-container{
+<style scoped>
+.out-container {
     margin-top: 30px;
     width: 100%;
     display: flex;
@@ -99,7 +124,8 @@ const switchSDC = inject("switchSDC")
 .search-form button:active {
     scale: .9;
 }
-.phone-container{
+
+.phone-container {
     border-radius: 5px;
     border: 2px solid var(--secGray);
     background: var(--thirdGray);
@@ -109,18 +135,21 @@ const switchSDC = inject("switchSDC")
     width: 90%;
     justify-content: space-between;
 }
-.phone-container legend{
+
+.phone-container legend {
     font-size: 1.2rem;
     letter-spacing: 2px;
     padding: 0 5px;
 }
-.info-container{
+
+.info-container {
     display: flex;
     width: 80%;
     justify-content: space-between;
     flex-wrap: wrap;
 }
-.delivery-btn{
+
+.delivery-btn {
     all: unset;
     background-color: var(--baseOrange);
     display: flex;
@@ -130,7 +159,14 @@ const switchSDC = inject("switchSDC")
     border-radius: 5px;
     transition: .2s;
 }
-.delivery-btn:active{
+
+.delivery-btn:active {
     scale: .9;
+}
+
+.no-phones-message {
+    color: #f44336; /* Color rojo para el mensaje */
+    font-size: 1.2rem;
+    margin-top: 20px;
 }
 </style>

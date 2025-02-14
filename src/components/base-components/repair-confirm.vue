@@ -44,6 +44,11 @@ const repairPhone = async () => {
     switchSRC()
 }
 onMounted(getbillnumber)
+
+onMounted(() => {
+    const storedRepaired = localStorage.getItem("phonesRepaired")
+    if (storedRepaired) phonesRepaired.value = JSON.parse(storedRepaired)
+});
 </script>
 
 <template>

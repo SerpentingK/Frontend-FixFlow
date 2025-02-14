@@ -34,9 +34,10 @@ const startShift = inject("startShift");
 const total_sales = inject("total_sales")       
 const total_revenue = inject("total_revenue")
 
-// Computed para verificar si los campos están completos
-const isFormComplete = computed(() => saleValue.value && codeValue.value);
+// Computed para verificar si los campos están completos (permite 0 en saleValue)
+const isFormComplete = computed(() => (saleValue.value || saleValue.value === 0) && codeValue.value);
 
+// Actualiza el contador de entregados
 const updateDelivered = () => {
     if (isFormComplete.value) { // Ejecutar solo si el formulario está completo
         phonesDelivered.value++;
@@ -55,13 +56,15 @@ const getBillRepair = async () =>{
         client_name.value = response.data[0].client_name
         payment.value = response.data[0].payment
         bill_number.value = response.data[0].bill_number
-    }catch{
-
+    }catch(error){
+        console.error(error)
     }
 }
 
-
-const revenue_price = computed(() => payment.value + saleValue.value - codeValue.value);
+// Computed para el precio de ganancia
+const revenue_price = computed(() => {
+    return (payment.value || 0) + (saleValue.value || 0) - (codeValue.value || 0);
+});
 
 const sales = ref({
         ref_shift : startShift.value,
@@ -71,6 +74,7 @@ const sales = ref({
         revenue_price: revenue_price
     });
 
+// Watchers para actualizar los valores de ventas y ganancias
 watch(total_sales, (newVal) => {
     localStorage.setItem("total_sales", JSON.stringify(newVal))
 })
@@ -82,13 +86,19 @@ const deliveryPhone = async () => {
     try {
         const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();
-        total_revenue.value += revenue_price.value
-        total_sales.value += saleValue.value
+        
+        // Obtener valores previos del localStorage y sumarlos
+        const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
+        const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
 
-        localStorage.setItem("total_sales", JSON.stringify(total_sales.value))
-        localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value))
+        total_sales.value = previousSales + (saleValue.value || 0);
+        total_revenue.value = previousRevenue + (revenue_price.value || 0);
 
+        // Guardar los valores actualizados en localStorage
+        localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
+        localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
 
+        // Resetear valores
         sales.value = {
             ref_shift: "",
             product: "",
@@ -100,15 +110,26 @@ const deliveryPhone = async () => {
         saleValue.value = 0;
         codeValue.value = 0;
 
+        
         await getPhonesD();
 
         switchSDC();
     } catch (error) {
         console.error("Error al entregar el teléfono:", error);
     }
-}
+};
+
 
 onMounted(getBillRepair)
+
+onMounted(() => {
+    const storedSales = localStorage.getItem("total_sales");
+    const storedRevenue = localStorage.getItem("total_revenue");
+    const storedDelivered = localStorage.getItem("phonesDelivered")
+    if (storedSales) total_sales.value = JSON.parse(storedSales);
+    if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);
+    if (storedDelivered) phonesDelivered.value = JSON.parse(storedDelivered)  
+});
 </script>
 
 <template>

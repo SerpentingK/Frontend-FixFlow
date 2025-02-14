@@ -97,7 +97,12 @@ const getPhonesR = async () => {
         const ansawer = await axios.get(`http://127.0.0.1:8000/someDataPhone/${loggedCompany.value}`)
         phonesRepair.value = ansawer.data
     } catch (error) {
-        
+        console.error("📌 Error al obtener teléfonos reparados:", error);
+        if (error.response && error.response.status === 500) {
+          phonesRepair.value = []; // Si no hay datos, lista vacía
+        }
+    } finally {
+      phonesRepair.value = [...phonesRepair.value]; 
     }
 }
 
@@ -126,12 +131,19 @@ const deliveredPhone = ref([])
 
 const getPhonesD = async () => {
     try {
-        const ansawer = await axios.get('http://127.0.0.1:8000/someDataPhoneDelivered')
-        deliveredPhone.value = ansawer.data
+        const response = await axios.get(`http://127.0.0.1:8000/someDataPhoneDelivered/${loggedCompany.value}`);
+        deliveredPhone.value = response.data;
     } catch (error) {
-        
+        console.error("📌 Error al obtener teléfonos entregados:", error);
+        if (error.response && error.response.status === 500) {
+            deliveredPhone.value = []; // Si no hay datos, lista vacía
+        }
+    } finally {
+        deliveredPhone.value = [...deliveredPhone.value]; // Forzar actualización en Vue
     }
-}
+};
+
+
 
 const switchSDC = (newPhoneRef, newdeliveredB, newdeliveredD) => {
   showDeliveryConfirm.value = !showDeliveryConfirm.value
