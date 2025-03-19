@@ -19,75 +19,75 @@ export default {
         };
 
         const fetchCompanyData = async () => {
-        try {
-            const response = await axios.get(`http://127.0.0.1:8000/allcompany/${loggedCompany.value}`);
-            const relativePath = response.data.status;
-            urlImgCompany.value = `http://127.0.0.1:8000/${relativePath}`;
-            console.log(urlImgCompany.value);
-            companyImageExisting.value = true;
-        } catch (error) {
-            console.error("Error fetching company data:", error);
-        }
-};
-
-
-    const putImage = async () => {
-    try {
-        const formData = new FormData();
-        const inputFile = document.querySelector(".img-input");
-
-        if (inputFile.files.length === 0) {
-            throw new Error("No file selected");
-        }
-
-        formData.append("file", inputFile.files[0]);
-
-        await axios.put(
-            `http://127.0.0.1:8000/putCompanyImage/${loggedCompany.value}`,
-            formData,
-            {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+            try {
+                const response = await axios.get(`http://127.0.0.1:8000/allcompany/${loggedCompany.value}`);
+                const relativePath = response.data.status;
+                urlImgCompany.value = `http://127.0.0.1:8000/${relativePath}`;
+                console.log(urlImgCompany.value);
+                companyImageExisting.value = true;
+            } catch (error) {
+                console.error("Error fetching company data:", error);
             }
-        );
+        };
 
-        // Hacer el GET después del PUT para actualizar la imagen en la interfaz
-        await fetchCompanyData();
 
-        console.log("Image updated successfully");
-    } catch (error) {
-        console.error("Error updating image:", error);
-    }
-};
+        const putImage = async () => {
+            try {
+                const formData = new FormData();
+                const inputFile = document.querySelector(".img-input");
 
-    const getWorkersCount = async () => {
+                if (inputFile.files.length === 0) {
+                    throw new Error("No file selected");
+                }
+
+                formData.append("file", inputFile.files[0]);
+
+                await axios.put(
+                    `http://127.0.0.1:8000/putCompanyImage/${loggedCompany.value}`,
+                    formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
+
+                // Hacer el GET después del PUT para actualizar la imagen en la interfaz
+                await fetchCompanyData();
+
+                console.log("Image updated successfully");
+            } catch (error) {
+                console.error("Error updating image:", error);
+            }
+        };
+
+        const getWorkersCount = async () => {
             try {
                 if (loggedCompany.value) {
-                const answer = await axios.get(
-                    `http://127.0.0.1:8000/company/${loggedCompany.value}/workers/count`
-                );
-                workersCount.value = answer.data.count;
-                console.log(workersCount.value)
+                    const answer = await axios.get(
+                        `http://127.0.0.1:8000/company/${loggedCompany.value}/workers/count`
+                    );
+                    workersCount.value = answer.data.count;
+                    console.log(workersCount.value)
                 }
             } catch (error) {
                 console.error("Error al obtener el conteo de trabajadores", error);
             }
-            };
+        };
 
-            
 
-onMounted(() => {
-    fetchCompanyData();
-    getWorkersCount();
-})
 
-const closeCompany = () => {
-    localStorage.removeItem("loggedCompany");
-    loggedCompany.value = null
-    router.push("/loginCompany")
-}
-    return {
+        onMounted(() => {
+            fetchCompanyData();
+            getWorkersCount();
+        })
+
+        const closeCompany = () => {
+            localStorage.removeItem("loggedCompany");
+            loggedCompany.value = null
+            router.push("/loginCompany")
+        }
+        return {
             companyImageExisting,
             fileName,
             putImage,
@@ -146,7 +146,7 @@ const closeCompany = () => {
 
 .info-container {
     width: 90%;
-    height: auto    ;
+    height: auto;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -169,8 +169,10 @@ const closeCompany = () => {
 .company-img {
     width: 150px;
     height: 150px;
-    object-fit: cover; /* Recorta la imagen para llenar el contenedor sin deformarse */
-    border-radius: 10px; /* Opcional, para esquinas redondeadas */
+    object-fit: cover;
+    /* Recorta la imagen para llenar el contenedor sin deformarse */
+    border-radius: 10px;
+    /* Opcional, para esquinas redondeadas */
     display: block;
     filter: drop-shadow(0 0 15px rgba(39, 39, 39, 0.877));
 }

@@ -10,6 +10,8 @@ import closeShift from './components/base-components/close-shift.vue';
 import deliveryConfirm from './components/base-components/delivery-confirm.vue';
 import shiftInfo from './components/base-components/shift-info.vue';
 import confirmCloseShift from './components/base-components/confirm-close-shift.vue';
+import payment from './components/base-components/payment.vue';
+import renewedSuscription from './components/base-components/renewedSuscription.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
@@ -74,7 +76,7 @@ provide('bill_number', bill_number)
 
 provide('switch_sbf', switch_sbf)
 
-const showPayment = ref(true)
+const showPayment = ref(false)
 
 const switchSP = () => {
   if (!loggedCompany.value) {
@@ -88,6 +90,8 @@ const switchSP = () => {
     }
   }
 }
+
+provide("switchSP", switchSP)
 
 const showBillConfirm = ref(false)
 
@@ -228,6 +232,7 @@ const switchSI = (newShift) => {
 
 provide("switchSI", switchSI)
 
+
 // Instancias de router y route
 const router = useRouter();
 const route = useRoute();
@@ -263,6 +268,32 @@ const handlePath = () => {
     inWorkerProfile.value = false;
   }
 }
+
+
+
+const showRenewedSuscription = ref(false)
+
+const switchSRS = () => {
+  if (!suscripctionRenewed.value) {
+    if(!loggedCompany.value){
+      showRenewedSuscription.value = false
+    }
+    else{
+      showRenewedSuscription.value = true
+    }
+  }
+  else {
+    showRenewedSuscription.value = false
+  }
+}
+
+provide("switchSRS", switchSRS)
+
+
+const suscripctionRenewed = ref(true)
+
+provide("SR", suscripctionRenewed)
+
 onMounted(() => {
   handlePath();
 });
@@ -270,6 +301,7 @@ watch(
   () => route.path,
   (newPath) => {
     setTimeout(() => {
+      switchSRS()
       handlePath();
     }, 150); // Ajusta el retraso según sea necesario
   }
@@ -315,6 +347,12 @@ watch(
     </transition>
     <transition name="opacity-in" mode="out-in">
       <confirmCloseShift v-if="showConfirmCloseShift"></confirmCloseShift>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <payment v-if="showPayment"></payment>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <renewedSuscription v-if="showRenewedSuscription"></renewedSuscription>
     </transition>
 
 
@@ -371,8 +409,8 @@ watch(
 }
 
 .opacity-in-leave-to {
-opacity: 0;
-transform: scale(0.1);
-transform-origin: center;
+  opacity: 0;
+  transform: scale(0.1);
+  transform-origin: center;
 }
 </style>
