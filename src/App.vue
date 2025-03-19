@@ -1,3 +1,127 @@
+
+<script setup>
+import navBar from './components/base-components/nav-bar.vue';
+import billInfo from './components/base-components/bill-info.vue';
+import billsNavBar from './components/bill-components/bills-nav-bar.vue';
+import close_sesion_btn from './components/workers-components/close-shift-btn.vue';
+import billConfirm from './components/base-components/bill-confirm.vue';
+import backBtn from './components/base-components/back-btn.vue';
+import repairConfirm from './components/base-components/repair-confirm.vue';
+import closeShift from './components/base-components/close-shift.vue';
+import deliveryConfirm from './components/base-components/delivery-confirm.vue';
+import shiftInfo from './components/base-components/shift-info.vue';
+import payment from './components/base-components/payment.vue';
+import { provide, ref, watch, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import axios from 'axios';
+import Payment from './components/base-components/payment.vue';
+
+const companyPay = ref(false)
+const loggedCompany = ref(null);
+const loggedWorker = ref(null)
+const loggedDocument = ref(null)
+const workersCount = ref(0)
+const workerRole = ref(null)
+const phonesRepaired = ref(0)
+const phonesReceived = ref(0)
+const phonesDelivered = ref(0)
+const startShift = ref(null);
+const inBills = ref(false)
+const inWorkerProfile = ref(false)
+const total_sales = ref(0)
+const total_revenue = ref(0)
+const total_outs = ref(0)
+
+provide('total_outs', total_outs)
+provide('total_revenue', total_revenue)
+provide('total_sales', total_sales)
+provide('startShift', startShift)
+provide('loggedCompany', loggedCompany)
+provide('loggedWorker', loggedWorker)
+provide('loggedDocument', loggedDocument)
+provide('workersCount', workersCount)
+provide('workerRole', workerRole)
+provide('phonesRepaired', phonesRepaired);
+provide('phonesReceived', phonesReceived);
+provide('phonesDelivered', phonesDelivered);
+
+const billData = ref({
+  total_price: 0,
+  due: 0,
+  client_name: '',
+  client_phone: '',
+  payment: 0,
+  wname: "",
+  ref_shift: "",
+  phones: [],
+});
+provide('billData', billData);
+
+
+const showBillInfo = ref(false)
+
+const bill_number = ref(null)
+
+const switch_sbf = (newBillNumber) => {
+  bill_number.value = newBillNumber;
+  showBillInfo.value = !showBillInfo.value;
+  console.log("Número de factura seleccionado:", bill_number.value);
+};
+
+provide('bill_number', bill_number)
+
+provide('switch_sbf', switch_sbf)
+
+const showPayment = ref(true)
+
+const switchSP = () => {
+  if(!loggedCompany.value){
+    showPayment.value = !showPayment.value
+  }
+  else{
+    if(!companyPay.value){
+      showPayment.value = true
+    }else{
+      showPayment.value = false
+    }
+  }
+}
+
+provide("switchSP", switchSP)
+
+
+const showBillConfirm = ref(false)
+
+const switchSBC = () => {
+  showBillConfirm.value = !showBillConfirm.value
+}
+
+provide("switchSBC", switchSBC)
+
+const showCloseShift = ref(false)
+
+const switchCS = () => {
+  showCloseShift.value = !showCloseShift.value
+}
+
+provide("switchCS", switchCS)
+
+const showRepairConfirm = ref(false)
+const repairRef = ref("")
+const repairBrand = ref("")
+const repairDevice = ref("")
+
+const phonesRepair = ref([])
+
+const getPhonesR = async () => {
+    try {
+        const ansawer = await axios.get(`http://127.0.0.1:8000/someDataPhone/${loggedCompany.value}`)
+        phonesRepair.value = ansawer.data
+    } catch (error) {
+        
+    }
+}
+=======
   <script setup>
   import navBar from './components/base-components/nav-bar.vue';
   import billInfo from './components/base-components/bill-info.vue';
@@ -326,6 +450,96 @@
     transform: scale(0.1);
     transform-origin: center;
   }
+
+}
+onMounted(() => {
+  handlePath();
+});
+watch(
+  () => route.path,
+  (newPath) => {
+    setTimeout(() => {
+      handlePath();
+      switchSP();
+    }, 150); // Ajusta el retraso según sea necesario
+  }
+);
+
+
+
+</script>
+
+<template>
+  <section class="body">
+    <transition name="opacity-in" mode="out-in">
+      <billInfo v-if="showBillInfo"/>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <billConfirm v-if="showBillConfirm">
+      </billConfirm>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <repairConfirm v-if="showRepairConfirm"></repairConfirm>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <closeShift v-if="showCloseShift"></closeShift>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <deliveryConfirm v-if="showDeliveryConfirm" :ref_num="deliveryRef"></deliveryConfirm>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <navBar v-if="loggedCompany" :key="'navbar'"></navBar>
+    </transition>
+    <transition name="opacity-in" mode="ease-in">
+      <router-view :key="route.path"></router-view>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <billsNavBar v-if="inBills"></billsNavBar>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <close_sesion_btn v-if="inWorkerProfile"></close_sesion_btn>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <backBtn v-if="loggedCompany"></backBtn>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <shiftInfo v-if="showShiftInfo" :shift="shift"></shiftInfo>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <payment v-if="showPayment" :shift="shift"></payment>
+    </transition>
+
+
+  </section>
+</template>
+
+<style>
+* {
+  font-family: var(--baseFont);
+  letter-spacing: .6px;
+}
+
+.body {
+  height: 100%;
+}
+
+.opacity-in-enter-active,
+.opacity-in-leave-active {
+  transition: all .5s ease;
+}
+
+.opacity-in-enter-from {
+  opacity: 0;
+  transform: scale(0.1);
+  transform-origin: center;
+}
+
+.opacity-in-leave-to {
+  opacity: 0;
+  transform: scale(0.1);
+  transform-origin: center;
+}
+</style>
 
   .opacity-in-leave-to {
     opacity: 0;
