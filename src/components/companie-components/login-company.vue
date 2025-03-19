@@ -5,6 +5,8 @@
 
   export default {
     setup() {
+      const switchSP = inject('switchSP')
+
       const loggedCompany = inject("loggedCompany", ref(null));
       const isLogin = ref(true); // Propiedad para alternar entre login y registro
       const confirmPassword = ref("");
@@ -46,6 +48,8 @@
 
 
       const signupCompany = async () => {
+
+        
         try {
           if (!passwordMatch.value) {
             alert("Las contraseñas no coinciden.");
@@ -60,6 +64,7 @@
           };
           confirmPassword.value = "";
           isLogin.value = true;
+          switchSP()
         } catch (error) {
           if (error.response && error.response.data) {
             alert(`Error al registrar empresa: ${error.response.data.detail}`);

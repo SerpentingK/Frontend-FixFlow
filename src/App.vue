@@ -9,11 +9,13 @@ import repairConfirm from './components/base-components/repair-confirm.vue';
 import closeShift from './components/base-components/close-shift.vue';
 import deliveryConfirm from './components/base-components/delivery-confirm.vue';
 import shiftInfo from './components/base-components/shift-info.vue';
+import payment from './components/base-components/payment.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
+import Payment from './components/base-components/payment.vue';
 
-
+const companyPay = ref(false)
 const loggedCompany = ref(null);
 const loggedWorker = ref(null)
 const loggedDocument = ref(null)
@@ -68,6 +70,24 @@ const switch_sbf = (newBillNumber) => {
 provide('bill_number', bill_number)
 
 provide('switch_sbf', switch_sbf)
+
+const showPayment = ref(true)
+
+const switchSP = () => {
+  if(!loggedCompany.value){
+    showPayment.value = !showPayment.value
+  }
+  else{
+    if(!companyPay.value){
+      showPayment.value = true
+    }else{
+      showPayment.value = false
+    }
+  }
+}
+
+provide("switchSP", switchSP)
+
 
 const showBillConfirm = ref(false)
 
@@ -217,6 +237,7 @@ watch(
   (newPath) => {
     setTimeout(() => {
       handlePath();
+      switchSP();
     }, 150); // Ajusta el retraso según sea necesario
   }
 );
@@ -260,6 +281,9 @@ watch(
     </transition>
     <transition name="opacity-in" mode="out-in">
       <shiftInfo v-if="showShiftInfo" :shift="shift"></shiftInfo>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <payment v-if="showPayment" :shift="shift"></payment>
     </transition>
 
 
