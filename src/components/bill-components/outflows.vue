@@ -8,11 +8,8 @@ const isActive = (path) => route.path === path
 
 <template>
     <section class="container">
-        <h2>Entregas-Ventas-salidas</h2>
+        <h2>Ventas-salidas</h2>
         <nav class="outs-nav">
-            <router-link to="/bills/outflows/deliveries" class="router" :class="{active: isActive('/bills/outflows/deliveries')}">
-                <ion-icon name="phone-portrait"></ion-icon>
-            </router-link>
             <router-link to="/bills/outflows/sales" class="router" :class="{active: isActive('/bills/outflows/sales')}">
                 <ion-icon name="cash"></ion-icon>
             </router-link>

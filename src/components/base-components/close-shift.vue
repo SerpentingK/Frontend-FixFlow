@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios';
-import { inject, ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { inject, ref,onMounted } from 'vue';
+
 
 const phonesRepaired = inject('phonesRepaired');
 const phonesReceived = inject('phonesReceived');
@@ -11,52 +11,11 @@ const switchCS = inject("switchCS")
 
 
 const loggedWorker = inject("loggedWorker", ref(null));
-const workerRole = inject("workerRole", ref(null));
 const startShift = inject("startShift", ref(null));
-const total_sales = inject("total_sales")
-const total_revenue = inject("total_revenue")
-const total_outs = inject("total_outs")
-const finish = computed(() => total_sales.value - total_outs.value);
-const loggedDocument = ref(null)
+const switchCCS = inject("switchCCS")
 const start_time = ref("")
-const shiftclose = ref({
-        total_gain: total_revenue,
-        total_received: total_sales
-      })
-
-const router = useRouter()
-
-const putShift = async () => {
-    try {
-        const response = await axios.put(`http://127.0.0.1:8000/closeshift/${startShift.value}`, shiftclose.value)
-        localStorage.removeItem("total_sales");
-        total_sales.value = 0;
-        localStorage.removeItem("total_outs");
-        total_outs.value = 0;
-        localStorage.removeItem("total_revenue");
-        total_revenue.value = 0;
-        localStorage.removeItem("loggedDocument");
-        loggedDocument.value = null
-        localStorage.removeItem("loggedWorker");
-        loggedWorker.value = null
-        localStorage.removeItem("workerRole");
-        workerRole.value = null
-        localStorage.removeItem("startShift");
-        startShift.value = null
-        localStorage.removeItem("phonesDelivered");
-        phonesDelivered.value = 0;
-        localStorage.removeItem("phonesReceived");
-        phonesReceived.value = 0;
-        localStorage.removeItem("phonesRepaired");
-        phonesRepaired.value = 0;
-
-        router.push("/workers/login-worker")
-        switchCS()
-    } catch (error) {
-        console.error("Error al cerrar el turno:", error);
-        alert("No se pudo cerrar el turno. Inténtalo nuevamente.");
-    }
-}
+const total_cash = inject('total_cash');
+const total_platform = inject('total_platform');
 
 
 onMounted(async () => {
@@ -81,16 +40,9 @@ onMounted(async () => {
 
 // Cargar valores guardados al iniciar
 onMounted(() => {
-    const storedSales = localStorage.getItem("total_sales");
-    const storedRevenue = localStorage.getItem("total_revenue");
-    const storedOuts = localStorage.getItem("total_outs")
     const storedDelivered = localStorage.getItem("phonesDelivered")
     const storedReceived = localStorage.getItem("phonesReceived")
     const storedRepaired = localStorage.getItem("phonesRepaired")
-
-    if (storedSales) total_sales.value = JSON.parse(storedSales);
-    if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);  
-    if (storedOuts) total_outs.value = JSON.parse(storedOuts)
     if (storedDelivered) phonesDelivered.value = JSON.parse(storedDelivered)
     if (storedReceived) phonesReceived.value = JSON.parse(storedReceived)
     if (storedRepaired) phonesRepaired.value = JSON.parse(storedRepaired)
@@ -114,21 +66,13 @@ onMounted(() => {
             <span>Hora de inicio:</span>
             <span>{{ start_time }}</span>   
         </div>
-        <div class="info-div">
-            <span>Total recibido:</span>
-            <span>{{ total_sales }}</span>
+        <div class="info-div inp-div">
+            <span>Total en efectivo: </span>
+            <input type="number" v-model="total_cash" class="amount-inp" placeholder="">
         </div>
-        <div class="info-div">
-            <span>Total ganancia:</span>
-            <span>{{ total_revenue }}</span>
-        </div>
-        <div class="info-div">
-            <span>Total salidas:</span>
-            <span>{{ total_outs }}</span>
-        </div>
-        <div class="info-div">
-            <span>Final:</span>
-            <span>{{ finish }}</span>
+        <div class="info-div inp-div">
+            <span>Total en plataformas: </span>
+            <input type="number" v-model="total_platform" class="amount-inp" placeholder="">
         </div>
         <div class="info-div">
             <span>Celulares recibidos:</span>
@@ -144,7 +88,7 @@ onMounted(() => {
         </div>
         <div class="btns">
             <button @click="switchCS">Cancelar</button>
-            <button class="confirm-btn" @click="putShift">Confirmar</button>
+            <button class="confirm-btn" @click="switchCCS()">Confirmar</button>
         </div>
     </section>
 </template>
@@ -184,6 +128,8 @@ onMounted(() => {
     align-items: center;
     justify-content: space-between;
     color: var(--secGray);
+    flex-wrap: wrap;
+    gap: 15px;
 }
 .btns{
     margin: 10px 0;
@@ -205,6 +151,12 @@ onMounted(() => {
 }
 button.confirm-btn{
     background-color: var(--baseOrange);
+}
+.amount-inp{
+    all: unset;
+    background-color: white;
+    padding: 2px 10px;
+    border-radius: 5px;
 }
 
 @media (min-width: 1024px) {

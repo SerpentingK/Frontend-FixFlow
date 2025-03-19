@@ -3,47 +3,58 @@ import axios from 'axios';
 import { inject, watch, ref, onMounted } from 'vue';
 
 const phonesRepaired = inject('phonesRepaired');
-const repairBrand = inject("repairBrand")
+const repairBrand = inject("repairBrand");
 const repairRef = inject("repairRef");
-const repairDevice = inject("repairDevice")
-const getPhonesR = inject('getPhonesR')
-const startShift = inject('startShift')
+const repairDevice = inject("repairDevice");
+const startShift = inject('startShift');
 const bill_number = ref("");
+const infoBill = inject('infoBill');
 
 watch(repairRef, async (newVal) => {
-  console.log("repairRef actualizado:", newVal);
+    console.log("repairRef actualizado:", newVal);
 });
 
 watch(repairBrand, async (newVal) => {
-  console.log("repairBrand actualizado:", newVal);
+    console.log("repairBrand actualizado:", newVal);
 });
 
 watch(repairDevice, async (newVal) => {
-  console.log("repairBrand actualizado:", newVal);
+    console.log("repairDevice actualizado:", newVal);
 });
 
-const switchSRC = inject("switchSRC")
-
+const switchSRC = inject("switchSRC");
 
 watch(phonesRepaired, (newVal) => {
-    localStorage.setItem("phonesRepaired", JSON.stringify(newVal))
-})
+    localStorage.setItem("phonesRepaired", JSON.stringify(newVal));
+});
 
-const updateRepaired = () =>{
-    phonesRepaired.value++
-    localStorage.setItem("phonesRepaired", JSON.stringify(phonesRepaired.value))
-}
+const updateRepaired = () => {
+    phonesRepaired.value++;
+    localStorage.setItem("phonesRepaired", JSON.stringify(phonesRepaired.value));
+};
 
-const getbillnumber = async() => {
-    const ansawer = await axios.get(`http://127.0.0.1:8000/getBillNumber/${repairRef.value}`)
-    bill_number.value = ansawer.data[0].bill_number
-}
+const getbillnumber = async () => {
+    const ansawer = await axios.get(`http://127.0.0.1:8000/getBillNumber/${repairRef.value}`);
+    bill_number.value = ansawer.data[0].bill_number;
+};
+
 const repairPhone = async () => {
-    const ansawer = await axios.put(`http://127.0.0.1:8000/repairphone/${repairRef.value}/${startShift.value}/${bill_number.value}`)
-    await getPhonesR()
-    switchSRC()
-}
-onMounted(getbillnumber)
+    const ansawer = await axios.put(`http://127.0.0.1:8000/repairphone/${repairRef.value}/${startShift.value}/${bill_number.value}`);
+    // Actualizar el estado del teléfono en infoBill
+    const phone = infoBill.value.phones.find(p => p.phone_ref === repairRef.value);
+    if (phone) {
+        phone.repaired = true;
+    }
+    switchSRC();
+};
+
+onMounted(getbillnumber);
+
+onMounted(() => {
+    const storedRepaired = localStorage.getItem("phonesRepaired");
+    if (storedRepaired) phonesRepaired.value = JSON.parse(storedRepaired);
+});
+
 </script>
 
 <template>
@@ -59,6 +70,8 @@ onMounted(getbillnumber)
         </div>
     </section>
 </template>
+
+
 <style scoped>
 .container {
     position: fixed;
@@ -79,7 +92,7 @@ onMounted(getbillnumber)
     overflow-y: scroll;
     scrollbar-width: none;
     transition: all .4s ease;
-    z-index: 2;
+    z-index: 10;
 }
 
 h3 {

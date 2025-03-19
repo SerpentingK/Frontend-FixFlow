@@ -1,6 +1,7 @@
 <script setup>
 import axios from 'axios';
-import { inject, onMounted, ref } from 'vue';
+import { debounce } from 'lodash';
+import { inject, onMounted, ref, watch } from 'vue';
 
 
 const switchSI = inject("switchSI")
@@ -14,6 +15,7 @@ const loadAllShifts = async () => {
 
         // Función auxiliar para formatear la hora
         const formatTime = (dateString) => {
+            if (!dateString) return "Sesion En turno";
             const dateObj = new Date(dateString);
             let hours = dateObj.getHours();
             const minutes = dateObj.getMinutes().toString().padStart(2, '0');
@@ -30,20 +32,38 @@ const loadAllShifts = async () => {
             };
         });
     } catch (error) {
-        console.error("Error al cargar todos los turnos:", error);
+        console.error("Error al cargar los turno", error);
     }
 };
 
+const search = ref("");
+
+
+const searchsShifts = debounce(async () => {
+    if (!search.value.trim()) {
+        loadAllShifts(); // Mostrar todas las facturas si el campo está vacío
+        return;
+    }
+    try {
+        const answer = await axios.get(`http://127.0.0.1:8000/searchDateShift/${loggedCompany.value}/${search.value}`);
+        shifts.value = answer.data;
+    } catch (error) {
+        console.error("Error al cargar las búsquedas del turno", error);
+    }
+}, 500);
+
+
+watch(search, searchsShifts)
 
 onMounted(loadAllShifts)
+
 </script>
 
 <template>
     <section class="container">
         <h2>TURNOS</h2>
-        <form @submit.prevent="" class="search-form">
-            <input type="date">
-            <button><ion-icon name="search"></ion-icon></button>
+        <form @submit.prevent="searchsShifts" class="search-form">
+            <input type="date" v-model="search">
         </form>
         <ul class="shifts-list">
             <li v-for="shift in shifts" :key="shift" class="shift">

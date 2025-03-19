@@ -14,10 +14,7 @@ const isActive = (path)=> route.path.startsWith(path)
         <router-link to="/bills/bill-list" class="router" :class="{active: isActive('/bills/bill-list')}">
             <ion-icon name="albums"></ion-icon>
         </router-link>
-        <router-link to="/bills/repairs" class="router" :class="{active: isActive('/bills/repairs')}">
-            <ion-icon name="construct"></ion-icon>
-        </router-link>
-        <router-link to="/bills/outflows/deliveries" class="router" :class="{active: isActive('/bills/outflows')}">
+        <router-link to="/bills/outflows/sales" class="router" :class="{active: isActive('/bills/outflows')}">
             <ion-icon name="log-out"></ion-icon>
         </router-link>
     </nav>

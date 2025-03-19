@@ -8,6 +8,7 @@ export default {
     const phones = ref([
       {
         brand_name: null,
+        brand_id: 0,
         device: null,
         details: '',
         individual_price: 0,
@@ -15,6 +16,7 @@ export default {
       },
     ]);
     const loggedWorker = inject("loggedWorker", ref(null))
+    const loggedCompany = inject("loggedCompany", ref(null))
     const startShift = inject("startShift", ref(null));
     const billData = inject('billData');
     const phones_amount = ref(1);   
@@ -42,6 +44,7 @@ export default {
         phones_amount.value++;
         phones.value.push({
           brand_name: null,
+          brand_id: 0,
           device: null,
           details: '',
           individual_price: 0,
@@ -59,53 +62,75 @@ export default {
 
     const fetchBrands = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/allBrands');
+        const response = await axios.get(`http://127.0.0.1:8000/allBrands/${loggedCompany.value}`);
         brands.value = response.data;
       } catch (error) {
         console.error('Error cargando marcas desde la API:', error);
       }
     };
 
+
     // Cargar dispositivos para una marca seleccionada en un teléfono específico
     const fetchDevicesForPhone = async (index, brandName) => {
-      try {
-        const response = await axios.get(`http://127.0.0.1:8000/${brandName}/Devices`);
-        phones.value[index].availableDevices = response.data;
-      } catch (error) {
-        console.error('Error cargando dispositivos para la marca:', error);
-        phones.value[index].availableDevices = [];
-      }
+        try {
+            await brandNameId(brandName); // Obtener el ID de la marca antes de buscar dispositivos
+            if (!id_brands.value) {
+                console.error("No se pudo obtener el ID de la marca.");
+                return;
+            }
+
+            const response = await axios.get(`http://127.0.0.1:8000/${id_brands.value}/Devices`);
+            phones.value[index].availableDevices = response.data;
+        } catch (error) {
+            console.error("Error cargando dispositivos para la marca:", error);
+            phones.value[index].availableDevices = [];
+        }
     };
 
     const addNewBrand = async (index) => {
     if (newBrand.value && !brands.value.some((b) => b.name === newBrand.value)) {
         try {
         // Agregar nueva marca a la API
-        await axios.post('http://127.0.0.1:8000/newBrand', { name: newBrand.value });
+        await axios.post(`http://127.0.0.1:8000/newBrand/${loggedCompany.value}`, { name: newBrand.value });
         // Añadir la marca a la lista local
         brands.value.push({ name: newBrand.value });
         // Asignar la nueva marca como seleccionada
         phones.value[index].brand_name = newBrand.value;
         // Limpiar el campo de entrada de nueva marca
         newBrand.value = '';
+        
         } catch (error) {
         console.error('Error agregando nueva marca:', error);
         }
     }
 };
 
+const id_brands = ref(null)
+
+const brandNameId = async (name) => {
+    try {
+        const response = await axios.get(`http://127.0.0.1:8000/Brands/${name}/${loggedCompany.value}`)
+        id_brands.value = response.data[0].id
+    } catch (error) {
+        console.error('Error cargando id de marca:', error);
+        
+    }
+  }
 
 const addNewDevice = async (index) => {
-  const brandName = phones.value[index].brand_name; // Marca seleccionada del teléfono
-  if (!brandName) {
+  const name = phones.value[index].brand_name
+  await brandNameId(name)
+  if (!brandNameId) {
+    console.log(phones.value[index].brand_name)
     console.error('No se ha seleccionado una marca.');
     return;
   }
+  
   if (newDevice.value && !phones.value[index].availableDevices.some((d) => d.name === newDevice.value)) {
     try {
       // Agregar nuevo dispositivo a la API
       await axios.post('http://127.0.0.1:8000/newDevice', {
-        id_brands: brandName,
+        id_brands: id_brands.value,
         name: newDevice.value,
       });
       // Añadir dispositivo a la lista local de dispositivos disponibles
@@ -121,18 +146,21 @@ const addNewDevice = async (index) => {
 };
 
 
-    // Observador para actualizar los dispositivos cuando se cambia la marca en un teléfono
-    watch(
-      () => phones.value.map((phone) => phone.brand_name),
-      (newBrandNames, oldBrandNames) => {
-        newBrandNames.forEach((brandName, index) => {
-          if (brandName !== oldBrandNames[index]) {
-            fetchDevicesForPhone(index, brandName); // Cargar dispositivos para el teléfono específico
-          }
-        });
-      },
-      { deep: true }
+
+watch(
+        () => phones.value.map((phone) => phone.brand_name),
+        async (newBrandNames, oldBrandNames) => {
+            for (let index = 0; index < newBrandNames.length; index++) {
+                if (newBrandNames[index] !== oldBrandNames[index]) {
+                    await brandNameId(newBrandNames[index]); // Obtener brand_id
+                    phones.value[index].brand_id = id_brands.value; // Asignarlo al teléfono correspondiente
+                    await fetchDevicesForPhone(index, newBrandNames[index]); // Cargar dispositivos
+                }
+            }
+        },
+        { deep: true }
     );
+
 
     // Ciclo de vida
     onMounted(fetchBrands);
@@ -518,6 +546,17 @@ input[type=number]::-webkit-inner-spin-button {
     color: var(--baseGray);
     scale: .7;
 }
+.submit-btn{
+    background: var(--baseOrange);
+    border: none;
+    cursor: pointer;
+    color: white;
+    padding: 5px 20px;
+    border-radius: 5px;
+    border: 2px solid var(--baseOrange);
+    transition: .3s;
+    margin-bottom: 10px;
+}
 
 
 @media (min-width: 768px) {
@@ -578,6 +617,10 @@ input[type=number]::-webkit-inner-spin-button {
         background-color: var(--baseGray);
         box-shadow: var(--secShadow);
     }
-
+    .submit-btn:hover{
+        transform: scale(1.1);
+        background-color: var(--baseGray);
+        box-shadow: var(--secShadow);
+    }
 }
 </style>

@@ -1,11 +1,11 @@
 <script setup>
 import axios from 'axios';
-import { ref, inject, watch } from 'vue';
+import { ref, inject, watch, onMounted } from 'vue';
 
 
 const startShift = inject("startShift");
 const msg = ref("");
-const total_outs = inject("total_outs")
+const total_outs = inject("total_outs");
 
 const outFlows = ref({
         ref_shift : startShift.value,
@@ -22,7 +22,9 @@ const postOutFlows = async () => {
         const ansawer = await axios.post('http://127.0.0.1:8000/insertOutflow', outFlows.value)
         msg.value = ansawer.data.msg;
 
-        total_outs.value += outFlows.value.price
+        const previousOuts = JSON.parse(localStorage.getItem("total_outs")) || 0;
+
+        total_outs.value = previousOuts + (outFlows.value.price || 0);
 
         localStorage.setItem("total_outs", JSON.stringify(total_outs.value))
 
@@ -36,6 +38,10 @@ const postOutFlows = async () => {
     }
 }
 
+onMounted(() => {
+    const storedOuts = localStorage.getItem("total_outs")
+    if (storedOuts) total_outs.value = JSON.parse(storedOuts)
+});
 </script>
 
 <template>

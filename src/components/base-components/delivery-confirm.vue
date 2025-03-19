@@ -6,7 +6,7 @@ const phonesDelivered = inject('phonesDelivered');
 const deliveryBrand = inject("deliveryBrand")
 const deliveryRef = inject("deliveryRef");
 const deliveryDevice = inject("deliveryDevice")
-const getPhonesD = inject('getPhonesD')
+const infoBill = inject("infoBill")
 
 watch(phonesDelivered, (newVal) => {
     localStorage.setItem("phonesDelivered", JSON.stringify(newVal))
@@ -34,9 +34,10 @@ const startShift = inject("startShift");
 const total_sales = inject("total_sales")       
 const total_revenue = inject("total_revenue")
 
-// Computed para verificar si los campos están completos
-const isFormComplete = computed(() => saleValue.value && codeValue.value);
+// Computed para verificar si los campos están completos (permite 0 en saleValue)
+const isFormComplete = computed(() => (saleValue.value || saleValue.value === 0) && codeValue.value);
 
+// Actualiza el contador de entregados
 const updateDelivered = () => {
     if (isFormComplete.value) { // Ejecutar solo si el formulario está completo
         phonesDelivered.value++;
@@ -55,13 +56,50 @@ const getBillRepair = async () =>{
         client_name.value = response.data[0].client_name
         payment.value = response.data[0].payment
         bill_number.value = response.data[0].bill_number
-    }catch{
-
+        await getnumber_phones()
+    }catch(error){
+        console.error(error)
     }
 }
 
+const individual_price = ref(null)
 
-const revenue_price = computed(() => payment.value + saleValue.value - codeValue.value);
+const getPricePhone = async () =>{
+    try{
+        const response = await axios.get(`http://127.0.0.1:8000/getPricePhone/${deliveryRef.value}`)
+        individual_price.value = response.data[0].individual_price
+    }catch(error){
+        console.error(error)
+    }
+}
+
+const number_phones = ref(null)
+const delivered_count = ref(null)
+
+const getnumber_phones = async () =>{
+    try{
+        const response = await axios.get(`http://127.0.0.1:8000/getnumberPhones/${bill_number.value}`)
+        number_phones.value = response.data[0].numberphones
+        delivered_count.value = response.data[0].delivered_count
+    }catch(error){
+        console.error(error)
+    }
+}
+
+// Computed para el precio de ganancia
+const priceOff = computed(() => {
+    if (number_phones.value == 1 || number_phones.value >= 2 && delivered_count.value == number_phones.value - 1) { 
+        return due.value; 
+    }else if(number_phones.value >= 2){
+        return (individual_price.value) - (payment.value / number_phones.value); // Si no es el último, usa el precio individual
+    }
+});
+
+
+// Computed para el precio de ganancia
+const revenue_price = computed(() => {
+    return (payment.value || 0) + (saleValue.value || 0) - (codeValue.value || 0);
+});
 
 const sales = ref({
         ref_shift : startShift.value,
@@ -71,6 +109,7 @@ const sales = ref({
         revenue_price: revenue_price
     });
 
+// Watchers para actualizar los valores de ventas y ganancias
 watch(total_sales, (newVal) => {
     localStorage.setItem("total_sales", JSON.stringify(newVal))
 })
@@ -82,13 +121,20 @@ const deliveryPhone = async () => {
     try {
         const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();
-        total_revenue.value += revenue_price.value
-        total_sales.value += saleValue.value
+        // Emitir evento de entrega confirmada
 
-        localStorage.setItem("total_sales", JSON.stringify(total_sales.value))
-        localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value))
+        // Obtener valores previos del localStorage y sumarlos
+        const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
+        const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
 
+        total_sales.value = previousSales + (saleValue.value || 0);
+        total_revenue.value = previousRevenue + (revenue_price.value || 0);
 
+        // Guardar los valores actualizados en localStorage
+        localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
+        localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
+
+        // Resetear valores
         sales.value = {
             ref_shift: "",
             product: "",
@@ -100,15 +146,36 @@ const deliveryPhone = async () => {
         saleValue.value = 0;
         codeValue.value = 0;
 
-        await getPhonesD();
+        // Actualizar el estado del teléfono en infoBill
+        const phone = infoBill.value.phones.find(p => p.phone_ref === deliveryRef.value);
+        if (phone) {
+            phone.delivered = true;
+        }
 
         switchSDC();
     } catch (error) {
         console.error("Error al entregar el teléfono:", error);
     }
-}
+};
 
-onMounted(getBillRepair)
+const cancelAction = () => {
+    switchSDC(); // Devuelve false si se cancela
+};
+
+onMounted(() => {
+    getBillRepair()
+    getPricePhone()
+})
+
+
+onMounted(() => {
+    const storedSales = localStorage.getItem("total_sales");
+    const storedRevenue = localStorage.getItem("total_revenue");
+    const storedDelivered = localStorage.getItem("phonesDelivered")
+    if (storedSales) total_sales.value = JSON.parse(storedSales);
+    if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);
+    if (storedDelivered) phonesDelivered.value = JSON.parse(storedDelivered)  
+});
 </script>
 
 <template>
@@ -134,7 +201,7 @@ onMounted(getBillRepair)
             </div>
             <div class="input-container">
                 <span>Deuda:</span>
-                <input type="number" v-model="saleValue" :placeholder="due" required />
+                <input type="number" v-model="saleValue" :placeholder="priceOff" required />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
@@ -146,7 +213,7 @@ onMounted(getBillRepair)
             </div>
 
             <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
-                <button @click="switchSDC">Cancelar</button>
+                <button @click="cancelAction">Cancelar</button>
                 <button 
                     type="submit" 
                     :disabled="!isFormComplete"
@@ -179,7 +246,7 @@ onMounted(getBillRepair)
     overflow-y: scroll;
     scrollbar-width: none;
     transition: all .4s ease;
-    z-index: 2;
+    z-index: 10;
 }
 
 h3 {

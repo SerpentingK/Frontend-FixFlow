@@ -6,7 +6,9 @@ import debounce from "lodash/debounce";
 const phonesRepair = inject('phonesRepair')
 const getPhonesR = inject('getPhonesR')
 const search = ref("");
-const loggedCompany = inject("loggedCompany", ref(null));
+const loggedCompany = inject("loggedCompany");
+
+const isEmpty = ref(false);
 
 const searchs = debounce(async () => {
     if(!search.value.trim()){
@@ -16,19 +18,35 @@ const searchs = debounce(async () => {
     try {
         const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearch/${loggedCompany.value}/${search.value}`)
         phonesRepair.value = ansawer.data
+        isEmpty.value = phonesRepair.value.length === 0;
     } catch (error) {
         
     }
-}, 900)
+}, 500)
 
 watch(search, searchs);
 
+// Observar cambios en deliveredPhone para actualizar isEmpty en tiempo real
+watch(phonesRepair, (newVal) => {
+    isEmpty.value = newVal.length === 0;
+}, { deep: true });
+
 onMounted(async()=>{
     await getPhonesR()
+    isEmpty.value = phonesRepair.value.length === 0;
 })
 
 
 const switchSRC = inject("switchSRC")
+
+const handleRepair = async (phoneRef, brandName, device) => {
+    try {
+        await switchSRC(phoneRef, brandName, device);
+        await getPhonesR(); // 🔄 Recargar datos después de la entrega
+    } catch (error) {
+        console.error("Error al entregar el teléfono:", error);
+    }
+};
 </script>
 
 <template>
@@ -39,8 +57,10 @@ const switchSRC = inject("switchSRC")
                 <ion-icon name="albums"></ion-icon>
                 <input type="text" id="search-inp" placeholder="factura" v-model="search">
             </label>
-            <button>Buscar</button>
         </form>
+
+        <!-- ✅ Mensaje se mostrará inmediatamente si la lista está vacía -->
+        <p v-if="isEmpty" class="no-phones-message">No hay teléfonos disponibles para reparar.</p>
 
         <fieldset v-for="phone in phonesRepair" :key="phone.phone_ref" class="phone-container">
             <legend>{{ phone.phone_ref.split('-').slice(1).join('-') }}</legend>
@@ -49,7 +69,7 @@ const switchSRC = inject("switchSRC")
                 <span>{{ phone.details }}</span>
                 <span>{{ phone.entry_date }}</span>
             </div>
-            <button class="repair-btn" @click="switchSRC(phone.phone_ref, phone.brand_name, phone.device)"><ion-icon name="construct"></ion-icon></button>
+            <button class="repair-btn" @click="handleRepair(phone.phone_ref, phone.brand_name, phone.device)"><ion-icon name="construct"></ion-icon></button>
         </fieldset>
     </section>
 </template>
@@ -169,5 +189,10 @@ const switchSRC = inject("switchSRC")
     button:hover{
         scale: 1.1;
     }
+}
+.no-phones-message {
+    color: #f44336; /* Color rojo para el mensaje */
+    font-size: 1.2rem;
+    margin-top: 20px;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios';
-import { ref, computed, inject, watch } from 'vue';
+import { ref, computed, inject, watch, onMounted } from 'vue';
 
 // Variables
 const sale = ref(0);
@@ -40,9 +40,12 @@ const postSales = async () => {
         const response = await axios.post('http://127.0.0.1:8000/insertdelivery', sales.value);
         msg.value = response.data.msg;
 
-        // Actualizar valores globales
-        total_sales.value += sale.value;
-        total_revenue.value += revenue_price.value;
+        // Obtener valores previos del localStorage y sumarlos
+        const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
+        const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
+
+        total_sales.value = previousSales + (sale.value || 0);
+        total_revenue.value = previousRevenue + (revenue_price.value || 0);
 
         // Guardar en localStorage
         localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
@@ -57,6 +60,13 @@ const postSales = async () => {
         console.error('Error en ventas: ', error);
     }
 }
+
+onMounted(() => {
+    const storedSales = localStorage.getItem("total_sales");
+    const storedRevenue = localStorage.getItem("total_revenue");
+    if (storedSales) total_sales.value = JSON.parse(storedSales);
+    if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);
+});
 
 </script>
 
