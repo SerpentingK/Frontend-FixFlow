@@ -5,7 +5,7 @@ import { ref, inject, watch, onMounted } from 'vue';
 
 const startShift = inject("startShift");
 const msg = ref("");
-const total_outs = inject("total_outs")
+const total_outs = inject("total_outs");
 
 const outFlows = ref({
         ref_shift : startShift.value,
@@ -40,7 +40,6 @@ const postOutFlows = async () => {
 
 onMounted(() => {
     const storedOuts = localStorage.getItem("total_outs")
-    if (storedRepaired) phonesRepaired.value = JSON.parse(storedRepaired)
     if (storedOuts) total_outs.value = JSON.parse(storedOuts)
 });
 </script>

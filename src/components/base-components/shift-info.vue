@@ -1,7 +1,7 @@
 <script setup>
 import axios from 'axios';
 import workerBillList from '../workers-components/worker-bill-list.vue';
-import { inject, ref, onMounted } from 'vue';
+import { inject, ref, onMounted, watch } from 'vue';
 
 const props = defineProps({
   shift: {
@@ -20,11 +20,11 @@ const props = defineProps({
   }
 });
 
-
-
 const listOption = ref("entrance")
 
 const bills = ref([])
+
+const isEmpty = ref(false);
 
 const switchSI = inject("switchSI")
 
@@ -41,13 +41,23 @@ const getList =  async () => {
     const ansawer = await axios.get(url)
     bills.value = ansawer.data  
     }catch (error) {
-        console.error("Error al realizar la búsqueda:", error);
+    console.error("📌 Error al obtener teléfonos entregados:", error);
+    if (error.response && error.response.status === 500) {
+        bills.value = []; // Si no hay datos, lista vacía
+    }
+    } finally {
+    bills.value = [...bills.value]; // Forzar actualización en Vue
     }
 }
 
+watch(bills, (newVal) => {
+    isEmpty.value = newVal.length === 0;
+}, { deep: true });
+
 onMounted(() => {
     getList()
-})
+    isEmpty.value = bills.value.length === 0;
+    })
 </script>
 
 
@@ -100,7 +110,7 @@ onMounted(() => {
                 <ion-icon name="exit"></ion-icon>
             </label>
         </form>
-        <workerBillList :bills="bills" />
+        <workerBillList :bills="bills" :listOption="listOption" />
 
     </section>
 </template>

@@ -44,7 +44,7 @@ const postSales = async () => {
         const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
         const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
 
-        total_sales.value = previousSales + (saleValue.value || 0);
+        total_sales.value = previousSales + (sale.value || 0);
         total_revenue.value = previousRevenue + (revenue_price.value || 0);
 
         // Guardar en localStorage

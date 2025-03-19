@@ -9,8 +9,6 @@ import workersList from "@/components/workers-components/workers-list.vue";
 import bills from "@/components/bill-components/bills.vue";
 import billEntrance from "@/components/bill-components/bill-entrance.vue";
 import billList from "@/components/bill-components/bill-list.vue";
-import repairs from "@/components/bill-components/repairs.vue";
-import deliveries from "@/components/bill-components/deliveries.vue";
 import sales from "@/components/bill-components/sales.vue";
 import outflows from "@/components/bill-components/outflows.vue";
 import outs from "@/components/bill-components/outs.vue";
@@ -80,25 +78,15 @@ const routes = [
         component: billList,
       },
       {
-        path: "repairs",
-        name: "repairs",
-        component: repairs,
-      },
-      {
         path: "outflows",
         name: "outflows",
         component: outflows,
-        redirect: "outflows/deliveries",
+        redirect: "outflows/sales",
         children: [
           {
             path: "sales",
             name: "sales",
             component: sales,
-          },
-          {
-            path: "deliveries",
-            name: "deliveries",
-            component: deliveries,
           },
           {
             path: "outs",

@@ -135,7 +135,7 @@ const closeCompany = () => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 5px;
+    padding: 10px 5px;
     width: 75%;
     border-radius: 10px;
     background: #363636;
@@ -146,6 +146,7 @@ const closeCompany = () => {
 
 .info-container {
     width: 90%;
+    height: auto    ;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
@@ -156,6 +157,7 @@ const closeCompany = () => {
     box-shadow: inset -25px -25px 51px #a8a8a8,
         inset 25px 25px 51px #ffffff;
     display: flex;
+    padding: 10px 0;
 }
 
 .info-container ion-icon {
@@ -165,9 +167,14 @@ const closeCompany = () => {
 }
 
 .company-img {
-    height: 250px;
+    width: 150px;
+    height: 150px;
+    object-fit: cover; /* Recorta la imagen para llenar el contenedor sin deformarse */
+    border-radius: 10px; /* Opcional, para esquinas redondeadas */
+    display: block;
     filter: drop-shadow(0 0 15px rgba(39, 39, 39, 0.877));
 }
+
 
 .info-container h3 {
     font-family: var(--baseFont);
@@ -245,6 +252,7 @@ const closeCompany = () => {
 .upload-btn ion-icon {
     scale: 1.4;
 }
+
 
 /* Tablets: 768px y mayores */
 @media (min-width: 768px) {

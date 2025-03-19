@@ -1,18 +1,34 @@
 <script setup>
-import { inject } from 'vue';
+import { computed, inject } from 'vue';
 
-const switch_sbf = inject("switch_sbf")
+const switch_sbf = inject("switch_sbf");
 
-defineProps({
+const props = defineProps({
     bills: {
         type: Array,
         required: true
+    },
+    listOption: {
+        type: String,
+        required: true
     }
-})
+});
 
+// Computed para generar mensajes personalizados
+const emptyMessage = computed(() => {
+    if (props.listOption === "entrance") {
+        return "No hay teléfonos ingresados.";
+    } else if (props.listOption === "repaired") {
+        return "No hay teléfonos reparados.";
+    } else if (props.listOption === "delivery") {
+        return "No hay teléfonos entregados.";
+    }
+    return "No hay información disponible.";
+});
 </script>
+
 <template>
-    <ol class="bill-list">
+    <ol v-if="bills.length > 0" class="bill-list">
         <li v-for="bill in bills" :key="bill">
             <button @click="switch_sbf(bill.bill_number)">
                 <span>{{ bill.bill_number?.split('-').slice(1).join('-') }}</span>
@@ -23,7 +39,9 @@ defineProps({
             </button>
         </li>
     </ol>
+    <p v-else class="no-phones-message">{{ emptyMessage }}</p>
 </template>
+
 
 <style scoped>
 .bill-list{
@@ -43,6 +61,11 @@ defineProps({
     margin-top: 20px;
     border-radius: 10px;
 }
+
+.bill-list::-webkit-scrollbar{
+    display: none;
+}
+
 .bill-list li{
     width: 100%;
     display: flex;
@@ -66,6 +89,11 @@ defineProps({
 }
 .bill-list span{
     width: 40%;
+}
+.no-phones-message {
+    color: #f44336; /* Color rojo para el mensaje */
+    font-size: 1.2rem;
+    margin-top: 20px;
 }
 @media (min-width: 1024px) {
     .bill-list span{

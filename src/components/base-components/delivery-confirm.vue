@@ -6,7 +6,7 @@ const phonesDelivered = inject('phonesDelivered');
 const deliveryBrand = inject("deliveryBrand")
 const deliveryRef = inject("deliveryRef");
 const deliveryDevice = inject("deliveryDevice")
-const getPhonesD = inject('getPhonesD')
+const infoBill = inject("infoBill")
 
 watch(phonesDelivered, (newVal) => {
     localStorage.setItem("phonesDelivered", JSON.stringify(newVal))
@@ -56,10 +56,45 @@ const getBillRepair = async () =>{
         client_name.value = response.data[0].client_name
         payment.value = response.data[0].payment
         bill_number.value = response.data[0].bill_number
+        await getnumber_phones()
     }catch(error){
         console.error(error)
     }
 }
+
+const individual_price = ref(null)
+
+const getPricePhone = async () =>{
+    try{
+        const response = await axios.get(`http://127.0.0.1:8000/getPricePhone/${deliveryRef.value}`)
+        individual_price.value = response.data[0].individual_price
+    }catch(error){
+        console.error(error)
+    }
+}
+
+const number_phones = ref(null)
+const delivered_count = ref(null)
+
+const getnumber_phones = async () =>{
+    try{
+        const response = await axios.get(`http://127.0.0.1:8000/getnumberPhones/${bill_number.value}`)
+        number_phones.value = response.data[0].numberphones
+        delivered_count.value = response.data[0].delivered_count
+    }catch(error){
+        console.error(error)
+    }
+}
+
+// Computed para el precio de ganancia
+const priceOff = computed(() => {
+    if (number_phones.value == 1 || number_phones.value >= 2 && delivered_count.value == number_phones.value - 1) { 
+        return due.value; 
+    }else if(number_phones.value >= 2){
+        return (individual_price.value) - (payment.value / number_phones.value); // Si no es el último, usa el precio individual
+    }
+});
+
 
 // Computed para el precio de ganancia
 const revenue_price = computed(() => {
@@ -86,7 +121,8 @@ const deliveryPhone = async () => {
     try {
         const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();
-        
+        // Emitir evento de entrega confirmada
+
         // Obtener valores previos del localStorage y sumarlos
         const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
         const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
@@ -110,8 +146,11 @@ const deliveryPhone = async () => {
         saleValue.value = 0;
         codeValue.value = 0;
 
-        
-        await getPhonesD();
+        // Actualizar el estado del teléfono en infoBill
+        const phone = infoBill.value.phones.find(p => p.phone_ref === deliveryRef.value);
+        if (phone) {
+            phone.delivered = true;
+        }
 
         switchSDC();
     } catch (error) {
@@ -119,8 +158,15 @@ const deliveryPhone = async () => {
     }
 };
 
+const cancelAction = () => {
+    switchSDC(); // Devuelve false si se cancela
+};
 
-onMounted(getBillRepair)
+onMounted(() => {
+    getBillRepair()
+    getPricePhone()
+})
+
 
 onMounted(() => {
     const storedSales = localStorage.getItem("total_sales");
@@ -155,7 +201,7 @@ onMounted(() => {
             </div>
             <div class="input-container">
                 <span>Deuda:</span>
-                <input type="number" v-model="saleValue" :placeholder="due" required />
+                <input type="number" v-model="saleValue" :placeholder="priceOff" required />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
@@ -167,7 +213,7 @@ onMounted(() => {
             </div>
 
             <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
-                <button @click="switchSDC">Cancelar</button>
+                <button @click="cancelAction">Cancelar</button>
                 <button 
                     type="submit" 
                     :disabled="!isFormComplete"
@@ -200,7 +246,7 @@ onMounted(() => {
     overflow-y: scroll;
     scrollbar-width: none;
     transition: all .4s ease;
-    z-index: 2;
+    z-index: 10;
 }
 
 h3 {

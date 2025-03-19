@@ -32,7 +32,7 @@ const loadAllShifts = async () => {
             };
         });
     } catch (error) {
-        console.error("Error al cargar todos los turnos:", error);
+        console.error("Error al cargar los turno", error);
     }
 };
 
@@ -55,8 +55,8 @@ const searchsShifts = debounce(async () => {
 
 watch(search, searchsShifts)
 
-
 onMounted(loadAllShifts)
+
 </script>
 
 <template>
