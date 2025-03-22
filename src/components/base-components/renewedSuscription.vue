@@ -111,7 +111,7 @@ const closeCompany = () => {
 .info-container {
     position: relative;
     padding: 10px 5px;
-    width: 70%;
+    width: 40%;
     border-radius: 10px;
     background: var(--baseGray);
     box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
@@ -126,6 +126,11 @@ const closeCompany = () => {
     z-index: 9999;
     gap: 10px;
 }
+h3{
+    color: white;
+    text-transform: uppercase;
+    font-size: 1.3rem;
+}
 
 /* Texto de advertencia */
 .warning-text {
@@ -133,13 +138,14 @@ const closeCompany = () => {
     font-size: 18px;
     text-align: center;
     margin: 10px 0;
+    width: 80%;
 }
 
 /* Botón de cerrar sesión */
 .close-btn {
     all: unset;
     padding: 10px 20px;
-    background: var(--secGray);
+    background: var(--baseOrange);
     color: white;
     border: none;
     border-radius: 10px;

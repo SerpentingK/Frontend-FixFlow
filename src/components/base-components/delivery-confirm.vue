@@ -7,6 +7,7 @@ const deliveryBrand = inject("deliveryBrand")
 const deliveryRef = inject("deliveryRef");
 const deliveryDevice = inject("deliveryDevice")
 const infoBill = inject("infoBill")
+const infoData = inject("infoData");
 
 watch(phonesDelivered, (newVal) => {
     localStorage.setItem("phonesDelivered", JSON.stringify(newVal))
@@ -35,7 +36,7 @@ const total_sales = inject("total_sales")
 const total_revenue = inject("total_revenue")
 
 // Computed para verificar si los campos están completos (permite 0 en saleValue)
-const isFormComplete = computed(() => (saleValue.value || saleValue.value === 0) && codeValue.value);
+const isFormComplete = computed(() => (saleValue.value || saleValue.value === 0) && (codeValue.value || codeValue.value === 0));
 
 // Actualiza el contador de entregados
 const updateDelivered = () => {
@@ -56,44 +57,10 @@ const getBillRepair = async () =>{
         client_name.value = response.data[0].client_name
         payment.value = response.data[0].payment
         bill_number.value = response.data[0].bill_number
-        await getnumber_phones()
     }catch(error){
         console.error(error)
     }
 }
-
-const individual_price = ref(null)
-
-const getPricePhone = async () =>{
-    try{
-        const response = await axios.get(`http://127.0.0.1:8000/getPricePhone/${deliveryRef.value}`)
-        individual_price.value = response.data[0].individual_price
-    }catch(error){
-        console.error(error)
-    }
-}
-
-const number_phones = ref(null)
-const delivered_count = ref(null)
-
-const getnumber_phones = async () =>{
-    try{
-        const response = await axios.get(`http://127.0.0.1:8000/getnumberPhones/${bill_number.value}`)
-        number_phones.value = response.data[0].numberphones
-        delivered_count.value = response.data[0].delivered_count
-    }catch(error){
-        console.error(error)
-    }
-}
-
-// Computed para el precio de ganancia
-const priceOff = computed(() => {
-    if (number_phones.value == 1 || number_phones.value >= 2 && delivered_count.value == number_phones.value - 1) { 
-        return due.value; 
-    }else if(number_phones.value >= 2){
-        return (individual_price.value) - (payment.value / number_phones.value); // Si no es el último, usa el precio individual
-    }
-});
 
 
 // Computed para el precio de ganancia
@@ -119,7 +86,7 @@ watch(total_revenue, (newVal) => {
 
 const deliveryPhone = async () => {
     try {
-        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
+        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}`, sales.value);
         updateDelivered();
         // Emitir evento de entrega confirmada
 
@@ -152,6 +119,8 @@ const deliveryPhone = async () => {
             phone.delivered = true;
         }
 
+        await infoData();
+
         switchSDC();
     } catch (error) {
         console.error("Error al entregar el teléfono:", error);
@@ -164,7 +133,6 @@ const cancelAction = () => {
 
 onMounted(() => {
     getBillRepair()
-    getPricePhone()
 })
 
 
@@ -201,7 +169,7 @@ onMounted(() => {
             </div>
             <div class="input-container">
                 <span>Deuda:</span>
-                <input type="number" v-model="saleValue" :placeholder="priceOff" required />
+                <input type="number" v-model="saleValue" :placeholder="due" required />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>

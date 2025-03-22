@@ -1,11 +1,12 @@
 <script setup>
-import { inject, watch } from 'vue';
+import { inject, watch, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const phonesReceived = inject('phonesReceived');
 const loggedCompany = inject("loggedCompany");
 const router = useRouter();
+const total_sales = inject('total_sales');
 
 const billData = inject('billData');
 
@@ -14,27 +15,40 @@ const switchSBC = inject("switchSBC")
 
 const postbill = async () => {
     try {
-        console.log(billData.value);
         const answer = await axios.post(
             `http://127.0.0.1:8000/createBillwithPhones/${loggedCompany.value}`,
             billData.value
-            );
-            // Resetear el formulario
-            billData.value = {
-            total_price:0,
-            due:0,
-            client_name:"",
-            client_phone:"",
-            payment:0,
-            wname:"",
-            ref_shift:"",
+        );
+
+        // Sumar los pagos de todos los teléfonos
+        const totalPayment = billData.value.phones.reduce((total, phone) => total + (phone.payment || 0), 0);
+
+        // Obtener valores previos del localStorage y sumarlos
+        const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
+        total_sales.value = previousSales + totalPayment;
+
+        // Guardar en localStorage
+        localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
+
+        // Resetear el formulario
+        billData.value = {
+            total_price: 0,
+            client_name: "",
+            client_phone: "",
+            wname: "",
+            ref_shift: "",
             phones: []
-            };
-            router.push("/bills/bill-list");
-        } catch (error) {
-            console.error("Error al enviar la factura:", error.response.data);
-        }
-}
+        };
+
+        router.push("/bills/bill-list");
+    } catch (error) {
+        console.error("Error al enviar la factura:", error.response.data);
+    }
+};
+
+watch(total_sales, (newVal) => {
+    localStorage.setItem("total_sales", JSON.stringify(newVal));
+});
 
 watch(phonesReceived, (newVal) => {
     localStorage.setItem("phonesReceived", JSON.stringify(newVal))
@@ -44,6 +58,11 @@ const updateReceived = () =>{
     phonesReceived.value++
     localStorage.setItem("phonesReceived", JSON.stringify(phonesReceived.value))
 }
+
+onMounted(() => {
+    const storedSales = localStorage.getItem("total_sales");
+    if (storedSales) total_sales.value = JSON.parse(storedSales);
+});
 </script>
 
 <template>
@@ -59,14 +78,6 @@ const updateReceived = () =>{
         <div class="info-row">
             <span class="info-label">Precio total:</span>
             <span>{{ billData.total_price }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Pendiente:</span>
-            <span>${{ billData.due }}</span>
-        </div>
-        <div class="info-row">
-            <span class="info-label">Abono:</span>
-            <span>${{ billData.payment }}</span>
         </div>
         <div class="info-row">
             <span class="info-label">Tecnico que recibe:</span>
@@ -85,6 +96,14 @@ const updateReceived = () =>{
                 <span class="info-span">
                     <div>Precio:</div>
                     <div>{{ phone.individual_price }}</div>
+                </span>
+                <span class="info-span">
+                    <div>Pendiente:</div>
+                    <div>{{ phone.due }}</div>
+                </span>
+                <span class="info-span">
+                    <div>Abono:</div>
+                    <div>{{ phone.payment }}</div>
                 </span>
             </div>
         </article>

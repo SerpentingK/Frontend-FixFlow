@@ -25,8 +25,8 @@ export default{
             document: sessionworker.value.document,
             password: sessionworker.value.password,
             });
-            loggedDocument.value = sessionworker.value.document
-            localStorage.setItem("loggedDocument", JSON.stringify(sessionworker.value.document));
+            loggedDocument.value = answer.data.id;
+            localStorage.setItem("loggedDocument", JSON.stringify(answer.data.id));
             msg.value = answer.data.status;
             loggedWorker.value = answer.data.wname;
             localStorage.setItem("loggedWorker", JSON.stringify(answer.data.wname));

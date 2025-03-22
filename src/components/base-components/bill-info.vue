@@ -7,6 +7,8 @@ const bill_number = inject("bill_number");
 
 const infoBill = inject("infoBill", null);
 
+const infoData = inject("infoData");
+
 // Observar cambios en bill_number
 watch(bill_number, async (newVal) => {
     console.log("bill_number actualizado:", newVal);
@@ -15,26 +17,6 @@ watch(bill_number, async (newVal) => {
     } 
 });
 
-// Función para cargar los datos de la factura
-const infoData = async () => {
-    try {
-        const response = await axios.get(`http://127.0.0.1:8000/bill/details/${bill_number.value}`);
-        infoBill.value = {
-            bill_number: response.data.bill.bill_number,
-            due: response.data.bill.due,
-            client_phone: response.data.bill.client_phone,
-            wname: response.data.bill.wname,
-            total_price: response.data.bill.total_price,
-            entry_date: response.data.bill.entry_date,
-            client_name: response.data.bill.client_name,
-            payment: response.data.bill.payment,
-            phones: response.data.phones,
-        };
-        console.log("infoBill:", infoBill.value);
-    } catch (error) { 
-        console.error("Error al cargar los datos de la factura:", error);
-    }
-};
 
 onMounted(() => {
     if (bill_number.value) {
@@ -55,7 +37,8 @@ const handleRepair = async (phoneRef, brandName, device) => {
 
 const handleDelivery = async (phoneRef, brandName, device) => {
     try {
-        await switchSDC(phoneRef, brandName, device);     
+        await switchSDC(phoneRef, brandName, device);
+        infoData();     
     } catch (error) {
         console.error("Error al entregar el teléfono:", error);
     }
@@ -87,14 +70,6 @@ const handleDelivery = async (phoneRef, brandName, device) => {
                 <span>{{ infoBill.total_price }}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Pendiente:</span>
-                <span>${{ infoBill.due }}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Abono:</span>
-                <span>${{ infoBill.payment }}</span>
-            </div>
-            <div class="info-row">
                 <span class="info-label">Tecnico que recibio:</span>
                 <span>{{ infoBill.wname }}</span>
             </div>
@@ -116,9 +91,17 @@ const handleDelivery = async (phoneRef, brandName, device) => {
                         <div>Precio:</div>
                         <div>{{ phone.individual_price }}</div>
                     </span>
-                    <span v-if="phone.delivery_date" class="info-span">
+                    <span class="info-span">    
+                        <div>Pendiente:</div>
+                        <div>{{ phone.due }}</div>
+                    </span>
+                    <span class="info-span">    
+                        <div>Abono:</div>
+                        <div>{{ phone.payment }}</div>
+                    </span>
+                    <span v-if="phone.date_delivered" class="info-span">
                         <div>Fecha de entrega:</div>
-                        <div>{{ phone.delivery_date }}</div>
+                        <div>{{ phone.date_delivered }}</div>
                     </span>
                     <span class="state-info">
                         <button class="state-btn" :class="{ active: phone.repaired }" 

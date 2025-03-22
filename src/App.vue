@@ -51,10 +51,8 @@ provide('phonesDelivered', phonesDelivered);
 
 const billData = ref({
   total_price: 0,
-  due: 0,
   client_name: '',
   client_phone: '',
-  payment: 0,
   wname: "",
   ref_shift: "",
   phones: [],
@@ -187,17 +185,37 @@ const switchSDC = (newPhoneRef, newdeliveredB, newdeliveredD) => {
 
 const infoBill = ref({
   bill_number: "",
-  due: 0,
   client_phone: "",
   wname: "",
   total_price: 0,
   entry_date: "",
   client_name: "",
-  payment: 0,
   phones: []
 });
 
+// Función para cargar los datos de la factura
+const infoData = async () => {
+    try {
+        const response = await axios.get(`http://127.0.0.1:8000/bill/details/${bill_number.value}`);
+        infoBill.value = {
+            bill_number: response.data.bill.bill_number,
+            due: response.data.bill.due,
+            client_phone: response.data.bill.client_phone,
+            wname: response.data.bill.wname,
+            total_price: response.data.bill.total_price,
+            entry_date: response.data.bill.entry_date,
+            client_name: response.data.bill.client_name,
+            payment: response.data.bill.payment,
+            phones: response.data.phones,
+        };
+        console.log("infoBill:", infoBill.value);
+    } catch (error) { 
+        console.error("Error al cargar los datos de la factura:", error);
+    }
+};
+
 provide('infoBill', infoBill);
+provide('infoData', infoData);  
 provide("deliveredPhone", deliveredPhone)
 provide("getPhonesD", getPhonesD)
 provide("deliveryDevice", deliveryDevice)
@@ -207,12 +225,12 @@ provide("switchSDC", switchSDC)
 
 const shift = {
   ref_shift: "",
-  document: "",
+  id: "",
   start_time: "",
   finish_time: "",
   total_received: 0, // Valor en pesos colombianos (COP)
   total_gain: 0,      // Valor en pesos colombianos (COP)
-  total_out: 0,       // Valor en pesos colombianos (COP)
+  total_outs: 0,       // Valor en pesos colombianos (COP)
   date_shift: ""       // Fecha derivada de ref_shift
 }
 
@@ -220,12 +238,12 @@ const showShiftInfo = ref(false)
 
 const switchSI = (newShift) => {
   shift.ref_shift = newShift.ref_shift;
-  shift.document = newShift.document;
+  shift.id = newShift.id;
   shift.start_time = newShift.start_time;
   shift.finish_time = newShift.finish_time;
   shift.total_received = newShift.total_received;
   shift.total_gain = newShift.total_gain;
-  shift.total_out = newShift.total_out;
+  shift.total_outs = newShift.total_outs;
   shift.date_shift = newShift.date_shift;
   showShiftInfo.value = !showShiftInfo.value;
 }

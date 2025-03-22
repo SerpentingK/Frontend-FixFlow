@@ -69,7 +69,7 @@ onMounted(loadAllShifts)
             <li v-for="shift in shifts" :key="shift" class="shift">
                 <fieldset @click="switchSI(shift)">
                     <legend>{{ shift.ref_shift }}</legend>
-                    <span>{{ shift.document }}</span>
+                    <span>{{ shift.id.split('_').slice(1).join('_') }}</span>
                     <span>{{ shift.date_shift }}</span>
                 </fieldset>
             </li>
@@ -138,9 +138,17 @@ onMounted(loadAllShifts)
     justify-content: center;
     align-items: center;
     padding: 10px 0;
+    gap: 10px;
 }
 .shift{
     width: 90%;
+    cursor: pointer;
+}
+.shift:hover fieldset{
+    background-color: var(--secGray);
+    color: white;
+    box-shadow: var(--secShadow);
+
 }
 .shift fieldset{
     border-radius:5px;
@@ -149,6 +157,7 @@ onMounted(loadAllShifts)
     color: white;
     display: flex;
     justify-content: space-between;
+    transition: all .3s ease;
 }
 @media (min-width:768px) {
     *{

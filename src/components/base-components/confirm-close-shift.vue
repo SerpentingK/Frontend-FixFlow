@@ -17,17 +17,19 @@ const total_cash = inject('total_cash');
 const total_platform = inject('total_platform');
 const total_outs = inject('total_outs');
 
-const finish = computed(() => (total_cash.value + total_platform.value) - total_sales.value);
+const finish = computed(() => (total_cash.value + total_platform.value));
 const loggedDocument = ref(null)
 const shiftclose = ref({
         total_gain: total_revenue,
-        total_received: total_sales
+        total_received: finish,
+        total_outs: total_outs
       })
 
 const router = useRouter()
 
 const putShift = async () => {
     try {
+        const response = await axios.put(`http://127.0.0.1:8000/closeshift/${startShift.value}`, shiftclose.value);
         localStorage.removeItem("total_sales");
         total_sales.value = 0;
         localStorage.removeItem("total_outs");
