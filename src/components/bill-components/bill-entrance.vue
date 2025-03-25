@@ -355,7 +355,7 @@ export default {
 
         <!-- Input de Precio -->
         <label :for="`price-inp-${index}`" class="fact-inp">
-          <span>Precio:</span>
+          <span>Precio Estimado:</span>
           <input
             type="number"
             :id="`price-inp-${index}`"

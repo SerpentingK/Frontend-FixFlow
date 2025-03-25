@@ -86,7 +86,7 @@ watch(total_revenue, (newVal) => {
 
 const deliveryPhone = async () => {
     try {
-        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}`, sales.value);
+        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();
         // Emitir evento de entrega confirmada
 

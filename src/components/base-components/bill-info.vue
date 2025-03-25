@@ -81,14 +81,14 @@ const handleDelivery = async (phoneRef, brandName, device) => {
                     </span>
                     <span class="info-span">
                         <div>Dispositivo:</div>
-                        <div>{{ phone.brand_name }} {{ phone.device }} {{ phone.brand_id }}</div>
+                        <div>{{ phone.brand_name }} {{ phone.device }}</div>
                     </span>
                     <span class="info-span">
                         <div>Descripcion:</div>
                         <div>{{ phone.details }}</div>
                     </span>
                     <span class="info-span">    
-                        <div>Precio:</div>
+                        <div>Precio Estimado:</div>
                         <div>{{ phone.individual_price }}</div>
                     </span>
                     <span class="info-span">    
@@ -102,6 +102,10 @@ const handleDelivery = async (phoneRef, brandName, device) => {
                     <span v-if="phone.date_delivered" class="info-span">
                         <div>Fecha de entrega:</div>
                         <div>{{ phone.date_delivered }}</div>
+                    </span>
+                    <span v-if="phone.final_price" class="info-span">
+                        <div>Precio Final:</div>
+                        <div>{{ phone.final_price }}</div>
                     </span>
                     <span class="state-info">
                         <button class="state-btn" :class="{ active: phone.repaired }" 

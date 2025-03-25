@@ -11,6 +11,7 @@ export default {
         const urlImgCompany = ref(null);
         const loggedCompany = inject("loggedCompany", ref(null));
         const isUploading = ref(false);
+        const loggedWorker = inject("loggedWorker");
 
         const handleFileInput = (event) => {
             if (event.target.files.length > 0) {
@@ -83,9 +84,13 @@ export default {
         })
 
         const closeCompany = () => {
-            localStorage.removeItem("loggedCompany");
-            loggedCompany.value = null
-            router.push("/loginCompany")
+            if(loggedWorker.value){
+                router.push("/workers/login-worker");
+            }else{
+                localStorage.removeItem("loggedCompany");
+                loggedCompany.value = null
+                router.push("/loginCompany")
+            }
         }
         return {
             companyImageExisting,
