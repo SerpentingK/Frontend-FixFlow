@@ -12,6 +12,7 @@ import shiftInfo from './components/base-components/shift-info.vue';
 import confirmCloseShift from './components/base-components/confirm-close-shift.vue';
 import payment from './components/base-components/payment.vue';
 import renewedSuscription from './components/base-components/renewedSuscription.vue';
+import alert from './components/base-components/alert.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
@@ -287,6 +288,23 @@ const handlePath = () => {
   }
 }
 
+const alertShow = ref(false)
+const alertType = ref("4")
+const alertMessage = ref("Predeterminado")
+
+const showAlert = (type, message) => {
+    if(alertShow.value){
+      alertShow.value = false;
+      
+    }else{
+      alertType.value = type
+      alertMessage.value = message
+      alertShow.value = true
+    }
+}
+
+provide("showAlert", showAlert)
+
 
 
 const showRenewedSuscription = ref(false)
@@ -371,6 +389,9 @@ watch(
     </transition>
     <transition name="opacity-in" mode="out-in">
       <renewedSuscription v-if="showRenewedSuscription"></renewedSuscription>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <alert v-if="alertShow" :type="alertType" :message="alertMessage"></alert>
     </transition>
 
 

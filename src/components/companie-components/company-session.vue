@@ -3,6 +3,7 @@ import { inject, onMounted, ref } from "vue";
 import router from '@/routers/routes';
 import axios from "axios";
 
+
 export default {
     setup() {
         const workersCount = inject("workersCount", ref(0));
@@ -10,7 +11,11 @@ export default {
         const fileName = ref(null);
         const urlImgCompany = ref(null);
         const loggedCompany = inject("loggedCompany", ref(null));
+        const loggedWorker = inject("loggedWorker", ref(null));
         const isUploading = ref(false);
+
+        const showAlert = inject("showAlert")
+        
 
         const handleFileInput = (event) => {
             if (event.target.files.length > 0) {
@@ -83,9 +88,14 @@ export default {
         })
 
         const closeCompany = () => {
-            localStorage.removeItem("loggedCompany");
+            if(loggedWorker.value != null){
+                showAlert("3", "Se debe cerrar turno para cerrar sesion.")
+            }else{
+                localStorage.removeItem("loggedCompany");
             loggedCompany.value = null
             router.push("/loginCompany")
+            }
+            
         }
         return {
             companyImageExisting,

@@ -7,5 +7,8 @@
   --baseShadow: 0 0 10px 4px rgba(0, 0, 0, 0.676);
   --secShadow: 0 0 5px 1px rgba(0, 0, 0, 0.801);
   --baseFont: "Kanit", sans-serif;
+  --successColor:#28a745;
+  --errorColor:#dc3545;
+  --warningColor:#ffc107;
   
 }
