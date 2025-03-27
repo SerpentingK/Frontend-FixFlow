@@ -1,68 +1,27 @@
 <script>
-import { inject, onMounted, ref } from "vue";
+import { inject, onMounted, ref, computed } from "vue";
 import router from '@/routers/routes';
 import axios from "axios";
-
 
 export default {
     setup() {
         const workersCount = inject("workersCount", ref(0));
-        const companyImageExisting = ref(false);
-        const fileName = ref(null);
-        const urlImgCompany = ref(null);
         const loggedCompany = inject("loggedCompany", ref(null));
         const loggedWorker = inject("loggedWorker", ref(null));
-        const isUploading = ref(false);
+        const workerRole = inject("workerRole");
+        const showAlert = inject("showAlert");
+        const totalInCash = ref(150000);
+        const companyDetails = ref({ name: "", address: "", phone: "" });
+        const defaultColor = "#d84b17";
+        const selectedColor = ref(localStorage.getItem("baseOrange") || defaultColor);
+        const showWithdrawButton = ref(true);
 
-        const showAlert = inject("showAlert")
-        
-
-        const handleFileInput = (event) => {
-            if (event.target.files.length > 0) {
-                fileName.value = event.target.files[0].name;
-            }
-        };
-
-        const fetchCompanyData = async () => {
+        const fetchCompanyDetails = async () => {
             try {
-                const response = await axios.get(`http://127.0.0.1:8000/allcompany/${loggedCompany.value}`);
-                const relativePath = response.data.status;
-                urlImgCompany.value = `http://127.0.0.1:8000/${relativePath}`;
-                console.log(urlImgCompany.value);
-                companyImageExisting.value = true;
+                const response = await axios.get(`http://127.0.0.1:8000/company/${loggedCompany.value}/details`);
+                companyDetails.value = response.data;
             } catch (error) {
-                console.error("Error fetching company data:", error);
-            }
-        };
-
-
-        const putImage = async () => {
-            try {
-                const formData = new FormData();
-                const inputFile = document.querySelector(".img-input");
-
-                if (inputFile.files.length === 0) {
-                    throw new Error("No file selected");
-                }
-
-                formData.append("file", inputFile.files[0]);
-
-                await axios.put(
-                    `http://127.0.0.1:8000/putCompanyImage/${loggedCompany.value}`,
-                    formData,
-                    {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    }
-                );
-
-                // Hacer el GET después del PUT para actualizar la imagen en la interfaz
-                await fetchCompanyData();
-
-                console.log("Image updated successfully");
-            } catch (error) {
-                console.error("Error updating image:", error);
+                console.error("Error fetching company details:", error);
             }
         };
 
@@ -73,40 +32,56 @@ export default {
                         `http://127.0.0.1:8000/company/${loggedCompany.value}/workers/count`
                     );
                     workersCount.value = answer.data.count;
-                    console.log(workersCount.value)
                 }
             } catch (error) {
                 console.error("Error al obtener el conteo de trabajadores", error);
             }
         };
 
+        const updateColor = () => {
+            document.documentElement.style.setProperty('--baseOrange', selectedColor.value);
+            localStorage.setItem("baseOrange", selectedColor.value);
+            window.location.reload();
+        };
 
+        const withdrawCash = () => {
+            const amount = prompt("Ingrese el monto a retirar:");
+            if (amount && !isNaN(amount) && amount > 0) {
+                totalInCash.value -= parseFloat(amount);
+                showAlert("1", `Se han retirado ${amount} de la caja.`);
+            } else {
+                showAlert("2", "Monto inválido.");
+            }
+        };
 
         onMounted(() => {
-            fetchCompanyData();
+            fetchCompanyDetails();
             getWorkersCount();
-        })
+        });
 
         const closeCompany = () => {
-            if(loggedWorker.value != null){
-                showAlert("3", "Se debe cerrar turno para cerrar sesion.")
-            }else{
+            if (loggedWorker.value != null) {
+                showAlert("2", "Se debe cerrar turno para cerrar sesión.");
+            } else {
                 localStorage.removeItem("loggedCompany");
-            loggedCompany.value = null
-            router.push("/loginCompany")
+                localStorage.setItem("baseOrange", defaultColor);
+                selectedColor.value = defaultColor;
+                updateColor();
+                loggedCompany.value = null;
+                router.push("/loginCompany");
             }
-            
-        }
+        };
+
         return {
-            companyImageExisting,
-            fileName,
-            putImage,
-            handleFileInput,
-            isUploading,
-            urlImgCompany,
             loggedCompany,
             workersCount,
-            closeCompany
+            closeCompany,
+            totalInCash,
+            companyDetails,
+            selectedColor,
+            updateColor,
+            withdrawCash,
+            showWithdrawButton
         };
     },
 };
@@ -115,23 +90,28 @@ export default {
 <template>
     <section class="session-container">
         <div class="info-container">
-            <ion-icon name="person-circle" v-if="!companyImageExisting"></ion-icon>
-            <img v-if="companyImageExisting" :src="urlImgCompany" alt="Company Image" class="company-img">
             <h3 style="color: black;">{{ loggedCompany }}</h3>
+            <div class="info-cont">
+                <div>Total en caja:</div>
+                <div>{{ totalInCash }}</div>
+            </div>
+            <div class="info-cont">
+                <div>Número de trabajadores:</div>
+                <div>{{ workersCount }}</div>
+            </div>
         </div>
-        <form @submit.prevent="putImage" class="img-form">
-            <input type="file" id="fileInput" class="img-input" @change="handleFileInput" style="display: none;">
-            <label for="fileInput" class="file-label">
-                <span>Seleccionar Imagen</span>
-                <ion-icon name="camera-outline"></ion-icon>
-            </label>
 
-            <button type="submit" class="upload-btn" :disabled="isUploading">
-                <ion-icon name="cloud-upload"></ion-icon>
-            </button>
-        </form>
-        <button class="close-btn" @click="closeCompany">Cerrar Sesion</button>
+        <div class="color-picker">
+            <label for="color">Selecciona un color:</label>
+            <input type="color" id="color" v-model="selectedColor" />
+        </div>
+
+        <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
+        <button class="close-btn" @click="closeCompany">Cerrar Sesión</button><ion-icon v-if="showWithdrawButton"
+            class="withdraw-btn" name="cash-outline" @click="withdrawCash" title="Retirar dinero de la caja"></ion-icon>
+
     </section>
+
 </template>
 
 <style scoped>
@@ -194,6 +174,13 @@ export default {
     font-size: clamp(15px, 20px, 25px);
 }
 
+.info-cont {
+    display: flex;
+    width: 90%;
+    padding: 10px;
+    justify-content: space-between;
+}
+
 .close-btn {
     all: unset;
     background-color: var(--baseOrange);
@@ -212,59 +199,54 @@ export default {
     scale: 0.9;
 }
 
-.img-form {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    align-items: center;
-}
-
-.file-label {
+.color-picker {
+    margin-top: 10px;
     display: flex;
     align-items: center;
-    padding: 10px;
-    background-color: var(--baseGray);
-    border: 2px solid var(--baseOrange);
-    border-radius: 10px;
-    color: #fff;
-    font-weight: bolder;
-    font-family: var(--baseFont);
-    cursor: pointer;
-    font-size: 15px;
-    text-align: center;
-    gap: 10px;
-    transition: background-color 0.3s;
+    justify-content: space-between;
+    width: 80%;
 }
 
-.file-label ion-icon {
-    scale: 1.5;
+.color-picker label {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    color: white;
 }
 
-.file-label:hover {
-    background-color: #0056b3;
-}
-
-.file-name {
-    font-size: 14px;
-    color: #333;
-}
-
-.upload-btn {
+.apply-color-btn {
     all: unset;
     color: white;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s ease;
+}
+
+.apply-color-btn:hover {
     background-color: var(--baseOrange);
+}
+
+.withdraw-btn {
+    position: absolute;
+    top: 0;
+    right: -50px;
+    background-color: var(--baseOrange);
+    padding: 5px;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
-    border-radius: 50%;
-    overflow: hidden;
+    border-radius: 5px;
+    box-shadow: var(--secShadow);
+    font-size: 1.4rem;
+    transition: all .3s ease;
+    cursor: pointer;
 }
 
-.upload-btn ion-icon {
-    scale: 1.4;
+.withdraw-btn:hover {
+    scale: 1.2;
 }
-
 
 /* Tablets: 768px y mayores */
 @media (min-width: 768px) {

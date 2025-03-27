@@ -376,7 +376,7 @@ watch(
       <close_sesion_btn v-if="inWorkerProfile"></close_sesion_btn>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <backBtn v-if="loggedCompany"></backBtn>
+      <backBtn v-if="loggedCompany" title="Volver"></backBtn>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <shiftInfo v-if="showShiftInfo" :shift="shift"></shiftInfo>

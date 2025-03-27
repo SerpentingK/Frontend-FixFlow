@@ -46,7 +46,7 @@ onBeforeUnmount(() => {
       <span style="text-transform: capitalize;">{{ workerRole }}</span>
     </div>
   </nav>
-  <button class="nav-btn" @click.stop="switch_navBar">
+  <button class="nav-btn" @click.stop="switch_navBar" title="Menu">
     <ion-icon name="menu" v-if="!show_navBar"></ion-icon>
     <ion-icon name="close" v-if="show_navBar"></ion-icon>
   </button>

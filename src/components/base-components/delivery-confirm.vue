@@ -147,7 +147,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="container">
+    <section class="conf-container">
         <h3>¿Confirmar entrega?</h3>
         
         <form @submit.prevent="deliveryPhone">
@@ -195,7 +195,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.container {
+.conf-container {
     position: fixed;
     left: 50%;
     top: 50%;
@@ -244,7 +244,7 @@ h3 {
 button.confirm-btn {
     background-color: var(--baseOrange);
 }
-.container form{
+.conf-container form{
     width: 90%;
     display: flex;
     flex-direction: column;
@@ -277,8 +277,8 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
 }
 
 @media (min-width: 1024px) {
-    .container {
-        width: 25%;
+    .conf-container {
+        width: 40%;
     }
 
     button:hover {

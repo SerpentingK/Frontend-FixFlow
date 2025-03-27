@@ -67,20 +67,20 @@ export default{
                     <legend>{{ worker.wname }}</legend>
                     <span>Rol: {{ worker.wrole }}</span>
                     <span>Documento: {{ worker.document }}</span>
-                    <button class="delete-btn" @click="switchSDW(worker.document)"><ion-icon name="close-circle"></ion-icon></button>
+                    <button class="delete-btn" @click="switchSDW(worker.document)"><ion-icon name="close-circle" title="Eliminar colaborador"></ion-icon></button>
                 </fieldset>
             </li>
         </ol>
         <transition name="fade">
             <div class="delete-window" v-if="showDeleteWindow" style="padding: 15px;">
-                <h3>¿Eliminar técnico?</h3>
+                <h3>¿Eliminar colaborador?</h3>
                 <span>
                     <button @click="switchSDW()" class="cancel-btn">No</button>
                     <button @click="deleteWorker(workerToDelete)" class="confirm-btn">Sí</button>
                 </span>
             </div>
         </transition>
-        <router-link to="/workers/new-worker" class="add-btn">
+        <router-link to="/workers/new-worker" class="add-btn" title="Añadir colaboradores">
             <ion-icon name="add-circle"></ion-icon>
         </router-link>
     </section>
@@ -174,6 +174,7 @@ button.cancel-btn {
     all: unset;
     color: var(--baseOrange);
     scale: 1.5;
+    cursor: pointer;
 }
 
 .fade-enter-active,
