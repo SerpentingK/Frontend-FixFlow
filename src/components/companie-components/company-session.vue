@@ -19,7 +19,7 @@ export default {
             try {
                 if (loggedCompany.value) {
                     const answer = await axios.get(
-                        `http://127.0.0.1:8000/company/${loggedCompany.value}/workers/count`
+                        `http://127.0.0.1:8000/company/${loggedCompany.value}/count`
                     );
                     workersCount.value = answer.data.count;
                 }
