@@ -8,6 +8,7 @@
       const switchSP = inject('switchSP')
 
       const loggedCompany = inject("loggedCompany", ref(null));
+      const switchSMPR = inject("switchSMPR")
       const isLogin = ref(true); // Propiedad para alternar entre login y registro
       const confirmPassword = ref("");
       const msg = ref("");
@@ -103,7 +104,8 @@
         confirmPassword,
         passwordMatch,
         sesion,
-        msg
+        msg,
+        switchSMPR
       };
     }
   };
@@ -127,7 +129,7 @@
         </label>
         <button class="go-btn">Iniciar Sesión</button>
         <button type="button" @click="toggleForm" class="opt-btn">Registrarse</button>
-        <button type="button" class="opt-btn">¿Olvidaste tu contraseña?</button>
+        <button type="button" @click="switchSMPR" class="opt-btn">¿Olvidaste tu contraseña?</button>
       </form>
     </section>
 
@@ -254,6 +256,11 @@
   all: unset;
   color: rgba(255, 255, 255, 0.418);
   font-size: 12px;
+  cursor: pointer;
+}
+
+.opt-btn:hover{
+  opacity: .8;
 }
 
 .go-btn:active {

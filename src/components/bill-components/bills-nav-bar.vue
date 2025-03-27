@@ -8,13 +8,13 @@ const isActive = (path)=> route.path.startsWith(path)
 
 <template>
     <nav class="nav">
-        <router-link to="/bills/bill-entrance" class="router" :class="{active: isActive('/bills/bill-entrance')}">
+        <router-link to="/bills/bill-entrance" class="router" :class="{active: isActive('/bills/bill-entrance')}" title="Entrada de facturas">
             <ion-icon name="enter"></ion-icon>
         </router-link>
-        <router-link to="/bills/bill-list" class="router" :class="{active: isActive('/bills/bill-list')}">
+        <router-link to="/bills/bill-list" class="router" :class="{active: isActive('/bills/bill-list')}" title="Lista de facturas">
             <ion-icon name="albums"></ion-icon>
         </router-link>
-        <router-link to="/bills/outflows/sales" class="router" :class="{active: isActive('/bills/outflows')}">
+        <router-link to="/bills/outflows/sales" class="router" :class="{active: isActive('/bills/outflows')}" title="Ventas y salidas">
             <ion-icon name="log-out"></ion-icon>
         </router-link>
     </nav>

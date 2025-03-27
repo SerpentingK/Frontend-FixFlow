@@ -8,12 +8,12 @@ const isActive = (path) => route.path === path
 
 <template>
     <section class="container">
-        <h2>Ventas-salidas</h2>
+        <h2>Ventas y salidas</h2>
         <nav class="outs-nav">
-            <router-link to="/bills/outflows/sales" class="router" :class="{active: isActive('/bills/outflows/sales')}">
+            <router-link to="/bills/outflows/sales" class="router" :class="{active: isActive('/bills/outflows/sales')}" title="Ventas">
                 <ion-icon name="cash"></ion-icon>
             </router-link>
-            <router-link to="/bills/outflows/outs" class="router" :class="{active: isActive('/bills/outflows/outs')}">
+            <router-link to="/bills/outflows/outs" class="router" :class="{active: isActive('/bills/outflows/outs')}" title="Salidas">
                 <ion-icon name="log-out"></ion-icon>
             </router-link>
         </nav>

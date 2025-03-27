@@ -54,19 +54,19 @@
             <form @submit.prevent="getList" class="list-options">
                 <input type="radio" id="entrance-input" name="list-option" value="entrance" v-model="listOption"
                     @change="getList" class="check-input">
-                <label for="entrance-input" class="check-label">
+                <label for="entrance-input" class="check-label" title="Lista de facturas ingresados">
                     <ion-icon name="enter"></ion-icon>
                 </label>
 
                 <input type="radio" id="repaired-input" name="list-option" value="repaired" v-model="listOption"
                     @change="getList" class="check-input">
-                <label for="repaired-input" class="check-label">
+                <label for="repaired-input" class="check-label" title="Lista de telefonos reparados">
                     <ion-icon name="construct"></ion-icon>
                 </label>
 
                 <input type="radio" id="delivery-input" name="list-option" value="delivery" v-model="listOption"
                     @change="getList" class="check-input">
-                <label for="delivery-input" class="check-label">
+                <label for="delivery-input" class="check-label" title="Lista de telefonos entregados">
                     <ion-icon name="exit"></ion-icon>
                 </label>
             </form>

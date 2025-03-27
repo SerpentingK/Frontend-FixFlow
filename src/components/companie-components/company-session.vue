@@ -1,5 +1,5 @@
 <script>
-import { inject, onMounted, ref, computed } from "vue";
+import { inject, onMounted, ref } from "vue";
 import router from '@/routers/routes';
 import axios from "axios";
 
@@ -10,20 +10,10 @@ export default {
         const loggedWorker = inject("loggedWorker", ref(null));
         const workerRole = inject("workerRole");
         const showAlert = inject("showAlert");
+        const switchWV = inject("switchWV");
         const totalInCash = ref(150000);
-        const companyDetails = ref({ name: "", address: "", phone: "" });
         const defaultColor = "#d84b17";
         const selectedColor = ref(localStorage.getItem("baseOrange") || defaultColor);
-        const showWithdrawButton = ref(true);
-
-        const fetchCompanyDetails = async () => {
-            try {
-                const response = await axios.get(`http://127.0.0.1:8000/company/${loggedCompany.value}/details`);
-                companyDetails.value = response.data;
-            } catch (error) {
-                console.error("Error fetching company details:", error);
-            }
-        };
 
         const getWorkersCount = async () => {
             try {
@@ -44,18 +34,9 @@ export default {
             window.location.reload();
         };
 
-        const withdrawCash = () => {
-            const amount = prompt("Ingrese el monto a retirar:");
-            if (amount && !isNaN(amount) && amount > 0) {
-                totalInCash.value -= parseFloat(amount);
-                showAlert("1", `Se han retirado ${amount} de la caja.`);
-            } else {
-                showAlert("2", "Monto inválido.");
-            }
-        };
+        
 
         onMounted(() => {
-            fetchCompanyDetails();
             getWorkersCount();
         });
 
@@ -77,11 +58,10 @@ export default {
             workersCount,
             closeCompany,
             totalInCash,
-            companyDetails,
             selectedColor,
             updateColor,
-            withdrawCash,
-            showWithdrawButton
+            workerRole,
+            switchWV
         };
     },
 };
@@ -92,7 +72,7 @@ export default {
         <div class="info-container">
             <h3 style="color: black;">{{ loggedCompany }}</h3>
             <div class="info-cont">
-                <div>Total en caja:</div>
+                <div>Total en boveda:</div>
                 <div>{{ totalInCash }}</div>
             </div>
             <div class="info-cont">
@@ -107,8 +87,9 @@ export default {
         </div>
 
         <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
-        <button class="close-btn" @click="closeCompany">Cerrar Sesión</button><ion-icon v-if="showWithdrawButton"
-            class="withdraw-btn" name="cash-outline" @click="withdrawCash" title="Retirar dinero de la caja"></ion-icon>
+        <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
+        <ion-icon v-if="workerRole === 'Gerente' || workerRole === 'Administrador'"
+            class="withdraw-btn" name="cash-outline" @click="switchWV" title="Retirar dinero de la boveda"></ion-icon>
 
     </section>
 
@@ -212,6 +193,9 @@ export default {
     margin-bottom: 5px;
     color: white;
 }
+.color-picker input{
+    cursor: pointer;
+}
 
 .apply-color-btn {
     all: unset;
@@ -220,11 +204,11 @@ export default {
     border-radius: 5px;
     cursor: pointer;
     font-size: 16px;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .apply-color-btn:hover {
-    background-color: var(--baseOrange);
+    opacity: .8;
 }
 
 .withdraw-btn {

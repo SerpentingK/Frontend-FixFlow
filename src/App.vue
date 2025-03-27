@@ -8,11 +8,13 @@ import backBtn from './components/base-components/back-btn.vue';
 import repairConfirm from './components/base-components/repair-confirm.vue';
 import closeShift from './components/base-components/close-shift.vue';
 import deliveryConfirm from './components/base-components/delivery-confirm.vue';
-import shiftInfo from './components/base-components/shift-info.vue';
+import shiftInfo from './components/shifts-components/shift-info.vue';
 import confirmCloseShift from './components/base-components/confirm-close-shift.vue';
 import payment from './components/base-components/payment.vue';
 import renewedSuscription from './components/base-components/renewedSuscription.vue';
 import alert from './components/base-components/alert.vue';
+import withdrawVault from './components/base-components/withdrawVault.vue';
+import mailPaswRestore from './components/base-components/mailPaswRestore.vue';
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
@@ -325,10 +327,26 @@ const switchSRS = () => {
 
 provide("switchSRS", switchSRS)
 
+const showWithdrawVault = ref(false)
+
+const switchWV = () => {
+  showWithdrawVault.value = !showWithdrawVault.value
+}
+
+provide("switchWV", switchWV)
+
 
 const suscripctionRenewed = ref(true)
 
 provide("SR", suscripctionRenewed)
+
+const showMailPaswRestore = ref(true)
+
+const switchSMPR = () => {
+  showMailPaswRestore.value = !showMailPaswRestore.value
+}
+
+provide("switchSMPR", switchSMPR)
 
 onMounted(() => {
   handlePath();
@@ -392,6 +410,12 @@ watch(
     </transition>
     <transition name="opacity-in" mode="out-in">
       <alert v-if="alertShow" :type="alertType" :message="alertMessage"></alert>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <withdrawVault v-if="showWithdrawVault"></withdrawVault>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <mailPaswRestore v-if="showMailPaswRestore"></mailPaswRestore>
     </transition>
 
 

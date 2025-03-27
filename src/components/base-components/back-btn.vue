@@ -31,6 +31,7 @@ button{
     color: white;
     box-shadow: var(--baseShadow);
     transition: .2s;
+    cursor: pointer;
 }
 button:active{
     scale: .8;

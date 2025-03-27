@@ -114,6 +114,7 @@ onMounted(loadAllShifts)
     padding: 5px 10px;
     border-radius: 10px;
     border: 1px solid var(--baseGray);
+    cursor: pointer;
 }
 .search-form button{
     background: var(--baseOrange);

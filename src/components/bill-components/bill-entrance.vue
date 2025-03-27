@@ -310,7 +310,7 @@ export default {
               :disabled="phone.brand_name !== 'Otro'"
             />
             <button type="button" @click="addNewBrand(index)">
-              <ion-icon name="add-circle"></ion-icon>
+              <ion-icon name="add-circle" title="Ingresar marca"></ion-icon>
             </button>
           </label>
         </label>
@@ -348,7 +348,7 @@ export default {
               :disabled="phone.device !== 'Otro'"
             />
             <button type="button" @click="addNewDevice(index)">
-              <ion-icon name="add-circle"></ion-icon>
+              <ion-icon name="add-circle" title="Ingresar modelo"></ion-icon>
             </button>
           </label>
         </label>

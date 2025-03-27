@@ -82,7 +82,7 @@ onMounted(() => {
 
 <template>
   <section class="container">
-    <button @click="switchSI" class="close-btn">
+    <button @click="switchSI" class="close-btn" title="Cerrar">
       <ion-icon name="close"></ion-icon>
     </button>
     <h2>{{ shift.ref_shift }}</h2>
@@ -120,7 +120,7 @@ onMounted(() => {
         @change="getList"
         class="check-input"
       />
-      <label for="entrance-input" class="check-label">
+      <label for="entrance-input" class="check-label" title="Lista de facturas ingresadas">
         <ion-icon name="enter"></ion-icon>
       </label>
 
@@ -133,7 +133,7 @@ onMounted(() => {
         @change="getList"
         class="check-input"
       />
-      <label for="outs-input" class="check-label">
+      <label for="outs-input" class="check-label" title="Lista de salidas">
         <ion-icon name="remove-circle"></ion-icon>
       </label>
 
@@ -146,7 +146,7 @@ onMounted(() => {
         @change="getList"
         class="check-input"
       />
-      <label for="sales-input" class="check-label">
+      <label for="sales-input" class="check-label" title="Lista de ventas">
         <ion-icon name="add-circle"></ion-icon>
       </label>
 
@@ -159,7 +159,7 @@ onMounted(() => {
         @change="getList"
         class="check-input"
       />
-      <label for="repaired-input" class="check-label">
+      <label for="repaired-input" class="check-label" title="Lista de reparados">
         <ion-icon name="construct"></ion-icon>
       </label>
 
@@ -172,7 +172,7 @@ onMounted(() => {
         @change="getList"
         class="check-input"
       />
-      <label for="delivery-input" class="check-label">
+      <label for="delivery-input" class="check-label" title="Lista de entregados">
         <ion-icon name="exit"></ion-icon>
       </label>
     </form>
@@ -285,6 +285,10 @@ onMounted(() => {
   box-shadow: var(--secShadow);
   color: white;
   transition: 0.3s;
+  cursor: pointer;
+}
+.close-btn:hover{
+  scale: 1.1;
 }
 @media (min-width: 768px) {
   * {
