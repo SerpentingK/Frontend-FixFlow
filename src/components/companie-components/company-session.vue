@@ -15,18 +15,19 @@ export default {
     const defaultColor = inject("defaultColor");
     const selectedColor = ref(defaultColor.value);
 
-    const getWorkersCount = async () => {
-      try {
-        if (loggedCompany.value) {
-          const answer = await axios.get(
-            `http://127.0.0.1:8000/company/${loggedCompany.value}/count`
-          );
-          workersCount.value = answer.data.count;
-        }
-      } catch (error) {
-        console.error("Error al obtener el conteo de trabajadores", error);
-      }
-    };
+        const getWorkersCount = async () => {
+            try {
+                if (loggedCompany.value) {
+                    const answer = await axios.get(
+                        `http://127.0.0.1:8000/company/${loggedCompany.value}/count`
+                    );
+                    workersCount.value = answer.data.count;
+                }
+            } catch (error) {
+                console.error("Error al obtener el conteo de trabajadores", error);
+            }
+        };
+
 
     const getcompanyvault = async () => {
       try {
