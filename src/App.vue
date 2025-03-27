@@ -123,9 +123,8 @@ const showRepairConfirm = ref(false)
 const repairRef = ref("")
 const repairBrand = ref("")
 const repairDevice = ref("")
-const defaultColor = ref(null);
+const defaultColor = ref("#d84b17");
 provide("defaultColor", defaultColor)
-
 const phonesRepair = ref([])
 
 const getPhonesR = async () => {
