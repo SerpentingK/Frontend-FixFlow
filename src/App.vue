@@ -123,6 +123,8 @@ const showRepairConfirm = ref(false)
 const repairRef = ref("")
 const repairBrand = ref("")
 const repairDevice = ref("")
+const defaultColor = ref(null);
+provide("defaultColor", defaultColor)
 
 const phonesRepair = ref([])
 

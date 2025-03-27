@@ -11,9 +11,9 @@ export default {
         const workerRole = inject("workerRole");
         const showAlert = inject("showAlert");
         const switchWV = inject("switchWV");
-        const totalInCash = ref(150000);
-        const defaultColor = "#a7411b";
-        const selectedColor = ref(localStorage.getItem("baseOrange") || defaultColor);
+        const totalInCash = ref(0);
+        const defaultColor = ref("defaultColor");
+        const selectedColor = ref(defaultColor.value);
 
         const getWorkersCount = async () => {
             try {
@@ -22,6 +22,20 @@ export default {
                         `http://127.0.0.1:8000/company/${loggedCompany.value}/workers/count`
                     );
                     workersCount.value = answer.data.count;
+                }
+            } catch (error) {
+                console.error("Error al obtener el conteo de trabajadores", error);
+            }
+        };
+
+        const getcompanyvault = async () => {
+            try {
+                if (loggedCompany.value) {
+                    const answer = await axios.get(
+                        `http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`
+                    );
+                    totalInCash.value = answer.data.vault;
+                    defaultColor.value = answer.data.baseColor;
                 }
             } catch (error) {
                 console.error("Error al obtener el conteo de trabajadores", error);
@@ -38,6 +52,7 @@ export default {
 
         onMounted(() => {
             getWorkersCount();
+            getcompanyvault();
         });
 
         const closeCompany = () => {
@@ -45,8 +60,7 @@ export default {
                 showAlert("2", "Se debe cerrar turno para cerrar sesión.");
             } else {
                 localStorage.removeItem("loggedCompany");
-                localStorage.setItem("baseOrange", defaultColor);
-                selectedColor.value = defaultColor;
+                selectedColor.value = defaultColor.value;
                 updateColor();
                 loggedCompany.value = null;
                 router.push("/loginCompany");
