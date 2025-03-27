@@ -340,7 +340,7 @@ const suscripctionRenewed = ref(true)
 
 provide("SR", suscripctionRenewed)
 
-const showMailPaswRestore = ref(true)
+const showMailPaswRestore = ref(false)
 
 const switchSMPR = () => {
   showMailPaswRestore.value = !showMailPaswRestore.value
