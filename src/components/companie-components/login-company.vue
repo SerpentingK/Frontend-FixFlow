@@ -9,7 +9,6 @@ export default {
 
     const loggedCompany = inject("loggedCompany", ref(null));
     const switchSMPR = inject("switchSMPR");
-    const resetColor = inject("resetColor");
     const isLogin = ref(true); // Propiedad para alternar entre login y registro
     const confirmPassword = ref("");
     const msg = ref("");
@@ -50,16 +49,6 @@ export default {
         }
       }
     };
-
-    const getCompanyColor = async () => {
-      try {
-        const response = await axios.get(`http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`);
-        const color = response.data.baseColor;
-        resetColor(color);
-      }catch{
-
-      }
-    }
 
     const signupCompany = async () => {
       try {
