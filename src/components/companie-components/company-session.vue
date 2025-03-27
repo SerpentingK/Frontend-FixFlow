@@ -12,7 +12,7 @@ export default {
         const showAlert = inject("showAlert");
         const switchWV = inject("switchWV");
         const totalInCash = ref(150000);
-        const defaultColor = "#d84b17";
+        const defaultColor = "#a7411b";
         const selectedColor = ref(localStorage.getItem("baseOrange") || defaultColor);
 
         const getWorkersCount = async () => {
