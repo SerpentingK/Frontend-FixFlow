@@ -6,7 +6,7 @@ import close_sesion_btn from './components/workers-components/close-shift-btn.vu
 import billConfirm from './components/base-components/bill-confirm.vue';
 import backBtn from './components/base-components/back-btn.vue';
 import repairConfirm from './components/base-components/repair-confirm.vue';
-import closeShift from './components/base-components/close-shift.vue';
+import closeShift from './components/shifts-components/close-shift.vue';
 import deliveryConfirm from './components/base-components/delivery-confirm.vue';
 import shiftInfo from './components/shifts-components/shift-info.vue';
 import confirmCloseShift from './components/base-components/confirm-close-shift.vue';

@@ -70,10 +70,6 @@ onMounted(() => {
             <span>Total en efectivo: </span>
             <input type="number" v-model="total_cash" class="amount-inp" placeholder="">
         </div>
-        <div class="info-div inp-div">
-            <span>Total en plataformas: </span>
-            <input type="number" v-model="total_platform" class="amount-inp" placeholder="">
-        </div>
         <div class="info-div">
             <span>Celulares recibidos:</span>
             <span>{{ phonesReceived }}</span>

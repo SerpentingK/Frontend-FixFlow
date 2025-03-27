@@ -119,8 +119,8 @@ export default {
     text-align: center;
     letter-spacing: 1px;
     color: transparent;
-    background: rgb(216, 75, 23);
-    background: linear-gradient(117deg, rgba(216, 75, 23, 1) 0%, rgba(216, 75, 23, 1) 32%, rgba(230, 140, 107, 1) 72%, rgba(255, 255, 255, 1) 100%, rgba(216, 75, 23, 1) 100%);
+    background: var(--baseOrange);
+    background: linear-gradient(117deg, var(--baseOrange) 0%, var(--baseOrange) 32%, rgba(230, 140, 107, 1) 72%, rgba(255, 255, 255, 1) 100%, var(--baseOrange) 100%);
     -webkit-background-clip: text;
 }
 

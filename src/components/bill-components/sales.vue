@@ -4,6 +4,8 @@ import { ref, computed, inject, watch, onMounted } from 'vue';
 
 // Variables
 const sale = ref(0);
+const cashSale = ref(0);
+const platformSale = ref(0);
 const original_price = ref(0);
 const revenue_price = computed(() => sale.value - original_price.value);
 
@@ -33,6 +35,8 @@ watch(total_revenue, (newVal) => {
 // Función para registrar ventas
 const postSales = async () => {
     try {
+        sale.value = platformSale.value + cashSale.value
+
         sales.value.sale = sale.value;
         sales.value.original_price = original_price.value;
         sales.value.revenue_price = revenue_price.value;
@@ -52,6 +56,8 @@ const postSales = async () => {
         localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
 
         // Resetear valores
+        cashSale.value = 0;
+        platformSale.value = 0;
         sale.value = 0;
         original_price.value = 0;
         sales.value.product = "";
@@ -80,8 +86,12 @@ onMounted(() => {
                 <input type="text" placeholder="Ej: Airpods Pro" required v-model="sales.product"/>
             </div>
             <div class="input-container">
-                <span>Venta:</span>
-                <input type="number" placeholder="100000" required v-model="sale"/>
+                <span>Venta efectivo:</span>
+                <input type="number" placeholder="100000" required v-model="cashSale"/>
+            </div>
+            <div class="input-container">
+                <span>Venta plataforma:</span>
+                <input type="number" placeholder="100000" required v-model="platformSale"/>
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
@@ -116,7 +126,7 @@ onMounted(() => {
     gap: 10px;
 }
 .input-container{
-    width: 90%;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
