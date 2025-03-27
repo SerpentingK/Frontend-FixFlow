@@ -1,37 +1,41 @@
-  <script>
-  import { computed, inject, ref, onMounted } from 'vue';
-  import router from '@/routers/routes';
-  import axios from 'axios';
+<script>
+import { computed, inject, ref, onMounted } from "vue";
+import router from "@/routers/routes";
+import axios from "axios";
 
-  export default {
-    setup() {
-      const switchSP = inject('switchSP')
+export default {
+  setup() {
+    const switchSP = inject("switchSP");
 
-      const loggedCompany = inject("loggedCompany", ref(null));
-      const switchSMPR = inject("switchSMPR")
-      const isLogin = ref(true); // Propiedad para alternar entre login y registro
-      const confirmPassword = ref("");
-      const msg = ref("");
-      const company = ref({
-        company_user: "",
-        mail: "",
-        password: ""
-      });
-      const sesion = ref({
-        identifier:"",
-        password:""
-      })
+    const loggedCompany = inject("loggedCompany", ref(null));
+    const switchSMPR = inject("switchSMPR");
+    const resetColor = inject("resetColor");
+    const isLogin = ref(true); // Propiedad para alternar entre login y registro
+    const confirmPassword = ref("");
+    const msg = ref("");
+    const company = ref({
+      company_user: "",
+      mail: "",
+      password: "",
+    });
+    const sesion = ref({
+      identifier: "",
+      password: "",
+    });
 
-      const loginCompany = async () => {
+    const loginCompany = async () => {
       try {
-        const response = await axios.post("http://127.0.0.1:8000/loginCompany", {
-          identifier: sesion.value.identifier,
-          password: sesion.value.password,
-        });
+        const response = await axios.post(
+          "http://127.0.0.1:8000/loginCompany",
+          {
+            identifier: sesion.value.identifier,
+            password: sesion.value.password,
+          }
+        );
 
         msg.value = response.data;
-        loggedCompany.value = response.data.name; 
-      
+        loggedCompany.value = response.data.name;
+
         // Guardar en localStorage
         localStorage.setItem("loggedCompany", JSON.stringify(response.data));
 
@@ -47,89 +51,116 @@
       }
     };
 
+    const getCompanyColor = async () => {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`);
+        const color = response.data.baseColor;
+        resetColor(color);
+      }catch{
 
-      const signupCompany = async () => {
+      }
+    }
 
-        
-        try {
-          if (!passwordMatch.value) {
-            alert("Las contraseñas no coinciden.");
-            return;
-          }
-          const answer = await axios.post("http://127.0.0.1:8000/insertCompany", company.value);
-          msg.value = answer.data.msg;
-          company.value = {
-            company_user: "",
-            mail: "",
-            password: "",
-          };
-          confirmPassword.value = "";
-          isLogin.value = true;
-          switchSP()
-        } catch (error) {
-          if (error.response && error.response.data) {
-            alert(`Error al registrar empresa: ${error.response.data.detail}`);
-            console.error("Error al registrar empresa", error.response.data);
-          } else {
-            alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
-            console.error(error);
-          }
+    const signupCompany = async () => {
+      try {
+        if (!passwordMatch.value) {
+          alert("Las contraseñas no coinciden.");
+          return;
         }
-      };
+        const answer = await axios.post(
+          "http://127.0.0.1:8000/insertCompany",
+          company.value
+        );
+        msg.value = answer.data.msg;
+        company.value = {
+          company_user: "",
+          mail: "",
+          password: "",
+        };
+        confirmPassword.value = "";
+        isLogin.value = true;
+        switchSP();
+      } catch (error) {
+        if (error.response && error.response.data) {
+          alert(`Error al registrar empresa: ${error.response.data.detail}`);
+          console.error("Error al registrar empresa", error.response.data);
+        } else {
+          alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+          console.error(error);
+        }
+      }
+    };
 
-      const passwordMatch = computed(() => {
-        return company.value.password === confirmPassword.value;
-      });
+    const passwordMatch = computed(() => {
+      return company.value.password === confirmPassword.value;
+    });
 
-      // Función para alternar la vista
-      const toggleForm = () => {
-        isLogin.value = !isLogin.value;
-      };
+    // Función para alternar la vista
+    const toggleForm = () => {
+      isLogin.value = !isLogin.value;
+    };
 
-      onMounted(() => {
+    onMounted(() => {
       const storedUser = localStorage.getItem("loggedCompany");
       if (storedUser) {
-        loggedCompany.value = JSON.parse(storedUser).name; 
+        loggedCompany.value = JSON.parse(storedUser).name;
         router.push("/companySession");
       }
     });
 
-
-      return {
-        toggleForm,
-        loginCompany, 
-        signupCompany,
-        company,
-        isLogin,
-        confirmPassword,
-        passwordMatch,
-        sesion,
-        msg,
-        switchSMPR
-      };
-    }
-  };
-  </script>
-
+    return {
+      toggleForm,
+      loginCompany,
+      signupCompany,
+      company,
+      isLogin,
+      confirmPassword,
+      passwordMatch,
+      sesion,
+      msg,
+      switchSMPR,
+    };
+  },
+};
+</script>
 
 <template>
   <transition name="slide-fade">
     <section v-if="isLogin" key="login" class="login-container">
       <form class="form" @submit.prevent="loginCompany()">
-        <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0;"><span style="color: var(--secGray);">FIX</span><span style="color: white;">-</span><span style="color: var(--baseOrange);">FLOW</span></h1>
+        <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0">
+          <span style="color: var(--secGray)">FIX</span
+          ><span style="color: white">-</span
+          ><span style="color: var(--baseOrange)">FLOW</span>
+        </h1>
         <h2>Inicio de Sesión</h2>
         <label for="company-input" class="input-container">
           <ion-icon name="cube"></ion-icon>
-          <input type="text" id="company-input" class="text-input" placeholder="Compañía" v-model="sesion.identifier" />
+          <input
+            type="text"
+            id="company-input"
+            class="text-input"
+            placeholder="Compañía"
+            v-model="sesion.identifier"
+          />
         </label>
         <label for="pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>
-          <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
-            v-model="sesion.password" />
+          <input
+            type="password"
+            id="pasw-input"
+            class="text-input"
+            placeholder="Contraseña"
+            v-model="sesion.password"
+          />
         </label>
         <button class="go-btn">Iniciar Sesión</button>
-        <button type="button" @click="toggleForm" class="opt-btn">Registrarse</button>
-        <button type="button" @click="switchSMPR" class="opt-btn">¿Olvidaste tu contraseña?</button>
+        <button type="button" @click="toggleForm" class="opt-btn">
+          Registrarse
+        </button>
+        <button type="button" @click="switchSMPR" class="opt-btn">
+          ¿Olvidaste tu contraseña?
+        </button>
       </form>
     </section>
 
@@ -138,31 +169,57 @@
         <h2>Registro</h2>
         <label for="email-input" class="input-container">
           <ion-icon name="mail"></ion-icon>
-          <input type="mail" id="email-input" class="text-input" placeholder="Correo" v-model="company.mail" />
+          <input
+            type="mail"
+            id="email-input"
+            class="text-input"
+            placeholder="Correo"
+            v-model="company.mail"
+          />
         </label>
         <label for="company-input" class="input-container">
           <ion-icon name="cube"></ion-icon>
-          <input type="text" id="company-input" class="text-input" placeholder="Nombre Compañía"
-            v-model="company.company_user" />
+          <input
+            type="text"
+            id="company-input"
+            class="text-input"
+            placeholder="Nombre Compañía"
+            v-model="company.company_user"
+          />
         </label>
         <label for="pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>
-          <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
-            v-model="company.password" />
+          <input
+            type="password"
+            id="pasw-input"
+            class="text-input"
+            placeholder="Contraseña"
+            v-model="company.password"
+          />
         </label>
         <label for="confirm-pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>
-          <input type="password" id="confirm-pasw-input" class="text-input" v-model="confirmPassword"
-            placeholder="Confirmar Contraseña" />
+          <input
+            type="password"
+            id="confirm-pasw-input"
+            class="text-input"
+            v-model="confirmPassword"
+            placeholder="Confirmar Contraseña"
+          />
         </label>
-        <p v-if="!passwordMatch" style="color: white;">Las contraseñas no coinciden.</p>
-        <button class="go-btn" type="submit" :disabled="!passwordMatch">Registrarse</button>
-        <button type="button" @click="toggleForm" class="opt-btn">Iniciar Sesión</button>
+        <p v-if="!passwordMatch" style="color: white">
+          Las contraseñas no coinciden.
+        </p>
+        <button class="go-btn" type="submit" :disabled="!passwordMatch">
+          Registrarse
+        </button>
+        <button type="button" @click="toggleForm" class="opt-btn">
+          Iniciar Sesión
+        </button>
       </form>
     </section>
   </transition>
 </template>
-
 
 <style scoped>
 .login-container,
@@ -175,8 +232,7 @@
   width: 75%;
   border-radius: 10px;
   background: var(--baseGray);
-  box-shadow: -25px -25px 51px #242424,
-    25px 25px 51px #484848;
+  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
   border: 2px solid var(--baseOrange);
   overflow-y: auto;
   scrollbar-width: none;
@@ -190,7 +246,7 @@
 }
 
 .slide-fade-leave-active {
-  transition: transform .8s ease, opacity 2s ease;
+  transition: transform 0.8s ease, opacity 2s ease;
 }
 
 .slide-fade-enter-from {
@@ -225,8 +281,7 @@
   padding: 10px;
   border-radius: 10px;
   background: #ffffff;
-  box-shadow: inset -25px -25px 51px #a8a8a8,
-    inset 25px 25px 51px #ffffff;
+  box-shadow: inset -25px -25px 51px #a8a8a8, inset 25px 25px 51px #ffffff;
   display: flex;
   align-items: center;
   width: 80%;
@@ -251,7 +306,6 @@
   border: 2px solid transparent;
 }
 
-
 .opt-btn {
   all: unset;
   color: rgba(255, 255, 255, 0.418);
@@ -259,8 +313,8 @@
   cursor: pointer;
 }
 
-.opt-btn:hover{
-  opacity: .8;
+.opt-btn:hover {
+  opacity: 0.8;
 }
 
 .go-btn:active {
@@ -295,7 +349,6 @@
 
 /* Portátiles: 1024px y mayores */
 @media (min-width: 1024px) {
-
   .login-container,
   .signup-container {
     width: 30%;
@@ -325,7 +378,6 @@
 
 /* Computadoras de escritorio: 1280px y mayores */
 @media (min-width: 1280px) {
-
   .login-container,
   .signup-container {
     width: 28%;
