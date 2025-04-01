@@ -11,9 +11,10 @@ export default {
     const workerRole = inject("workerRole");
     const showAlert = inject("showAlert");
     const switchWV = inject("switchWV");
-    const totalInCash = ref(0);
+    const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
-    const selectedColor = ref(defaultColor.value);
+    const selectedColor = inject("selectedColor");
+    const getcompanyvault = inject("getcompanyvault");
 
         const getWorkersCount = async () => {
             try {
@@ -27,25 +28,6 @@ export default {
                 console.error("Error al obtener el conteo de trabajadores", error);
             }
         };
-
-
-    const getcompanyvault = async () => {
-      try {
-        if (loggedCompany.value) {
-          const answer = await axios.get(
-            `http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`
-          );
-          totalInCash.value = answer.data.vault;
-          selectedColor.value = answer.data.baseColor; // Asegurar que selectedColor tenga el color inicial
-          document.documentElement.style.setProperty(
-            "--baseOrange",
-            answer.data.baseColor
-          );
-        }
-      } catch (error) {
-        console.error("Error al obtener la boveda y el color", error);
-      }
-    };
 
     const updateColor = async () => {
       try {

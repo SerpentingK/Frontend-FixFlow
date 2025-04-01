@@ -1,16 +1,25 @@
 <script setup>
-import { inject, ref } from 'vue';
+import axios from 'axios';
+import { computed, inject, ref } from 'vue';
 
 // Variables
-const amount = ref(0);
-const msg = ref("");
+const quantity = ref(0);
+const loggedCompany = inject("loggedCompany")
+const startShift = inject("startShift");
+const vault = computed(() => ({
+    ref_shift: startShift.value,
+    quantity: quantity.value
+}));
 
 const switchWV = inject("switchWV")
+const getcompanyvault = inject("getcompanyvault")
 
 // Función para registrar el retiro
 const postWithdrawal = async () => {
     try {
-        amount.value = 0;
+        const response = await axios.put(`http://127.0.0.1:8000/OutFlowVault/${loggedCompany.value}`, vault.value);
+        getcompanyvault();
+        switchWV();
     } catch (error) {
         console.error('Error en el retiro: ', error);
     }
@@ -24,7 +33,7 @@ const postWithdrawal = async () => {
         <form @submit.prevent="postWithdrawal">
             <label class="input-container" to="amount">
                 <span class="info-label">Cantidad a retirar:</span>
-                <input type="number" placeholder="Ingrese monto" required v-model="amount" id="amount"/>
+                <input type="number" placeholder="Ingrese monto" required v-model="quantity" id="amount"/>
             </label>
             <button class="state-btn">Confirmar</button>
         </form>

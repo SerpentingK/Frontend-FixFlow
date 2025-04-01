@@ -36,7 +36,11 @@ const total_revenue = ref(0)
 const total_outs = ref(0)
 const total_cash = ref(0)
 const total_platform = ref(0)
+const total_user = ref(0)
+const totalInCash = ref(0);
 
+provide('totalInCash', totalInCash)
+provide('total_user', total_user)
 provide('total_platform', total_platform)
 provide('total_cash', total_cash)
 provide('total_outs', total_outs)
@@ -125,6 +129,29 @@ const repairBrand = ref("")
 const repairDevice = ref("")
 const defaultColor = ref("#d84b17");
 provide("defaultColor", defaultColor)
+const selectedColor = ref(defaultColor.value);
+provide("selectedColor", selectedColor)
+
+const getcompanyvault = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`
+          );
+          totalInCash.value = answer.data.vault;
+          selectedColor.value = answer.data.baseColor; // Asegurar que selectedColor tenga el color inicial
+          document.documentElement.style.setProperty(
+            "--baseOrange",
+            answer.data.baseColor
+          );
+        }
+      } catch (error) {
+        console.error("Error al obtener la boveda y el color", error);
+      }
+    };
+
+provide('getcompanyvault', getcompanyvault)
+
 const phonesRepair = ref([])
 
 const getPhonesR = async () => {

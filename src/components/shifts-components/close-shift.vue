@@ -14,8 +14,7 @@ const loggedWorker = inject("loggedWorker", ref(null));
 const startShift = inject("startShift", ref(null));
 const switchCCS = inject("switchCCS")
 const start_time = ref("")
-const total_cash = inject('total_cash');
-const total_platform = inject('total_platform');
+const total_user = inject('total_user');
 
 
 onMounted(async () => {
@@ -67,8 +66,8 @@ onMounted(() => {
             <span>{{ start_time }}</span>   
         </div>
         <div class="info-div inp-div">
-            <span>Total en efectivo: </span>
-            <input type="number" v-model="total_cash" class="amount-inp" placeholder="">
+            <span>Total Recibido Efectivo: </span>
+            <input type="number" v-model="total_user" class="amount-inp" placeholder="">
         </div>
         <div class="info-div">
             <span>Celulares recibidos:</span>

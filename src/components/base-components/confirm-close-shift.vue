@@ -17,14 +17,13 @@ const total_cash = inject('total_cash');
 const total_platform = inject('total_platform');
 const total_outs = inject('total_outs');
 const loggedCompany = inject("loggedCompany");
-
-const finish = computed(() => (total_cash.value + total_platform.value));
+const total_user = inject('total_user');
 const loggedDocument = ref(null)
 const shiftclose = ref({
-        total_gain: total_revenue,
-        total_received: finish,
-        total_outs: total_outs,
-        vault: total_cash,
+        total_gain: total_revenue.value,
+        total_received: total_sales.value,
+        total_outs: total_outs.value,
+        vault: total_cash.value,
       })
 
 const router = useRouter()
@@ -32,41 +31,55 @@ const router = useRouter()
 const putShift = async () => {
     try {
         const response = await axios.put(`http://127.0.0.1:8000/closeshift/${startShift.value}/${loggedCompany.value}`, shiftclose.value);
-        localStorage.removeItem("total_sales");
-        total_sales.value = 0;
-        localStorage.removeItem("total_outs");
-        total_outs.value = 0;
-        localStorage.removeItem("total_revenue");
-        total_revenue.value = 0;
-        localStorage.removeItem("loggedDocument");
-        loggedDocument.value = null
-        localStorage.removeItem("loggedWorker");
-        loggedWorker.value = null
-        localStorage.removeItem("workerRole");
-        workerRole.value = null
-        localStorage.removeItem("startShift");
-        startShift.value = null
-        localStorage.removeItem("phonesDelivered");
-        phonesDelivered.value = 0;
-        localStorage.removeItem("phonesReceived");
-        phonesReceived.value = 0;
-        localStorage.removeItem("phonesRepaired");
-        phonesRepaired.value = 0;
-        router.push("/workers/login-worker")
-        switchCCS()
+
+        if (response.status === 200) { // Asegurar que la petición fue exitosa
+            localStorage.removeItem("total_sales");
+            total_sales.value = 0;
+            localStorage.removeItem("total_outs");
+            total_outs.value = 0;
+            localStorage.removeItem("total_revenue");
+            total_revenue.value = 0;
+            localStorage.removeItem("loggedDocument");
+            loggedDocument.value = null;
+            localStorage.removeItem("loggedWorker");
+            loggedWorker.value = null;
+            localStorage.removeItem("workerRole");
+            workerRole.value = null;
+            localStorage.removeItem("startShift");
+            startShift.value = null;
+            localStorage.removeItem("phonesDelivered");
+            phonesDelivered.value = 0;
+            localStorage.removeItem("phonesReceived");
+            phonesReceived.value = 0;
+            localStorage.removeItem("phonesRepaired");
+            phonesRepaired.value = 0;
+            localStorage.removeItem("total_cash");
+            total_cash.value = 0;   
+            localStorage.removeItem("total_platform");
+            total_platform.value = 0;
+            total_user.value = 0;
+            
+            router.push("/workers/login-worker");
+            switchCCS();
+        }
     } catch (error) {
         console.error("Error al cerrar el turno:", error);
         alert("No se pudo cerrar el turno. Inténtalo nuevamente.");
     }
-}
+};
+
 
 onMounted(() => {
+    const storedPlataform = localStorage.getItem("total_platform")
+    const storedCash = localStorage.getItem("total_cash")
     const storedSales = localStorage.getItem("total_sales");
     const storedRevenue = localStorage.getItem("total_revenue");
     const storedOuts = localStorage.getItem("total_outs")
     if (storedSales) total_sales.value = JSON.parse(storedSales);
     if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);  
     if (storedOuts) total_outs.value = JSON.parse(storedOuts)
+    if (storedPlataform) total_platform.value = JSON.parse(storedPlataform)
+    if (storedCash) total_cash.value = JSON.parse(storedCash)   
 })
 </script>
 
@@ -74,8 +87,16 @@ onMounted(() => {
     <section class="container">
         <h3>CERRAR TURNPO</h3>
         <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
-            <span>Cantidad reportada: </span>
-            <span>{{ finish }}</span>
+            <span>Cantidad Reportada: </span>
+            <span>{{ total_user }}</span>
+        </div>
+        <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
+            <span>Cantidad En Plataforma: </span>
+            <span>{{ total_platform }}</span>
+        </div>
+        <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
+            <span>Cantidad En Fisico: </span>
+            <span>{{ total_cash }}</span>
         </div>
         <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
             <span>Cantidad Real: </span>

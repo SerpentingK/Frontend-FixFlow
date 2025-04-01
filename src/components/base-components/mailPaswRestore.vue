@@ -1,10 +1,11 @@
 <script setup>
+import axios from 'axios';
 import { inject, ref } from 'vue';
 
 // Variables
 const step = ref(1);
 const email = ref('');
-const code = ref('');
+const code = ref(0);
 const newPassword = ref('');
 const confirmPassword = ref('');
 const msg = ref('');
@@ -22,22 +23,55 @@ const prevStep = () => {
 };
 
 // Función para manejar cada etapa de la recuperación
-const handleRecovery = () => {
-    if (step.value === 1) {
-        // Aquí iría la lógica para enviar el correo de recuperación
-        console.log(`Enviando código a ${email.value}`);
-    } else if (step.value === 2) {
-        // Aquí iría la lógica para verificar el código
-        console.log(`Verificando código: ${code.value}`);
-    } else if (step.value === 3) {
-        if (newPassword.value !== confirmPassword.value) {
-            msg.value = "Las contraseñas no coinciden.";
-            return;
+const handleRecovery = async () => {
+    try {
+        if (step.value === 1) {
+            const response = await axios.post(`http://127.0.0.1:8000/passwordRecovery`, {
+                Email: email.value  // Enviar el objeto correctamente formateado
+            });
+            
+            if (response.data.status === "Se ha enviado un correo con el pin de recuperación") {
+                msg.value = "Correo enviado con éxito.";
+                nextStep();
+            } else {
+                msg.value = "Error al enviar el correo.";
+            }
+        } else if (step.value === 2) {
+            const response = await axios.post(`http://127.0.0.1:8000/verify-pin`, {
+            Email: email.value,  // Cambiado a minúscula para coincidir con el backend
+            code: code.value  // Asegura que sea un número entero
+            });
+            if (response.data.status === "el pin de recuperacion es correcto") {
+                msg.value = "Código verificado correctamente.";  // Mensaje más descriptivo
+                nextStep();
+            } else {
+                msg.value = "Código incorrecto o inválido.";
+            }
+        } else if (step.value === 3) {
+            if (newPassword.value !== confirmPassword.value) {
+                msg.value = "Las contraseñas no coinciden.";
+                return;
+            }else{
+                const response = await axios.put(`http://127.0.0.1:8000/confirmPassword`, {
+                Email: email.value,  // Cambiado a minúscula para coincidir con el backend
+                password: newPassword.value  // Asegura que sea un número entero
+                });
+                if (response.data.status === "La compañia a cambiado de contraseña correctamente") {
+                    msg.value = "Contraseña actualizada con éxito.";
+                    switchSMPR();  // Cerrar el modal después de actualizar la contraseña
+                } else {
+                    msg.value = "Error al actualizar la contraseña.";
+                }
+            }
         }
-        // Aquí iría la lógica para actualizar la contraseña
-        console.log(`Nueva contraseña: ${newPassword.value}`);
+    } catch (error) {
+        console.error('Error detallado:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+    });
+    msg.value = error.response?.data?.detail || "Ocurrió un error. Intente nuevamente.";
     }
-    nextStep();
 };
 </script>
 

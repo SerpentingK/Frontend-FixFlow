@@ -7,12 +7,14 @@ const sale = ref(0);
 const cashSale = ref(0);
 const platformSale = ref(0);
 const original_price = ref(0);
-const revenue_price = computed(() => sale.value - original_price.value);
+const revenue_price = computed(() => (cashSale.value + platformSale.value) - original_price.value);
 
 // Inyecta las variables globales
 const startShift = inject("startShift");
 const total_sales = inject("total_sales");
 const total_revenue = inject("total_revenue");
+const total_cash = inject("total_cash");
+const total_platform = inject("total_platform");
 const msg = ref("");
 
 // Estructura de ventas
@@ -40,6 +42,8 @@ const postSales = async () => {
         sales.value.sale = sale.value;
         sales.value.original_price = original_price.value;
         sales.value.revenue_price = revenue_price.value;
+        total_cash.value = cashSale.value;
+        total_platform.value = platformSale.value;
 
         const response = await axios.post('http://127.0.0.1:8000/insertdelivery', sales.value);
         msg.value = response.data.msg;
@@ -47,13 +51,19 @@ const postSales = async () => {
         // Obtener valores previos del localStorage y sumarlos
         const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
         const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
+        const previousCash = JSON.parse(localStorage.getItem("total_cash")) || 0;
+        const previousPlatform = JSON.parse(localStorage.getItem("total_platform")) || 0;
 
         total_sales.value = previousSales + (sale.value || 0);
         total_revenue.value = previousRevenue + (revenue_price.value || 0);
+        total_cash.value = previousCash + (cashSale.value || 0);
+        total_platform.value = previousPlatform + (platformSale.value || 0);
 
         // Guardar en localStorage
         localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
         localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
+        localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
+        localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
 
         // Resetear valores
         cashSale.value = 0;
