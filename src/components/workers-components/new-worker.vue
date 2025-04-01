@@ -7,6 +7,7 @@ export default {
     setup(){
     const workersCount = inject("workersCount", ref(0));
     const loggedCompany = inject("loggedCompany", ref(null))
+    const showAlert = inject("showAlert")
     const worker = ref({
         wname: "",
         password: "",
@@ -39,7 +40,7 @@ export default {
             }
         } catch (error) {
             if (error.response && error.response.data) {
-            alert(`Error al registrar trabajador: ${error.response.data.detail}`);
+                showAlert("2", `No se ha podido registrar el colaborador: ${error.response.data.detail}`)
             console.error("Error al registrar empresa", error.response.data);
             } else {
             alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");

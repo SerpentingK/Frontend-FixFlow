@@ -15,6 +15,7 @@ import renewedSuscription from './components/base-components/renewedSuscription.
 import alert from './components/base-components/alert.vue';
 import withdrawVault from './components/base-components/withdrawVault.vue';
 import mailPaswRestore from './components/base-components/mailPaswRestore.vue';
+import Particles from './components/Particles.vue'
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
@@ -132,7 +133,7 @@ provide("defaultColor", defaultColor)
 const selectedColor = ref(defaultColor.value);
 provide("selectedColor", selectedColor)
 
-const getcompanyvault = async () => {
+const getCompanyVault = async () => {
       try {
         if (loggedCompany.value) {
           const answer = await axios.get(
@@ -144,13 +145,14 @@ const getcompanyvault = async () => {
             "--baseOrange",
             answer.data.baseColor
           );
+
         }
       } catch (error) {
         console.error("Error al obtener la boveda y el color", error);
       }
     };
 
-provide('getcompanyvault', getcompanyvault)
+provide('getCompanyVault', getCompanyVault)
 
 const phonesRepair = ref([])
 
@@ -393,6 +395,7 @@ watch(
 
 <template>
   <section class="body">
+    <Particles/>
     <transition name="opacity-in" mode="out-in">
       <billInfo v-if="showBillInfo" />
     </transition>

@@ -32,7 +32,9 @@ const saleValue = ref(null);
 const codeValue = ref(null);
 const due = ref(null)
 const startShift = inject("startShift");
-const total_sales = inject("total_sales")       
+const total_sales = inject("total_sales");
+const total_cash = inject("total_cash")       
+const total_platform = inject("total_platform")
 const total_revenue = inject("total_revenue")
 
 // Computed para verificar si los campos están completos (permite 0 en saleValue)
@@ -168,8 +170,12 @@ onMounted(() => {
                 <span>{{ payment }}</span>
             </div>
             <div class="input-container">
-                <span>Deuda:</span>
+                <span>Pago efectivo:</span>
                 <input type="number" v-model="saleValue" :placeholder="due" required />
+            </div>
+            <div class="input-container">
+                <span>Pago plataforma:</span>
+                <input type="number" v-model="saleValue" placeholder="0" required />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>

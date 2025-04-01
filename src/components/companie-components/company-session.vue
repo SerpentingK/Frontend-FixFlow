@@ -14,7 +14,7 @@ export default {
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
-    const getcompanyvault = inject("getcompanyvault");
+    const getCompanyVault = inject("getCompanyVault");
 
         const getWorkersCount = async () => {
             try {
@@ -47,13 +47,14 @@ export default {
         color
       );
       localStorage.setItem("baseOrange", color);
+      window.location.reload()
     };
 
     provide("resetColor", resetColor);
 
     onMounted(() => {
       getWorkersCount();
-      getcompanyvault();
+      getCompanyVault();
 
       // Restaurar el color desde localStorage al cargar
       const storedColor = localStorage.getItem("baseOrange");

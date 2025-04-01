@@ -6,6 +6,7 @@ import { computed, inject, ref } from 'vue';
 const quantity = ref(0);
 const loggedCompany = inject("loggedCompany")
 const startShift = inject("startShift");
+const showAlert = inject("showAlert")
 const vault = computed(() => ({
     ref_shift: startShift.value,
     quantity: quantity.value
@@ -21,7 +22,7 @@ const postWithdrawal = async () => {
         getcompanyvault();
         switchWV();
     } catch (error) {
-        console.error('Error en el retiro: ', error);
+        showAlert("2", "No puede retirar mas de la cantidad en la boveda")
     }
 };
 </script>

@@ -28,6 +28,8 @@ const shiftclose = ref({
 
 const router = useRouter()
 
+const showAlert = inject("showAlert")
+
 const putShift = async () => {
     try {
         const response = await axios.put(`http://127.0.0.1:8000/closeshift/${startShift.value}/${loggedCompany.value}`, shiftclose.value);
@@ -64,7 +66,7 @@ const putShift = async () => {
         }
     } catch (error) {
         console.error("Error al cerrar el turno:", error);
-        alert("No se pudo cerrar el turno. Inténtalo nuevamente.");
+        showAlert("2", "No se ha podido cerrar sesion, intente nuevamente")
     }
 };
 
@@ -84,32 +86,45 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="container">
+    <section class="c-container">
         <h3>CERRAR TURNPO</h3>
-        <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
-            <span>Cantidad Reportada: </span>
+        <div class="info-cont">
+            <span>Cantidad Reportada en Fisico: </span>
             <span>{{ total_user }}</span>
         </div>
-        <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
+        <div class="info-cont">
+            <span>Cantidad Real en Fisico: </span>
+            <span>{{ total_cash }}</span>
+        </div>
+        <div class="info-cont">
+            <span>Cantidad a Entregar en Fisico: </span>
+            <span>450 000</span>
+        </div>
+        <div class="info-cont">
             <span>Cantidad En Plataforma: </span>
             <span>{{ total_platform }}</span>
         </div>
-        <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
-            <span>Cantidad En Fisico: </span>
-            <span>{{ total_cash }}</span>
-        </div>
-        <div style="width: 100%; display: flex; justify-content: space-evenly; padding: 10px 0; color: white;">
-            <span>Cantidad Real: </span>
+        <div class="info-cont">
+            <span>Cantidad Total: </span>
             <span>{{ total_sales }}</span>
         </div>
-        <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
+        <div class="info-cont">
+            <span>Inversion: </span>
+            <span>{{ total_sales }}</span>
+        </div>
+        <div class="info-cont">
+            <span>Ganancia: </span>
+            <span>{{ total_sales }}</span>
+        </div>
+        
+        <div class="btns">
             <button @click="switchCCS()">Cancelar</button>
             <button @click="putShift() " class="confirm-btn">Confirmar</button>
         </div>
     </section>
 </template>
 <style scoped>
-.container {
+.c-container {
     position: fixed;
     left: 50%;
     top: 50%;
@@ -138,6 +153,18 @@ h3 {
     text-align: center;
     letter-spacing: 2px;
 }
+.info-cont{
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    color: white;
+}
+.btns{
+    display:flex;
+    gap: 20px;
+    margin: 0 0 20px 0;
+}
 .btns button{
     border: 2px solid var(--baseOrange);
     background-color: transparent;
@@ -156,8 +183,8 @@ button.confirm-btn{
     background-color: var(--baseOrange);
 }
 @media (min-width: 1024px) {
-    .container{
-        width: 25%;
+    .c-container{
+        width: 35%;
     }
     
     button:hover{

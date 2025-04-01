@@ -5,103 +5,13 @@
   <link rel="icon" href="/src/assets/img/Logo.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FIX-FLOW</title>
-  <style>
-    #particles-js {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: -1;
-      overflow: hidden;
-    }
-  </style>
   <script src="https://checkout.bold.co/library/boldPaymentButton.js"></script>
 </head>
 <body>
   <div id="app"></div>
-  <div id="particles-js"></div>
-
-  <script>
-    // Obtener el color guardado o usar un valor predeterminado
-    const savedColor = localStorage.getItem("baseOrange") || "#ff6600";
-
-    // Aplicar el color como variable global CSS
-    document.documentElement.style.setProperty('--baseOrange', savedColor);
-
-    // Configuración de partículas con el color seleccionado
-    function initParticles() {
-      particlesJS('particles-js', {
-        particles: {
-          number: {
-            value: 200,
-            density: {
-              enable: true,
-              value_area: window.innerWidth > 768 ? 1000 : 500
-            }
-          },
-          color: {
-            value: savedColor
-          },
-          shape: {
-            type: ['circle', 'triangle'],
-          },
-          opacity: {
-            value: 1,
-            anim: {
-              enable: true,
-              speed: 1.5,
-              opacity_min: 0.1
-            }
-          },
-          size: {
-            value: 5,
-            random: true,
-            anim: {
-              enable: true,
-              speed: 2,
-              size_min: 1.5
-            }
-          },
-          line_linked: {
-            enable: true,
-            distance: 90,
-            color: "#222222",
-            opacity: .8,
-            width: 2
-          },
-          move: {
-            enable: true,
-            speed: 1,
-            direction: "top",
-            random: true,
-            straight: false,
-            out_mode: "bounce"
-          }
-        },
-        interactivity: {
-          detect_on: "canvas",
-          events: {
-            onhover: {
-              enable: true,
-              mode: "grab"
-            },
-            onclick: {
-              enable: true,
-              mode: "remove"
-            }
-          }
-        }
-      });
-    }
-
-    // Inicializar partículas después de que la página haya cargado
-    window.onload = initParticles;
-  </script>
 
   <script type="module" src="/src/main.js"></script>
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
 </body>
 </html>

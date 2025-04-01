@@ -203,6 +203,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 
     .state-btn {
         all: unset;
+        cursor: pointer;
         background-color: var(--baseGray);
         padding: 10px;
         border: 2px solid var(--baseOrange);

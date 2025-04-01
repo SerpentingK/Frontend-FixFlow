@@ -10,6 +10,7 @@ export default {
     const loggedCompany = inject("loggedCompany", ref(null));
     const switchSMPR = inject("switchSMPR");
     const isLogin = ref(true); // Propiedad para alternar entre login y registro
+    const getCompanyVault = inject("getCompanyVault")
     const confirmPassword = ref("");
     const msg = ref("");
     const company = ref({
@@ -34,6 +35,7 @@ export default {
 
         msg.value = response.data;
         loggedCompany.value = response.data.name;
+        getCompanyVault()
 
         // Guardar en localStorage
         localStorage.setItem("loggedCompany", JSON.stringify(response.data));
@@ -118,30 +120,18 @@ export default {
     <section v-if="isLogin" key="login" class="login-container">
       <form class="form" @submit.prevent="loginCompany()">
         <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0">
-          <span style="color: var(--secGray)">FIX</span
-          ><span style="color: white">-</span
-          ><span style="color: var(--baseOrange)">FLOW</span>
+          <span style="color: var(--secGray)">FIX</span><span style="color: white">-</span><span
+            style="color: var(--baseOrange)">FLOW</span>
         </h1>
         <h2>Inicio de Sesión</h2>
         <label for="company-input" class="input-container">
           <ion-icon name="cube"></ion-icon>
-          <input
-            type="text"
-            id="company-input"
-            class="text-input"
-            placeholder="Compañía"
-            v-model="sesion.identifier"
-          />
+          <input type="text" id="company-input" class="text-input" placeholder="Compañía" v-model="sesion.identifier" />
         </label>
         <label for="pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>
-          <input
-            type="password"
-            id="pasw-input"
-            class="text-input"
-            placeholder="Contraseña"
-            v-model="sesion.password"
-          />
+          <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
+            v-model="sesion.password" />
         </label>
         <button class="go-btn">Iniciar Sesión</button>
         <button type="button" @click="toggleForm" class="opt-btn">
@@ -158,43 +148,22 @@ export default {
         <h2>Registro</h2>
         <label for="email-input" class="input-container">
           <ion-icon name="mail"></ion-icon>
-          <input
-            type="mail"
-            id="email-input"
-            class="text-input"
-            placeholder="Correo"
-            v-model="company.mail"
-          />
+          <input type="mail" id="email-input" class="text-input" placeholder="Correo" v-model="company.mail" />
         </label>
         <label for="company-input" class="input-container">
           <ion-icon name="cube"></ion-icon>
-          <input
-            type="text"
-            id="company-input"
-            class="text-input"
-            placeholder="Nombre Compañía"
-            v-model="company.company_user"
-          />
+          <input type="text" id="company-input" class="text-input" placeholder="Nombre Compañía"
+            v-model="company.company_user" />
         </label>
         <label for="pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>
-          <input
-            type="password"
-            id="pasw-input"
-            class="text-input"
-            placeholder="Contraseña"
-            v-model="company.password"
-          />
+          <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
+            v-model="company.password" />
         </label>
         <label for="confirm-pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>
-          <input
-            type="password"
-            id="confirm-pasw-input"
-            class="text-input"
-            v-model="confirmPassword"
-            placeholder="Confirmar Contraseña"
-          />
+          <input type="password" id="confirm-pasw-input" class="text-input" v-model="confirmPassword"
+            placeholder="Confirmar Contraseña" />
         </label>
         <p v-if="!passwordMatch" style="color: white">
           Las contraseñas no coinciden.
@@ -338,6 +307,7 @@ export default {
 
 /* Portátiles: 1024px y mayores */
 @media (min-width: 1024px) {
+
   .login-container,
   .signup-container {
     width: 30%;
@@ -367,6 +337,7 @@ export default {
 
 /* Computadoras de escritorio: 1280px y mayores */
 @media (min-width: 1280px) {
+
   .login-container,
   .signup-container {
     width: 28%;
