@@ -1,4 +1,5 @@
 <script setup>
+// Importación de componentes
 import navBar from './components/base-components/nav-bar.vue';
 import billInfo from './components/base-components/bill-info.vue';
 import billsNavBar from './components/bill-components/bills-nav-bar.vue';
@@ -15,206 +16,243 @@ import renewedSuscription from './components/base-components/renewedSuscription.
 import alert from './components/base-components/alert.vue';
 import withdrawVault from './components/base-components/withdrawVault.vue';
 import mailPaswRestore from './components/base-components/mailPaswRestore.vue';
-import Particles from './components/Particles.vue'
+import Particles from './components/Particles.vue';
+
+// Importación de funciones de Vue y otras dependencias
 import { provide, ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
 
+// =============================================
+// ESTADO DE LA APLICACIÓN Y DATOS COMPARTIDOS
+// =============================================
 
-const loggedCompany = ref(null);
-const loggedWorker = ref(null)
-const loggedDocument = ref(null)
-const workersCount = ref(0)
-const workerRole = ref(null)
-const phonesRepaired = ref(0)
-const phonesReceived = ref(0)
-const phonesDelivered = ref(0)
-const startShift = ref(null);
-const inBills = ref(false)
-const inWorkerProfile = ref(false)
-const total_sales = ref(0)
-const total_revenue = ref(0)
-const total_outs = ref(0)
-const total_cash = ref(0)
-const total_platform = ref(0)
-const total_user = ref(0)
-const totalInCash = ref(0);
+// Datos de la empresa y trabajador
+const loggedCompany = ref(null);          // Empresa logueada
+const loggedWorker = ref(null);           // Trabajador logueado
+const loggedDocument = ref(null);         // Documento del trabajador
+const workersCount = ref(0);              // Cantidad de trabajadores
+const workerRole = ref(null);             // Rol del trabajador
 
-provide('totalInCash', totalInCash)
-provide('total_user', total_user)
-provide('total_platform', total_platform)
-provide('total_cash', total_cash)
-provide('total_outs', total_outs)
-provide('total_revenue', total_revenue)
-provide('total_sales', total_sales)
-provide('startShift', startShift)
-provide('loggedCompany', loggedCompany)
-provide('loggedWorker', loggedWorker)
-provide('loggedDocument', loggedDocument)
-provide('workersCount', workersCount)
-provide('workerRole', workerRole)
+// Estadísticas de teléfonos
+const phonesRepaired = ref(0);            // Teléfonos reparados
+const phonesReceived = ref(0);            // Teléfonos recibidos
+const phonesDelivered = ref(0);           // Teléfonos entregados
+
+// Datos del turno
+const startShift = ref(null);             // Hora de inicio del turno
+
+// Estados de navegación
+const inBills = ref(false);               // Si está en la sección de facturas
+const inWorkerProfile = ref(false);       // Si está en el perfil del trabajador
+
+// Estadísticas financieras
+const total_sales = ref(0);               // Ventas totales
+const total_revenue = ref(0);             // Ingresos totales
+const total_outs = ref(0);                // Gastos totales
+const total_cash = ref(0);                // Efectivo total
+const total_platform = ref(0);            // Pagos por plataforma
+const total_user = ref(0);                // Usuario total
+const totalInCash = ref(0);               // Efectivo en caja
+
+// Proveer estados a componentes hijos
+provide('totalInCash', totalInCash);
+provide('total_user', total_user);
+provide('total_platform', total_platform);
+provide('total_cash', total_cash);
+provide('total_outs', total_outs);
+provide('total_revenue', total_revenue);
+provide('total_sales', total_sales);
+provide('startShift', startShift);
+provide('loggedCompany', loggedCompany);
+provide('loggedWorker', loggedWorker);
+provide('loggedDocument', loggedDocument);
+provide('workersCount', workersCount);
+provide('workerRole', workerRole);
 provide('phonesRepaired', phonesRepaired);
 provide('phonesReceived', phonesReceived);
 provide('phonesDelivered', phonesDelivered);
 
+// Datos de la factura
 const billData = ref({
-  total_price: 0,
-  client_name: '',
-  client_phone: '',
-  wname: "",
-  ref_shift: "",
-  phones: [],
+  total_price: 0,       // Precio total
+  client_name: '',      // Nombre del cliente
+  client_phone: '',     // Teléfono del cliente
+  wname: "",            // Nombre del trabajador
+  ref_shift: "",        // Referencia del turno
+  phones: [],           // Teléfonos asociados
 });
 provide('billData', billData);
 
+// =============================================
+// CONTROL DE MODALES Y VISTAS
+// =============================================
 
-const showBillInfo = ref(false)
+// Control de visualización de información de factura
+const showBillInfo = ref(false);
+const bill_number = ref(null);
 
-const bill_number = ref(null)
-
+/**
+ * Alterna la visualización de la información de la factura
+ * @param {string} newBillNumber - Número de factura a mostrar
+ */
 const switch_sbf = (newBillNumber) => {
   bill_number.value = newBillNumber;
   showBillInfo.value = !showBillInfo.value;
   console.log("Número de factura seleccionado:", bill_number.value);
 };
+provide('bill_number', bill_number);
+provide('switch_sbf', switch_sbf);
 
-provide('bill_number', bill_number)
-
-provide('switch_sbf', switch_sbf)
-
-const showPayment = ref(false)
-
+// Control de visualización de pago
+const showPayment = ref(false);
 const switchSP = () => {
   if (!loggedCompany.value) {
-    showPayment.value = !showPayment.value
+    showPayment.value = !showPayment.value;
+  } else {
+    showPayment.value = !companyPay.value;
   }
-  else {
-    if (!companyPay.value) {
-      showPayment.value = true
-    } else {
-      showPayment.value = false
-    }
-  }
-}
+};
+provide("switchSP", switchSP);
 
-provide("switchSP", switchSP)
-
-const showBillConfirm = ref(false)
-
+// Control de confirmación de factura
+const showBillConfirm = ref(false);
 const switchSBC = () => {
-  showBillConfirm.value = !showBillConfirm.value
-}
+  showBillConfirm.value = !showBillConfirm.value;
+};
+provide("switchSBC", switchSBC);
 
-provide("switchSBC", switchSBC)
-
-const showCloseShift = ref(false)
-
+// Control de cierre de turno
+const showCloseShift = ref(false);
 const switchCS = () => {
-  showCloseShift.value = !showCloseShift.value
-}
+  showCloseShift.value = !showCloseShift.value;
+};
+provide("switchCS", switchCS);
 
-provide("switchCS", switchCS)
-
-const showConfirmCloseShift = ref(false)
-
+// Control de confirmación de cierre de turno
+const showConfirmCloseShift = ref(false);
 const switchCCS = () => {
-  showConfirmCloseShift.value = !showConfirmCloseShift.value
-}
+  showConfirmCloseShift.value = !showConfirmCloseShift.value;
+};
+provide("switchCCS", switchCCS);
 
-provide("switchCCS", switchCCS)
+// =============================================
+// GESTIÓN DE REPARACIONES
+// =============================================
 
-
-const showRepairConfirm = ref(false)
-const repairRef = ref("")
-const repairBrand = ref("")
-const repairDevice = ref("")
+const showRepairConfirm = ref(false);
+const repairRef = ref("");
+const repairBrand = ref("");
+const repairDevice = ref("");
 const defaultColor = ref("#d84b17");
-provide("defaultColor", defaultColor)
+provide("defaultColor", defaultColor);
 const selectedColor = ref(defaultColor.value);
-provide("selectedColor", selectedColor)
+provide("selectedColor", selectedColor);
 
+/**
+ * Obtiene la bóveda de la empresa y su color base
+ */
 const getCompanyVault = async () => {
-      try {
-        if (loggedCompany.value) {
-          const answer = await axios.get(
-            `http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`
-          );
-          totalInCash.value = answer.data.vault;
-          selectedColor.value = answer.data.baseColor; // Asegurar que selectedColor tenga el color inicial
-          document.documentElement.style.setProperty(
-            "--baseOrange",
-            answer.data.baseColor
-          );
+  try {
+    if (loggedCompany.value) {
+      const answer = await axios.get(
+        `http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`
+      );
+      totalInCash.value = answer.data.vault;
+      selectedColor.value = answer.data.baseColor;
+      document.documentElement.style.setProperty(
+        "--baseOrange",
+        answer.data.baseColor
+      );
+    }
+  } catch (error) {
+    console.error("Error al obtener la boveda y el color", error);
+  }
+};
+provide('getCompanyVault', getCompanyVault);
 
-        }
-      } catch (error) {
-        console.error("Error al obtener la boveda y el color", error);
-      }
-    };
+const phonesRepair = ref([]);
 
-provide('getCompanyVault', getCompanyVault)
-
-const phonesRepair = ref([])
-
+/**
+ * Obtiene los teléfonos reparados
+ */
 const getPhonesR = async () => {
   try {
-    const ansawer = await axios.get(`http://127.0.0.1:8000/someDataPhone/${loggedCompany.value}`)
-    phonesRepair.value = ansawer.data
+    const ansawer = await axios.get(`http://127.0.0.1:8000/someDataPhone/${loggedCompany.value}`);
+    phonesRepair.value = ansawer.data;
   } catch (error) {
     console.error("📌 Error al obtener teléfonos reparados:", error);
-    if (error.response && error.response.status === 500) {
-      phonesRepair.value = []; // Si no hay datos, lista vacía
+    if (error.response?.status === 500) {
+      phonesRepair.value = [];
     }
   } finally {
     phonesRepair.value = [...phonesRepair.value];
   }
-}
+};
 
+/**
+ * Alterna la visualización de confirmación de reparación
+ * @param {string} newPhoneRef - Referencia del teléfono
+ * @param {string} newrepairB - Marca del teléfono
+ * @param {string} newrepairD - Modelo del teléfono
+ */
 const switchSRC = (newPhoneRef, newrepairB, newrepairD) => {
-  showRepairConfirm.value = !showRepairConfirm.value
-  repairRef.value = newPhoneRef
-  repairBrand.value = newrepairB
-  repairDevice.value = newrepairD
-}
+  showRepairConfirm.value = !showRepairConfirm.value;
+  repairRef.value = newPhoneRef;
+  repairBrand.value = newrepairB;
+  repairDevice.value = newrepairD;
+};
 
-provide("phonesRepair", phonesRepair)
-provide("getPhonesR", getPhonesR)
-provide("repairDevice", repairDevice)
-provide("repairRef", repairRef)
-provide("repairBrand", repairBrand)
-provide("switchSRC", switchSRC)
+provide("phonesRepair", phonesRepair);
+provide("getPhonesR", getPhonesR);
+provide("repairDevice", repairDevice);
+provide("repairRef", repairRef);
+provide("repairBrand", repairBrand);
+provide("switchSRC", switchSRC);
 
+// =============================================
+// GESTIÓN DE ENTREGAS
+// =============================================
 
+const showDeliveryConfirm = ref(false);
+const deliveryRef = ref("");
+const deliveryBrand = ref("");
+const deliveryDevice = ref("");
+const deliveredPhone = ref([]);
 
-const showDeliveryConfirm = ref(false)
-const deliveryRef = ref("")
-const deliveryBrand = ref("")
-const deliveryDevice = ref("")
-
-const deliveredPhone = ref([])
-
+/**
+ * Obtiene los teléfonos entregados
+ */
 const getPhonesD = async () => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/someDataPhoneDelivered/${loggedCompany.value}`);
     deliveredPhone.value = response.data;
   } catch (error) {
     console.error("📌 Error al obtener teléfonos entregados:", error);
-    if (error.response && error.response.status === 500) {
-      deliveredPhone.value = []; // Si no hay datos, lista vacía
+    if (error.response?.status === 500) {
+      deliveredPhone.value = [];
     }
   } finally {
-    deliveredPhone.value = [...deliveredPhone.value]; // Forzar actualización en Vue
+    deliveredPhone.value = [...deliveredPhone.value];
   }
 };
 
-
-
+/**
+ * Alterna la visualización de confirmación de entrega
+ * @param {string} newPhoneRef - Referencia del teléfono
+ * @param {string} newdeliveredB - Marca del teléfono
+ * @param {string} newdeliveredD - Modelo del teléfono
+ */
 const switchSDC = (newPhoneRef, newdeliveredB, newdeliveredD) => {
-  showDeliveryConfirm.value = !showDeliveryConfirm.value
-  deliveryRef.value = newPhoneRef
-  deliveryBrand.value = newdeliveredB
-  deliveryDevice.value = newdeliveredD
-}
+  showDeliveryConfirm.value = !showDeliveryConfirm.value;
+  deliveryRef.value = newPhoneRef;
+  deliveryBrand.value = newdeliveredB;
+  deliveryDevice.value = newdeliveredD;
+};
+
+// =============================================
+// INFORMACIÓN DE FACTURA
+// =============================================
 
 const infoBill = ref({
   bill_number: "",
@@ -226,49 +264,59 @@ const infoBill = ref({
   phones: []
 });
 
-// Función para cargar los datos de la factura
+/**
+ * Carga los datos de una factura específica
+ */
 const infoData = async () => {
-    try {
-        const response = await axios.get(`http://127.0.0.1:8000/bill/details/${bill_number.value}`);
-        infoBill.value = {
-            bill_number: response.data.bill.bill_number,
-            due: response.data.bill.due,
-            client_phone: response.data.bill.client_phone,
-            wname: response.data.bill.wname,
-            total_price: response.data.bill.total_price,
-            entry_date: response.data.bill.entry_date,
-            client_name: response.data.bill.client_name,
-            payment: response.data.bill.payment,
-            phones: response.data.phones,
-        };
-        console.log("infoBill:", infoBill.value);
-    } catch (error) { 
-        console.error("Error al cargar los datos de la factura:", error);
-    }
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/bill/details/${bill_number.value}`);
+    infoBill.value = {
+      bill_number: response.data.bill.bill_number,
+      due: response.data.bill.due,
+      client_phone: response.data.bill.client_phone,
+      wname: response.data.bill.wname,
+      total_price: response.data.bill.total_price,
+      entry_date: response.data.bill.entry_date,
+      client_name: response.data.bill.client_name,
+      payment: response.data.bill.payment,
+      phones: response.data.phones,
+    };
+    console.log("infoBill:", infoBill.value);
+  } catch (error) { 
+    console.error("Error al cargar los datos de la factura:", error);
+  }
 };
 
 provide('infoBill', infoBill);
 provide('infoData', infoData);  
-provide("deliveredPhone", deliveredPhone)
-provide("getPhonesD", getPhonesD)
-provide("deliveryDevice", deliveryDevice)
-provide("deliveryRef", deliveryRef)
-provide("deliveryBrand", deliveryBrand)
-provide("switchSDC", switchSDC)
+provide("deliveredPhone", deliveredPhone);
+provide("getPhonesD", getPhonesD);
+provide("deliveryDevice", deliveryDevice);
+provide("deliveryRef", deliveryRef);
+provide("deliveryBrand", deliveryBrand);
+provide("switchSDC", switchSDC);
+
+// =============================================
+// GESTIÓN DE TURNOS
+// =============================================
 
 const shift = {
   ref_shift: "",
   id: "",
   start_time: "",
   finish_time: "",
-  total_received: 0, // Valor en pesos colombianos (COP)
-  total_gain: 0,      // Valor en pesos colombianos (COP)
-  total_outs: 0,       // Valor en pesos colombianos (COP)
-  date_shift: ""       // Fecha derivada de ref_shift
-}
+  total_received: 0,    // Valor en pesos colombianos (COP)
+  total_gain: 0,        // Valor en pesos colombianos (COP)
+  total_outs: 0,        // Valor en pesos colombianos (COP)
+  date_shift: ""        // Fecha derivada de ref_shift
+};
 
-const showShiftInfo = ref(false)
+const showShiftInfo = ref(false);
 
+/**
+ * Alterna la visualización de información del turno
+ * @param {object} newShift - Datos del turno
+ */
 const switchSI = (newShift) => {
   shift.ref_shift = newShift.ref_shift;
   shift.id = newShift.id;
@@ -279,118 +327,127 @@ const switchSI = (newShift) => {
   shift.total_outs = newShift.total_outs;
   shift.date_shift = newShift.date_shift;
   showShiftInfo.value = !showShiftInfo.value;
-}
+};
+provide("switchSI", switchSI);
 
-provide("switchSI", switchSI)
+// =============================================
+// ENRUTAMIENTO Y CONTROL DE ACCESO
+// =============================================
 
-
-// Instancias de router y route
 const router = useRouter();
 const route = useRoute();
 
+/**
+ * Maneja la navegación y control de acceso según la ruta
+ */
 const handlePath = () => {
+  // Resetear todos los modales
   showBillInfo.value = false;
   showBillConfirm.value = false;
   showCloseShift.value = false;
   showRepairConfirm.value = false;
   showDeliveryConfirm.value = false;
   showShiftInfo.value = false;
+  
+  // Control de rutas según autenticación
   if (route.path !== '/loginCompany' && loggedCompany.value === null) {
-    router.push('/loginCompany')//Redirigir a Inicio de Sesion si no se ha iniciado
+    router.push('/loginCompany');
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
-    router.push('/companyShift')//Redirigir a shift si ya se ha iniciado sesion
+    router.push('/companyShift');
   } else if (route.path.startsWith('/workers') && workersCount.value < 1) {
-    router.push('/workers/new-worker')
+    router.push('/workers/new-worker');
   } else if (route.path.startsWith('/workers') && loggedWorker.value === null && workersCount > 0) {
-    router.push('/workers/login-worker')//Redirigir a Inicio de Sesion si no se ha iniciado
+    router.push('/workers/login-worker');
   } else if (route.path === '/workers/login-worker' && loggedWorker.value) {
-    router.push('/workers/worker-profile')
+    router.push('/workers/worker-profile');
   }
 
+  // Control de estado en sección de facturas
   if (route.path.startsWith('/bills')) {
     inBills.value = true;
-  } else if (!route.path.startsWith('/bills')) {
+  } else {
     inBills.value = false;
   }
 
+  // Control de estado en perfil de trabajador
   if (route.path === '/workers/worker-profile') {
     inWorkerProfile.value = true;
-  } else if (!(route.path === '/workers/worker-profile')) {
+  } else {
     inWorkerProfile.value = false;
   }
-}
+};
 
-const alertShow = ref(false)
-const alertType = ref("4")
-const alertMessage = ref("Predeterminado")
+// =============================================
+// SISTEMA DE ALERTAS
+// =============================================
 
+const alertShow = ref(false);
+const alertType = ref("4");
+const alertMessage = ref("Predeterminado");
+
+/**
+ * Muestra una alerta en la interfaz
+ * @param {string} type - Tipo de alerta
+ * @param {string} message - Mensaje a mostrar
+ */
 const showAlert = (type, message) => {
-    if(alertShow.value){
-      alertShow.value = false;
-      
-    }else{
-      alertType.value = type
-      alertMessage.value = message
-      alertShow.value = true
-    }
-}
+  if(alertShow.value) {
+    alertShow.value = false;
+  } else {
+    alertType.value = type;
+    alertMessage.value = message;
+    alertShow.value = true;
+  }
+};
+provide("showAlert", showAlert);
 
-provide("showAlert", showAlert)
+// =============================================
+// SUSCRIPCIÓN Y OTRAS FUNCIONALIDADES
+// =============================================
 
-
-
-const showRenewedSuscription = ref(false)
-
+const showRenewedSuscription = ref(false);
 const switchSRS = () => {
-  if (!suscripctionRenewed.value) {
-    if(!loggedCompany.value){
-      showRenewedSuscription.value = false
-    }
-    else{
-      showRenewedSuscription.value = true
-    }
+  if (!suscripctionRenewed.value && loggedCompany.value) {
+    showRenewedSuscription.value = true;
+  } else {
+    showRenewedSuscription.value = false;
   }
-  else {
-    showRenewedSuscription.value = false
-  }
-}
+};
+provide("switchSRS", switchSRS);
 
-provide("switchSRS", switchSRS)
-
-const showWithdrawVault = ref(false)
-
+const showWithdrawVault = ref(false);
 const switchWV = () => {
-  showWithdrawVault.value = !showWithdrawVault.value
-}
+  showWithdrawVault.value = !showWithdrawVault.value;
+};
+provide("switchWV", switchWV);
 
-provide("switchWV", switchWV)
+const suscripctionRenewed = ref(true);
+provide("SR", suscripctionRenewed);
 
-
-const suscripctionRenewed = ref(true)
-
-provide("SR", suscripctionRenewed)
-
-const showMailPaswRestore = ref(false)
-
+const showMailPaswRestore = ref(false);
 const switchSMPR = () => {
-  showMailPaswRestore.value = !showMailPaswRestore.value
-}
+  showMailPaswRestore.value = !showMailPaswRestore.value;
+};
+provide("switchSMPR", switchSMPR);
 
-provide("switchSMPR", switchSMPR)
+// =============================================
+// CICLO DE VIDA Y OBSERVADORES
+// =============================================
 
 onMounted(() => {
   handlePath();
 });
+
+// Observar cambios en la ruta
 watch(
   () => route.path,
   (newPath) => {
     setTimeout(() => {
-      switchSRS()
+      switchSRS();
       handlePath();
-    }, 150); // Ajusta el retraso según sea necesario
+    }, 150);
   }
 );
-
 </script>
 
 <template>

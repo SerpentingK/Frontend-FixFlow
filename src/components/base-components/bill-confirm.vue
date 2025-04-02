@@ -2,6 +2,8 @@
 import { inject, watch, onMounted } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import { printInvoice } from '@/utils/printInvoice';
+
 
 const phonesReceived = inject('phonesReceived');
 const loggedCompany = inject("loggedCompany");
@@ -30,6 +32,12 @@ const postbill = async () => {
         // Guardar en localStorage
         localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
 
+        const billDataCopy = JSON.parse(JSON.stringify(billData.value));
+
+        printInvoice(billDataCopy, loggedCompany.value);
+        switchSBC()
+        router.push("/bills/bill-list")
+
         // Resetear el formulario
         billData.value = {
             total_price: 0,
@@ -39,8 +47,7 @@ const postbill = async () => {
             ref_shift: "",
             phones: []
         };
-
-        router.push("/bills/bill-list");
+        
     } catch (error) {
         console.error("Error al enviar la factura:", error.response.data);
     }
@@ -54,7 +61,7 @@ watch(phonesReceived, (newVal) => {
     localStorage.setItem("phonesReceived", JSON.stringify(newVal))
 })
 
-const updateReceived = () =>{
+const updateReceived = () => {
     phonesReceived.value++
     localStorage.setItem("phonesReceived", JSON.stringify(phonesReceived.value))
 }
@@ -210,6 +217,29 @@ onMounted(() => {
     .info-container {
         width: 50%;
         max-height: 70%;
+    }
+}
+
+.print-container {
+    display: none;
+}
+
+/* ✅ Solo mostrar el área de impresión al imprimir */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #print-area,
+    #print-area * {
+        visibility: visible;
+    }
+
+    #print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
     }
 }
 </style>
