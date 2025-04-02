@@ -67,15 +67,19 @@ const getBillRepair = async () =>{
 
 // Computed para el precio de ganancia
 const revenue_price = computed(() => {
-    return (payment.value || 0) + (saleValue.value || 0) - (codeValue.value || 0);
+    return (payment.value || 0) + (total_cash.value || 0) + (total_platform.value || 0) - (codeValue.value || 0);
+});
+
+const sale_total = computed(() => {
+    return (total_cash.value || 0) + (total_platform.value || 0);
 });
 
 const sales = ref({
-        ref_shift : startShift.value,
+        ref_shift : String(startShift.value),
         product:`${deliveryBrand.value} ${deliveryDevice.value}`,
-        sale: saleValue,
-        original_price: codeValue,
-        revenue_price: revenue_price
+        sale: Number(sale_total.value),
+        original_price: Number(codeValue.value),
+        revenue_price: revenue_price.value,
     });
 
 // Watchers para actualizar los valores de ventas y ganancias
@@ -89,19 +93,24 @@ watch(total_revenue, (newVal) => {
 const deliveryPhone = async () => {
     try {
         const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
-        updateDelivered();
-        // Emitir evento de entrega confirmada
+        updateDelivered();  
 
         // Obtener valores previos del localStorage y sumarlos
         const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
         const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
+        const previousCash = JSON.parse(localStorage.getItem("total_cash")) || 0;
+        const previousPlatform = JSON.parse(localStorage.getItem("total_platform")) || 0;
 
-        total_sales.value = previousSales + (saleValue.value || 0);
+        total_sales.value = previousSales + (sale_total.value || 0);
         total_revenue.value = previousRevenue + (revenue_price.value || 0);
+        total_cash.value = previousCash + (total_cash.value || 0);
+        total_platform.value = previousPlatform + (total_platform.value || 0);
 
         // Guardar los valores actualizados en localStorage
         localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
         localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
+        localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
+        localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
 
         // Resetear valores
         sales.value = {
@@ -112,7 +121,9 @@ const deliveryPhone = async () => {
             revenue_price: 0
         };
 
-        saleValue.value = 0;
+        total_cash.value = 0;
+        total_platform.value = 0;
+        sale_total.value = 0;
         codeValue.value = 0;
 
         // Actualizar el estado del teléfono en infoBill
@@ -129,12 +140,10 @@ const deliveryPhone = async () => {
     }
 };
 
-const cancelAction = () => {
-    switchSDC(); // Devuelve false si se cancela
-};
 
 onMounted(() => {
     getBillRepair()
+    console.log("Estructura de deliveryRef:", deliveryRef.value);
 })
 
 
@@ -169,13 +178,17 @@ onMounted(() => {
                 <span>Abono:     </span>
                 <span>{{ payment }}</span>
             </div>
+            <div class="info-container">
+                <span>Precio Estimado Deuda:     </span>
+                <span>{{ due }}</span>
+            </div>
             <div class="input-container">
                 <span>Pago efectivo:</span>
-                <input type="number" v-model="saleValue" :placeholder="due" required />
+                <input type="number" v-model="total_cash" placeholder="0" required />
             </div>
             <div class="input-container">
                 <span>Pago plataforma:</span>
-                <input type="number" v-model="saleValue" placeholder="0" required />
+                <input type="number" v-model="total_platform" placeholder="0" required />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
@@ -187,7 +200,7 @@ onMounted(() => {
             </div>
 
             <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
-                <button @click="cancelAction">Cancelar</button>
+                <button @click="switchSDC">Cancelar</button>
                 <button 
                     type="submit" 
                     :disabled="!isFormComplete"

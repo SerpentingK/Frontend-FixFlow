@@ -20,7 +20,7 @@ export default {
             try {
                 if (loggedCompany.value) {
                     const answer = await axios.get(
-                        `http://127.0.0.1:8000/company/${loggedCompany.value}/count`
+                        `http://127.0.0.1:8089/company/${loggedCompany.value}/count`
                     );
                     workersCount.value = answer.data.count;
                 }
@@ -33,7 +33,7 @@ export default {
       try {
         const encodedColor = encodeURIComponent(selectedColor.value);
         await axios.put(
-          `http://127.0.0.1:8000/company/${loggedCompany.value}/baseColor/${encodedColor}`
+          `http://127.0.0.1:8089/company/${loggedCompany.value}/baseColor/${encodedColor}`
         );
         resetColor(selectedColor.value);
       } catch (error) {

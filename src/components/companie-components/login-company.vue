@@ -26,7 +26,7 @@ export default {
     const loginCompany = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8000/loginCompany",
+          "http://127.0.0.1:8089/loginCompany",
           {
             identifier: sesion.value.identifier,
             password: sesion.value.password,
@@ -59,7 +59,7 @@ export default {
           return;
         }
         const answer = await axios.post(
-          "http://127.0.0.1:8000/insertCompany",
+          "http://127.0.0.1:8089/insertCompany",
           company.value
         );
         msg.value = answer.data.msg;
