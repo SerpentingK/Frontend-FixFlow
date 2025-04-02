@@ -171,10 +171,10 @@ const getPhonesR = async () => {
 }
 
 const switchSRC = (newPhoneRef, newrepairB, newrepairD) => {
-  showRepairConfirm.value = !showRepairConfirm.value
   repairRef.value = newPhoneRef
   repairBrand.value = newrepairB
   repairDevice.value = newrepairD
+  showRepairConfirm.value = !showRepairConfirm.value
 }
 
 provide("phonesRepair", phonesRepair)
@@ -210,11 +210,11 @@ const getPhonesD = async () => {
 
 
 const switchSDC = (newPhoneRef, newdeliveredB, newdeliveredD) => {
-  showDeliveryConfirm.value = !showDeliveryConfirm.value
-  deliveryRef.value = newPhoneRef
-  deliveryBrand.value = newdeliveredB
-  deliveryDevice.value = newdeliveredD
-}
+  showDeliveryConfirm.value = !showDeliveryConfirm.value;
+  deliveryRef.value = newPhoneRef;
+  deliveryBrand.value = newdeliveredB;
+  deliveryDevice.value = newdeliveredD;
+};
 
 const infoBill = ref({
   bill_number: "",
