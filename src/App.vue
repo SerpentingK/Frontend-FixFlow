@@ -50,12 +50,15 @@ const inWorkerProfile = ref(false);       // Si está en el perfil del trabajado
 const total_sales = ref(0);               // Ventas totales
 const total_revenue = ref(0);             // Ingresos totales
 const total_outs = ref(0);                // Gastos totales
+const totalInvestment = ref(0);            // Inversión total
 const total_cash = ref(0);                // Efectivo total
 const total_platform = ref(0);            // Pagos por plataforma
 const total_user = ref(0);                // Usuario total
 const totalInCash = ref(0);               // Efectivo en caja
 
 // Proveer estados a componentes hijos
+
+provide('totalInvestment', totalInvestment)
 provide('totalInCash', totalInCash);
 provide('total_user', total_user);
 provide('total_platform', total_platform);

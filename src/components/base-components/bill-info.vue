@@ -36,12 +36,6 @@ const handleRepair = async (phoneRef, brandName, device) => {
 };
 
 const handleDelivery = async (phoneRef, brandName, device) => {
-  // Valida que phoneRef sea string
-  if (typeof phoneRef !== "string") {
-    console.error("Error: phoneRef debe ser string", phoneRef);
-    return;
-  }
-
   try {
     await switchSDC(phoneRef, brandName, device);
     await infoData();

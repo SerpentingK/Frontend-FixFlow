@@ -28,17 +28,18 @@ watch(deliveryDevice, async (newVal) => {
 const switchSDC = inject("switchSDC");
 
 // Referencias para los valores de los inputs
-const saleValue = ref(null);
 const codeValue = ref(null);
 const due = ref(null)
 const startShift = inject("startShift");
 const total_sales = inject("total_sales");
-const total_cash = inject("total_cash")       
-const total_platform = inject("total_platform")
+const total_cash = inject("total_cash", ref(0))       
+const total_platform = inject("total_platform", ref(0))
 const total_revenue = inject("total_revenue")
+const totalInvestment = inject("totalInvestment");
 
 // Computed para verificar si los campos están completos (permite 0 en saleValue)
-const isFormComplete = computed(() => (saleValue.value || saleValue.value === 0) && (codeValue.value || codeValue.value === 0));
+const isFormComplete = computed(() => (total_platform.value || total_platform.value === 0) 
+&& (codeValue.value || codeValue.value === 0) && (total_cash.value || total_cash.value === 0) );
 
 // Actualiza el contador de entregados
 const updateDelivered = () => {
@@ -77,9 +78,9 @@ const sale_total = computed(() => {
 const sales = ref({
         ref_shift : String(startShift.value),
         product:`${deliveryBrand.value} ${deliveryDevice.value}`,
-        sale: Number(sale_total.value),
-        original_price: Number(codeValue.value),
-        revenue_price: revenue_price.value,
+        sale: sale_total,
+        original_price: codeValue,
+        revenue_price: revenue_price,
     });
 
 // Watchers para actualizar los valores de ventas y ganancias
@@ -100,17 +101,20 @@ const deliveryPhone = async () => {
         const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
         const previousCash = JSON.parse(localStorage.getItem("total_cash")) || 0;
         const previousPlatform = JSON.parse(localStorage.getItem("total_platform")) || 0;
+        const previousInvestment = JSON.parse(localStorage.getItem("totalInvestment")) || 0
 
         total_sales.value = previousSales + (sale_total.value || 0);
         total_revenue.value = previousRevenue + (revenue_price.value || 0);
         total_cash.value = previousCash + (total_cash.value || 0);
         total_platform.value = previousPlatform + (total_platform.value || 0);
+        totalInvestment.value = previousInvestment + (codeValue.value || 0)
 
         // Guardar los valores actualizados en localStorage
         localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
         localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
         localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
         localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
+        localStorage.setItem("totalInvestment", JSON.stringify(totalInvestment.value))
 
         // Resetear valores
         sales.value = {
@@ -125,6 +129,7 @@ const deliveryPhone = async () => {
         total_platform.value = 0;
         sale_total.value = 0;
         codeValue.value = 0;
+        totalInvestment.value = 0
 
         // Actualizar el estado del teléfono en infoBill
         const phone = infoBill.value.phones.find(p => p.phone_ref === deliveryRef.value);
@@ -151,6 +156,8 @@ onMounted(() => {
     const storedSales = localStorage.getItem("total_sales");
     const storedRevenue = localStorage.getItem("total_revenue");
     const storedDelivered = localStorage.getItem("phonesDelivered")
+    const storedInvestment = localStorage.getItem("totalInvestment");
+    if (storedInvestment) totalInvestment.value = JSON.parse(storedInvestment);
     if (storedSales) total_sales.value = JSON.parse(storedSales);
     if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);
     if (storedDelivered) phonesDelivered.value = JSON.parse(storedDelivered)  
@@ -179,7 +186,7 @@ onMounted(() => {
                 <span>{{ payment }}</span>
             </div>
             <div class="info-container">
-                <span>Precio Estimado Deuda:     </span>
+                <span>Deuda:</span>
                 <span>{{ due }}</span>
             </div>
             <div class="input-container">

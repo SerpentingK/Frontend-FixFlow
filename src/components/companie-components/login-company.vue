@@ -6,7 +6,7 @@ import axios from "axios";
 export default {
   setup() {
     const switchSP = inject("switchSP");
-
+    const showAlert = inject("showAlert");
     const loggedCompany = inject("loggedCompany", ref(null));
     const switchSMPR = inject("switchSMPR");
     const isLogin = ref(true); // Propiedad para alternar entre login y registro
@@ -26,7 +26,7 @@ export default {
     const loginCompany = async () => {
       try {
         const response = await axios.post(
-          "http://127.0.0.1:8089/loginCompany",
+          "http://127.0.0.1:8000/loginCompany",
           {
             identifier: sesion.value.identifier,
             password: sesion.value.password,
@@ -43,10 +43,10 @@ export default {
         router.push("/companySession");
       } catch (error) {
         if (error.response && error.response.data) {
-          alert(`Error en el inicio de sesión: ${error.response.data.detail}`);
+          showAlert("2",`Error en el inicio de sesión: ${error.response.data.detail}`);
           console.error("Error en el inicio de sesión", error.response.data);
         } else {
-          alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+          showAlert("2","Ha ocurrido un error inesperado. Inténtalo de nuevo.");
           console.error(error);
         }
       }
@@ -55,11 +55,11 @@ export default {
     const signupCompany = async () => {
       try {
         if (!passwordMatch.value) {
-          alert("Las contraseñas no coinciden.");
+          showAlert("2", "Las contraseñas no coinciden.");
           return;
         }
         const answer = await axios.post(
-          "http://127.0.0.1:8089/insertCompany",
+          "http://127.0.0.1:8000/insertCompany",
           company.value
         );
         msg.value = answer.data.msg;
@@ -73,10 +73,10 @@ export default {
         switchSP();
       } catch (error) {
         if (error.response && error.response.data) {
-          alert(`Error al registrar empresa: ${error.response.data.detail}`);
+          showAlert("2",`Error al registrar empresa: ${error.response.data.detail}`);
           console.error("Error al registrar empresa", error.response.data);
         } else {
-          alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+          showAlert("2","Ha ocurrido un error inesperado. Inténtalo de nuevo.");
           console.error(error);
         }
       }

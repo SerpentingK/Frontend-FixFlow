@@ -13,6 +13,7 @@ const revenue_price = computed(() => (cashSale.value + platformSale.value) - ori
 const startShift = inject("startShift");
 const total_sales = inject("total_sales");
 const total_revenue = inject("total_revenue");
+const totalInvestment = inject("totalInvestment");
 const total_cash = inject("total_cash");
 const total_platform = inject("total_platform");
 const msg = ref("");
@@ -33,6 +34,9 @@ watch(total_sales, (newVal) => {
 watch(total_revenue, (newVal) => {
     localStorage.setItem("total_revenue", JSON.stringify(newVal));
 });
+watch(totalInvestment, (newVal) => {
+    localStorage.setItem("totalInvestment", JSON.stringify(newVal));
+});
 
 // Función para registrar ventas
 const postSales = async () => {
@@ -42,8 +46,6 @@ const postSales = async () => {
         sales.value.sale = sale.value;
         sales.value.original_price = original_price.value;
         sales.value.revenue_price = revenue_price.value;
-        total_cash.value = cashSale.value;
-        total_platform.value = platformSale.value;
 
         const response = await axios.post('http://127.0.0.1:8000/insertdelivery', sales.value);
         msg.value = response.data.msg;
@@ -53,17 +55,20 @@ const postSales = async () => {
         const previousRevenue = JSON.parse(localStorage.getItem("total_revenue")) || 0;
         const previousCash = JSON.parse(localStorage.getItem("total_cash")) || 0;
         const previousPlatform = JSON.parse(localStorage.getItem("total_platform")) || 0;
+        const previousInvestment = JSON.parse(localStorage.getItem("totalInvestment")) || 0
 
         total_sales.value = previousSales + (sale.value || 0);
         total_revenue.value = previousRevenue + (revenue_price.value || 0);
         total_cash.value = previousCash + (cashSale.value || 0);
         total_platform.value = previousPlatform + (platformSale.value || 0);
+        totalInvestment.value = previousInvestment + (original_price.value || 0)
 
         // Guardar en localStorage
         localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
         localStorage.setItem("total_revenue", JSON.stringify(total_revenue.value));
         localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
         localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
+        localStorage.setItem("totalInvestment", JSON.stringify(totalInvestment.value))
 
         // Resetear valores
         cashSale.value = 0;
@@ -71,6 +76,7 @@ const postSales = async () => {
         sale.value = 0;
         original_price.value = 0;
         sales.value.product = "";
+        totalInvestment.value = 0
 
     } catch (error) {
         console.error('Error en ventas: ', error);
@@ -80,8 +86,10 @@ const postSales = async () => {
 onMounted(() => {
     const storedSales = localStorage.getItem("total_sales");
     const storedRevenue = localStorage.getItem("total_revenue");
+    const storedInvestment = localStorage.getItem("totalInvestment");
     if (storedSales) total_sales.value = JSON.parse(storedSales);
     if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);
+    if (storedInvestment) totalInvestment.value = JSON.parse(storedInvestment);
 });
 
 </script>

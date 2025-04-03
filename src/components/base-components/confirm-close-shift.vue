@@ -13,18 +13,28 @@ const workerRole = inject("workerRole", ref(null));
 const startShift = inject("startShift", ref(null));
 const total_sales = inject("total_sales")
 const total_revenue = inject("total_revenue")
-const total_cash = inject('total_cash');
+const total_cash = inject('total_cash', ref(0));
 const total_platform = inject('total_platform');
+const totalInvestment = inject("totalInvestment");
 const total_outs = inject('total_outs');
 const loggedCompany = inject("loggedCompany");
-const total_user = inject('total_user');
+const total_user = inject('total_user', ref(0));
 const loggedDocument = ref(null)
-const shiftclose = ref({
-        total_gain: total_revenue.value,
-        total_received: total_sales.value,
-        total_outs: total_outs.value,
-        vault: total_cash.value,
-      })
+
+// Modifica totalMoney para que sea solo de lectura
+const totalMoney = computed(() => {
+    return Math.max(total_user.value, total_cash.value);
+});
+
+// Nueva propiedad computada para calcular el excedente
+const calculatedExcess = computed(() => {
+    return Math.max(0, total_user.value - total_cash.value);
+});
+
+// Nueva propiedad computada para el total ajustado
+const adjustedTotalSales = computed(() => {
+    return total_sales.value + calculatedExcess.value;
+});
 
 const router = useRouter()
 
@@ -32,57 +42,58 @@ const showAlert = inject("showAlert")
 
 const putShift = async () => {
     try {
-        const response = await axios.put(`http://127.0.0.1:8000/closeshift/${startShift.value}/${loggedCompany.value}`, shiftclose.value);
+        const response = await axios.put(
+            `http://127.0.0.1:8000/closeshift/${startShift.value}/${loggedCompany.value}`, 
+            {
+                total_gain: total_revenue.value,
+                total_received: adjustedTotalSales.value, // Usa el valor ya ajustado
+                total_outs: total_outs.value,
+                vault: total_cash.value,
+            }
+        )
 
-        if (response.status === 200) { // Asegurar que la petición fue exitosa
-            localStorage.removeItem("total_sales");
+        if (response.status === 200) {
+            ["total_sales", "total_outs", "total_revenue", "loggedDocument", "loggedWorker",
+             "workerRole", "startShift", "phonesDelivered", "phonesReceived", "phonesRepaired",
+             "total_cash", "total_platform", "totalInvestment"]
+            .forEach(item => localStorage.removeItem(item));
+
+            // Reiniciar valores reactivos
             total_sales.value = 0;
-            localStorage.removeItem("total_outs");
             total_outs.value = 0;
-            localStorage.removeItem("total_revenue");
             total_revenue.value = 0;
-            localStorage.removeItem("loggedDocument");
             loggedDocument.value = null;
-            localStorage.removeItem("loggedWorker");
             loggedWorker.value = null;
-            localStorage.removeItem("workerRole");
             workerRole.value = null;
-            localStorage.removeItem("startShift");
             startShift.value = null;
-            localStorage.removeItem("phonesDelivered");
             phonesDelivered.value = 0;
-            localStorage.removeItem("phonesReceived");
             phonesReceived.value = 0;
-            localStorage.removeItem("phonesRepaired");
             phonesRepaired.value = 0;
-            localStorage.removeItem("total_cash");
-            total_cash.value = 0;   
-            localStorage.removeItem("total_platform");
+            total_cash.value = 0;
             total_platform.value = 0;
+            totalInvestment.value = 0;
             total_user.value = 0;
-            
+
             router.push("/workers/login-worker");
             switchCCS();
         }
     } catch (error) {
         console.error("Error al cerrar el turno:", error);
-        showAlert("2", "No se ha podido cerrar sesion, intente nuevamente")
+        showAlert("2", `No se ha podido cerrar sesión, intente nuevamente${error}`);
     }
 };
 
 
+
 onMounted(() => {
-    const storedPlataform = localStorage.getItem("total_platform")
-    const storedCash = localStorage.getItem("total_cash")
-    const storedSales = localStorage.getItem("total_sales");
-    const storedRevenue = localStorage.getItem("total_revenue");
-    const storedOuts = localStorage.getItem("total_outs")
-    if (storedSales) total_sales.value = JSON.parse(storedSales);
-    if (storedRevenue) total_revenue.value = JSON.parse(storedRevenue);  
-    if (storedOuts) total_outs.value = JSON.parse(storedOuts)
-    if (storedPlataform) total_platform.value = JSON.parse(storedPlataform)
-    if (storedCash) total_cash.value = JSON.parse(storedCash)   
-})
+    total_sales.value = JSON.parse(localStorage.getItem("total_sales")) || 0;
+    total_revenue.value = JSON.parse(localStorage.getItem("total_revenue")) || 0;
+    total_outs.value = JSON.parse(localStorage.getItem("total_outs")) || 0;
+    total_platform.value = JSON.parse(localStorage.getItem("total_platform")) || 0;
+    total_cash.value = JSON.parse(localStorage.getItem("total_cash")) || 0;
+    totalInvestment.value = JSON.parse(localStorage.getItem("totalInvestment")) || 0;
+});
+
 </script>
 
 <template>
@@ -98,7 +109,7 @@ onMounted(() => {
         </div>
         <div class="info-cont">
             <span>Cantidad a Entregar en Fisico: </span>
-            <span>450 000</span>
+            <span>{{ totalMoney }}</span>
         </div>
         <div class="info-cont">
             <span>Cantidad En Plataforma: </span>
@@ -106,15 +117,18 @@ onMounted(() => {
         </div>
         <div class="info-cont">
             <span>Cantidad Total: </span>
-            <span>{{ total_sales }}</span>
+            <span>{{ adjustedTotalSales }}</span>
+            <span v-if="calculatedExcess > 0" style="color: orange;">
+            (Incluye {{ calculatedExcess }} de ajuste)
+    </span>
         </div>
         <div class="info-cont">
             <span>Inversion: </span>
-            <span>{{ total_sales }}</span>
+            <span>{{ totalInvestment }}</span>
         </div>
         <div class="info-cont">
             <span>Ganancia: </span>
-            <span>{{ total_sales }}</span>
+            <span>{{ total_revenue }}</span>
         </div>
         
         <div class="btns">

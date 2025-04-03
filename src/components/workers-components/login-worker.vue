@@ -5,6 +5,7 @@ import axios from 'axios';
 
 export default{
     setup(){
+    const showAlert = inject("showAlert");
     const loggedWorker = inject("loggedWorker", ref(null))
     const loggedDocument = inject("loggedDocument", ref(null))
     const workerRole = inject("workerRole", ref(null))
@@ -21,7 +22,7 @@ export default{
     const loginWorker = async () => {
         try {
             console.log("loggedCompany:", loggedCompany.value);
-            const answer = await axios.post(`http://127.0.0.1:8089/loginWorker/${loggedCompany.value}`, {
+            const answer = await axios.post(`http://127.0.0.1:8000/loginWorker/${loggedCompany.value}`, {
             document: sessionworker.value.document,
             password: sessionworker.value.password,
             });
@@ -37,10 +38,10 @@ export default{
             router.push('/bills')
         } catch (error) {
             if (error.response && error.response.data) {
-            alert(`Error al iniciar sesión: ${error.response.data.detail}`);
+            showAlert("2", `Error al iniciar sesión: ${error.response.data.detail}`);
             console.error("Error al iniciar sesión", error.response.data);
             } else {
-            alert("Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+            showAlert("2","Ha ocurrido un error inesperado. Inténtalo de nuevo.");
             console.error(error);
             }
         }
