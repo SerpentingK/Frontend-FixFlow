@@ -18,7 +18,7 @@ const getCompanyVault = inject("getCompanyVault")
 // Función para registrar el retiro
 const postWithdrawal = async () => {
     try {
-        const response = await axios.put(`http://127.0.0.1:8089/OutFlowVault/${loggedCompany.value}`, vault.value);
+        const response = await axios.put(`/api/OutFlowVault/${loggedCompany.value}`, vault.value);
         await getCompanyVault();
         switchWV();
     } catch (error) {

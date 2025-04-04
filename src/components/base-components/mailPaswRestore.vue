@@ -30,7 +30,7 @@ const handleRecovery = async () => {
     msg.value = "";
     try {
         if (step.value === 1) {
-            const response = await axios.post(`http://127.0.0.1:8089/passwordRecovery`, {
+            const response = await axios.post(`/api/passwordRecovery`, {
                 Email: email.value
             });
             
@@ -41,7 +41,7 @@ const handleRecovery = async () => {
                 msg.value = "Error al enviar el correo.";
             }
         } else if (step.value === 2) {
-            const response = await axios.post(`http://127.0.0.1:8089/verify-pin`, {
+            const response = await axios.post(`/api/verify-pin`, {
                 Email: email.value,
                 code: code.value
             });
@@ -56,7 +56,7 @@ const handleRecovery = async () => {
                 msg.value = "Las contraseñas no coinciden.";
                 return;
             }
-            const response = await axios.put(`http://127.0.0.1:8089/confirmPassword`, {
+            const response = await axios.put(`/api/confirmPassword`, {
                 Email: email.value,
                 password: newPassword.value
             });

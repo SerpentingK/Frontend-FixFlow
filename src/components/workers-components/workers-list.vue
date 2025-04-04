@@ -23,7 +23,7 @@ export default{
 
     const fetchWorkers = async () => {
     try {
-        const answer = await axios.get(`http://127.0.0.1:8089/collaborators/${loggedCompany.value}/workers`);
+        const answer = await axios.get(`/api/collaborators/${loggedCompany.value}/workers`);
         workers.value = answer.data;
         console.log(workers.value)
     } catch (error) {
@@ -33,7 +33,7 @@ export default{
 
     const deleteWorker = async (document) => {
     try {
-        await axios.delete(`http://127.0.0.1:8089/deleteCollaborators/${loggedCompany.value}/${document}`);
+        await axios.delete(`/api/deleteCollaborators/${loggedCompany.value}/${document}`);
         workers.value = workers.value.filter(worker => worker.document !== document);
         showDeleteWindow.value = false;
         workerToDelete.value = null

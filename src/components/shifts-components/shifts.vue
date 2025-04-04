@@ -11,7 +11,7 @@ const shifts = ref([]);
 
 const loadAllShifts = async () => {
     try {
-        const answer = await axios.get(`http://127.0.0.1:8089/allShiftCompany/${loggedCompany.value}`);
+        const answer = await axios.get(`/api/allShiftCompany/${loggedCompany.value}`);
 
         // Función auxiliar para formatear la hora
         const formatTime = (dateString) => {
@@ -45,7 +45,7 @@ const searchsShifts = debounce(async () => {
         return;
     }
     try {
-        const answer = await axios.get(`http://127.0.0.1:8089/searchDateShift/${loggedCompany.value}/${search.value}`);
+        const answer = await axios.get(`/api/searchDateShift/${loggedCompany.value}/${search.value}`);
         shifts.value = answer.data;
     } catch (error) {
         console.error("Error al cargar las búsquedas del turno", error);

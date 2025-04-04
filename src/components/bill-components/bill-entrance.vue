@@ -68,7 +68,7 @@ export default {
     const fetchBrands = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8089/allBrands/${loggedCompany.value}`
+          `/api/allBrands/${loggedCompany.value}`
         );
         brands.value = response.data;
       } catch (error) {
@@ -86,7 +86,7 @@ export default {
         }
 
         const response = await axios.get(
-          `http://127.0.0.1:8089/${id_brands.value}/Devices`
+          `/api/${id_brands.value}/Devices`
         );
         phones.value[index].availableDevices = response.data;
       } catch (error) {
@@ -103,7 +103,7 @@ export default {
         try {
           // Agregar nueva marca a la API
           await axios.post(
-            `http://127.0.0.1:8089/newBrand/${loggedCompany.value}`,
+            `/api/newBrand/${loggedCompany.value}`,
             { name: newBrand.value }
           );
           // Añadir la marca a la lista local
@@ -123,7 +123,7 @@ export default {
     const brandNameId = async (name) => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8089/Brands/${name}/${loggedCompany.value}`
+          `/api/Brands/${name}/${loggedCompany.value}`
         );
         id_brands.value = response.data[0].id;
       } catch (error) {
@@ -148,7 +148,7 @@ export default {
       ) {
         try {
           // Agregar nuevo dispositivo a la API
-          await axios.post("http://127.0.0.1:8089/newDevice", {
+          await axios.post("/api/newDevice", {
             id_brands: id_brands.value,
             name: newDevice.value,
           });

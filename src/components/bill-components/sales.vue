@@ -47,7 +47,7 @@ const postSales = async () => {
         sales.value.original_price = original_price.value;
         sales.value.revenue_price = revenue_price.value;
 
-        const response = await axios.post('http://127.0.0.1:8089/insertdelivery', sales.value);
+        const response = await axios.post('/api/insertdelivery', sales.value);
         msg.value = response.data.msg;
 
         // Obtener valores previos del localStorage y sumarlos

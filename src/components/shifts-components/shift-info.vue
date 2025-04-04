@@ -36,15 +36,15 @@ const getList = async () => {
     let url = "";
     try {
         if (listOption.value === "entrance") {
-            url = `http://127.0.0.1:8089/shiftReceived/${props.shift.ref_shift}`;
+            url = `/api/shiftReceived/${props.shift.ref_shift}`;
         } else if (listOption.value === "repaired") {
-            url = `http://127.0.0.1:8089/shiftRepaired/${props.shift.ref_shift}`;
+            url = `/api/shiftRepaired/${props.shift.ref_shift}`;
         } else if (listOption.value === "delivery") {
-            url = `http://127.0.0.1:8089/shiftDelivery/${props.shift.ref_shift}`;
+            url = `/api/shiftDelivery/${props.shift.ref_shift}`;
         } else if (listOption.value === "sales") {
-            url = `http://127.0.0.1:8089/shiftSales/${props.shift.ref_shift}`;
+            url = `/api/shiftSales/${props.shift.ref_shift}`;
         } else if (listOption.value === "outs") {
-            url = `http://127.0.0.1:8089/shiftOuts/${props.shift.ref_shift}`;
+            url = `/api/shiftOuts/${props.shift.ref_shift}`;
         }
         const response = await axios.get(url);
 

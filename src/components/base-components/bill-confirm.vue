@@ -18,7 +18,7 @@ const switchSBC = inject("switchSBC")
 const postbill = async () => {
     try {
         const answer = await axios.post(
-            `http://127.0.0.1:8089/createBillwithPhones/${loggedCompany.value}`,
+            `/api/createBillwithPhones/${loggedCompany.value}`,
             billData.value
         );
 

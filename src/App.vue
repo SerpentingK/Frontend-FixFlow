@@ -159,7 +159,7 @@ const getCompanyVault = async () => {
   try {
     if (loggedCompany.value) {
       const answer = await axios.get(
-        `http://127.0.0.1:8000/company/${loggedCompany.value}/vault/baseColor`
+        `/api/company/${loggedCompany.value}/vault/baseColor`
       );
       totalInCash.value = answer.data.vault;
       selectedColor.value = answer.data.baseColor;
@@ -181,7 +181,7 @@ const phonesRepair = ref([]);
  */
 const getPhonesR = async () => {
   try {
-    const ansawer = await axios.get(`http://127.0.0.1:8000/someDataPhone/${loggedCompany.value}`);
+    const ansawer = await axios.get(`/api/someDataPhone/${loggedCompany.value}`);
     phonesRepair.value = ansawer.data;
   } catch (error) {
     console.error("📌 Error al obtener teléfonos reparados:", error);
@@ -228,7 +228,7 @@ const deliveredPhone = ref([]);
  */
 const getPhonesD = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/someDataPhoneDelivered/${loggedCompany.value}`);
+    const response = await axios.get(`/api/someDataPhoneDelivered/${loggedCompany.value}`);
     deliveredPhone.value = response.data;
   } catch (error) {
     console.error("📌 Error al obtener teléfonos entregados:", error);
@@ -272,7 +272,7 @@ const infoBill = ref({
  */
 const infoData = async () => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/bill/details/${bill_number.value}`);
+    const response = await axios.get(`/api/bill/details/${bill_number.value}`);
     infoBill.value = {
       bill_number: response.data.bill.bill_number,
       due: response.data.bill.due,

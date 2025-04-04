@@ -23,7 +23,7 @@ export default {
         try {
             if(workersCount.value == 0){
                 const answer = await axios.post(
-                `http://127.0.0.1:8089/insertWorker/${loggedCompany.value}`,
+                `/api/insertWorker/${loggedCompany.value}`,
                 worker.value
                 );
                 msg.value = answer.data.msg;
@@ -31,7 +31,7 @@ export default {
                 router.push("/workers/login-worker");
             }else{
                 const answer = await axios.post(
-                `http://127.0.0.1:8089/insertWorker/${loggedCompany.value}`,
+                `/api/insertWorker/${loggedCompany.value}`,
                 worker.value
                 );
                 msg.value = answer.data.msg;
