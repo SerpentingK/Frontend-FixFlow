@@ -28,18 +28,20 @@ watch(deliveryDevice, async (newVal) => {
 const switchSDC = inject("switchSDC");
 
 // Referencias para los valores de los inputs
-const codeValue = ref(null);
-const due = ref(null)
+const codeValue = ref(0);
+const due = ref(0)
 const startShift = inject("startShift");
 const total_sales = inject("total_sales");
 const total_cash = inject("total_cash", ref(0))       
 const total_platform = inject("total_platform", ref(0))
+const cashSale = ref(0);
+const platformSale = ref(0);
 const total_revenue = inject("total_revenue")
 const totalInvestment = inject("totalInvestment");
 
 // Computed para verificar si los campos están completos (permite 0 en saleValue)
-const isFormComplete = computed(() => (total_platform.value || total_platform.value === 0) 
-&& (codeValue.value || codeValue.value === 0) && (total_cash.value || total_cash.value === 0) );
+const isFormComplete = computed(() => (platformSale.value || platformSale.value === 0) 
+&& (codeValue.value || codeValue.value === 0) && (cashSale.value || cashSale.value === 0) );
 
 // Actualiza el contador de entregados
 const updateDelivered = () => {
@@ -55,7 +57,7 @@ const payment = ref(null)
 
 const getBillRepair = async () =>{
     try{
-        const response = await axios.get(`http://127.0.0.1:8000/billRepairPhone/${deliveryRef.value}`)
+        const response = await axios.get(`http://127.0.0.1:8089/billRepairPhone/${deliveryRef.value}`)
         due.value = response.data[0].due
         client_name.value = response.data[0].client_name
         payment.value = response.data[0].payment
@@ -68,11 +70,11 @@ const getBillRepair = async () =>{
 
 // Computed para el precio de ganancia
 const revenue_price = computed(() => {
-    return (payment.value || 0) + (total_cash.value || 0) + (total_platform.value || 0) - (codeValue.value || 0);
+    return (payment.value || 0) + (cashSale.value || 0) + (platformSale.value || 0) - (codeValue.value || 0);
 });
 
 const sale_total = computed(() => {
-    return (total_cash.value || 0) + (total_platform.value || 0);
+    return (cashSale.value || 0) + (platformSale.value || 0);
 });
 
 const sales = ref({
@@ -93,7 +95,7 @@ watch(total_revenue, (newVal) => {
 
 const deliveryPhone = async () => {
     try {
-        const ansawer = await axios.put(`http://127.0.0.1:8000/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
+        const ansawer = await axios.put(`http://127.0.0.1:8089/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();  
 
         // Obtener valores previos del localStorage y sumarlos
@@ -105,8 +107,8 @@ const deliveryPhone = async () => {
 
         total_sales.value = previousSales + (sale_total.value || 0);
         total_revenue.value = previousRevenue + (revenue_price.value || 0);
-        total_cash.value = previousCash + (total_cash.value || 0);
-        total_platform.value = previousPlatform + (total_platform.value || 0);
+        total_cash.value = previousCash + (cashSale.value || 0);
+        total_platform.value = previousPlatform + (platformSale.value || 0);
         totalInvestment.value = previousInvestment + (codeValue.value || 0)
 
         // Guardar los valores actualizados en localStorage
@@ -115,8 +117,11 @@ const deliveryPhone = async () => {
         localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
         localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
         localStorage.setItem("totalInvestment", JSON.stringify(totalInvestment.value))
-
         // Resetear valores
+        cashSale.value = 0;
+        platformSale.value = 0;
+        sale_total.value = 0;
+        codeValue.value = 0;
         sales.value = {
             ref_shift: "",
             product: "",
@@ -124,12 +129,6 @@ const deliveryPhone = async () => {
             original_price: 0,
             revenue_price: 0
         };
-
-        total_cash.value = 0;
-        total_platform.value = 0;
-        sale_total.value = 0;
-        codeValue.value = 0;
-        totalInvestment.value = 0
 
         // Actualizar el estado del teléfono en infoBill
         const phone = infoBill.value.phones.find(p => p.phone_ref === deliveryRef.value);
@@ -191,11 +190,11 @@ onMounted(() => {
             </div>
             <div class="input-container">
                 <span>Pago efectivo:</span>
-                <input type="number" v-model="total_cash" placeholder="0" required />
+                <input type="number" v-model="cashSale" placeholder="0" required />
             </div>
             <div class="input-container">
                 <span>Pago plataforma:</span>
-                <input type="number" v-model="total_platform" placeholder="0" required />
+                <input type="number" v-model="platformSale" placeholder="0" required />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>

@@ -43,7 +43,7 @@ const showAlert = inject("showAlert")
 const putShift = async () => {
     try {
         const response = await axios.put(
-            `http://127.0.0.1:8000/closeshift/${startShift.value}/${loggedCompany.value}`, 
+            `http://127.0.0.1:8089/closeshift/${startShift.value}/${loggedCompany.value}`, 
             {
                 total_gain: total_revenue.value,
                 total_received: adjustedTotalSales.value, // Usa el valor ya ajustado

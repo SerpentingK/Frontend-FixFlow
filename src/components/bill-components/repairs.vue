@@ -16,7 +16,7 @@ const searchs = debounce(async () => {
         return
     }
     try {
-        const ansawer = await axios.get(`http://127.0.0.1:8000/phoneBySearch/${loggedCompany.value}/${search.value}`)
+        const ansawer = await axios.get(`http://127.0.0.1:8089/phoneBySearch/${loggedCompany.value}/${search.value}`)
         phonesRepair.value = ansawer.data
         isEmpty.value = phonesRepair.value.length === 0;
     } catch (error) {

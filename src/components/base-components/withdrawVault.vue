@@ -13,16 +13,20 @@ const vault = computed(() => ({
 }));
 
 const switchWV = inject("switchWV")
-const getcompanyvault = inject("getcompanyvault")
+const getCompanyVault = inject("getCompanyVault")
 
 // Función para registrar el retiro
 const postWithdrawal = async () => {
     try {
-        const response = await axios.put(`http://127.0.0.1:8000/OutFlowVault/${loggedCompany.value}`, vault.value);
-        getcompanyvault();
+        const response = await axios.put(`http://127.0.0.1:8089/OutFlowVault/${loggedCompany.value}`, vault.value);
+        await getCompanyVault();
         switchWV();
     } catch (error) {
-        showAlert("2", "No puede retirar mas de la cantidad en la boveda")
+        if (error.response && error.response.data) {
+            showAlert("2", `Error al registrar el retiro ${error.response.data.detail}`);
+        } else {
+            showAlert("2", "Error al registrar el retiro");
+        }
     }
 };
 </script>

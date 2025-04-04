@@ -22,7 +22,7 @@ export default{
     const loginWorker = async () => {
         try {
             console.log("loggedCompany:", loggedCompany.value);
-            const answer = await axios.post(`http://127.0.0.1:8000/loginWorker/${loggedCompany.value}`, {
+            const answer = await axios.post(`http://127.0.0.1:8089/loginWorker/${loggedCompany.value}`, {
             document: sessionworker.value.document,
             password: sessionworker.value.password,
             });

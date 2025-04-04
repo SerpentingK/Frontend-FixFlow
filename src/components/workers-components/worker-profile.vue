@@ -18,11 +18,11 @@
         let url = "";
         try {
             if (listOption.value === "entrance") {
-                url = `http://127.0.0.1:8000/billCreatesWorker/${loggedDocument.value}`;
+                url = `http://127.0.0.1:8089/billCreatesWorker/${loggedDocument.value}`;
             } else if (listOption.value === "repaired") {
-                url = `http://127.0.0.1:8000/billRepairWorker/${loggedDocument.value}`;
+                url = `http://127.0.0.1:8089/billRepairWorker/${loggedDocument.value}`;
             } else if (listOption.value === "delivery") {
-                url = `http://127.0.0.1:8000/billDeliveredWorker/${loggedDocument.value}`;
+                url = `http://127.0.0.1:8089/billDeliveredWorker/${loggedDocument.value}`;
             }
             const ansawer = await axios.get(url)
             bills.value = ansawer.data
