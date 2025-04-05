@@ -11,12 +11,12 @@ import closeShift from './components/shifts-components/close-shift.vue';
 import deliveryConfirm from './components/base-components/delivery-confirm.vue';
 import shiftInfo from './components/shifts-components/shift-info.vue';
 import confirmCloseShift from './components/base-components/confirm-close-shift.vue';
-import payment from './components/base-components/payment.vue';
-import renewedSuscription from './components/base-components/renewedSuscription.vue';
+import renewedSuscription from './components/companie-components/renewedSuscription.vue';
 import alert from './components/base-components/alert.vue';
-import withdrawVault from './components/base-components/withdrawVault.vue';
-import mailPaswRestore from './components/base-components/mailPaswRestore.vue';
+import withdrawVault from './components/companie-components/withdrawVault.vue';
+import mailPaswRestore from './components/companie-components/mailPaswRestore.vue';
 import Particles from './components/Particles.vue';
+import withdrawList from './components/companie-components/withdrawList.vue';
 
 // Importación de funciones de Vue y otras dependencias
 import { provide, ref, watch, onMounted } from 'vue';
@@ -139,6 +139,14 @@ const switchCCS = () => {
 };
 provide("switchCCS", switchCCS);
 
+//Control de vista de lista de retiros
+
+const showWithdrawList = ref(false);
+const switchSWL = () => {
+  showWithdrawList.value =!showWithdrawList.value;
+};
+provide("switchSWL", switchSWL);
+
 // =============================================
 // GESTIÓN DE REPARACIONES
 // =============================================
@@ -164,7 +172,7 @@ const getCompanyVault = async () => {
       totalInCash.value = answer.data.vault;
       selectedColor.value = answer.data.baseColor;
       document.documentElement.style.setProperty(
-        "--baseOrange",
+        "--base",
         answer.data.baseColor
       );
     }
@@ -285,13 +293,13 @@ const infoData = async () => {
       phones: response.data.phones,
     };
     console.log("infoBill:", infoBill.value);
-  } catch (error) { 
+  } catch (error) {
     console.error("Error al cargar los datos de la factura:", error);
   }
 };
 
 provide('infoBill', infoBill);
-provide('infoData', infoData);  
+provide('infoData', infoData);
 provide("deliveredPhone", deliveredPhone);
 provide("getPhonesD", getPhonesD);
 provide("deliveryDevice", deliveryDevice);
@@ -351,7 +359,7 @@ const handlePath = () => {
   showRepairConfirm.value = false;
   showDeliveryConfirm.value = false;
   showShiftInfo.value = false;
-  
+
   // Control de rutas según autenticación
   if (route.path !== '/loginCompany' && loggedCompany.value === null) {
     router.push('/loginCompany');
@@ -394,7 +402,7 @@ const alertMessage = ref("Predeterminado");
  * @param {string} message - Mensaje a mostrar
  */
 const showAlert = (type, message) => {
-  if(alertShow.value) {
+  if (alertShow.value) {
     alertShow.value = false;
   } else {
     alertType.value = type;
@@ -455,7 +463,7 @@ watch(
 
 <template>
   <section class="body">
-    <Particles/>
+    <Particles />
     <transition name="opacity-in" mode="out-in">
       <billInfo v-if="showBillInfo" />
     </transition>
@@ -494,9 +502,6 @@ watch(
       <confirmCloseShift v-if="showConfirmCloseShift"></confirmCloseShift>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <payment v-if="showPayment"></payment>
-    </transition>
-    <transition name="opacity-in" mode="out-in">
       <renewedSuscription v-if="showRenewedSuscription"></renewedSuscription>
     </transition>
     <transition name="opacity-in" mode="out-in">
@@ -508,6 +513,10 @@ watch(
     <transition name="opacity-in" mode="out-in">
       <mailPaswRestore v-if="showMailPaswRestore"></mailPaswRestore>
     </transition>
+    <transition name="opacity-in" mode="out-in">
+      <withdrawList v-if="showWithdrawList"></withdrawList>
+    </transition>
+
 
 
   </section>

@@ -18,7 +18,7 @@ button{
     position: fixed;
     left: 10px;
     bottom: 10px;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     padding:10px;
     border-radius: 10px;
     display: flex;

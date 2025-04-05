@@ -34,7 +34,7 @@ const postbill = async () => {
 
         const billDataCopy = JSON.parse(JSON.stringify(billData.value));
 
-        printInvoice(billDataCopy, loggedCompany.value);
+        //printInvoice(billDataCopy, loggedCompany.value);
         switchSBC()
         router.push("/bills/bill-list")
 
@@ -130,10 +130,10 @@ onMounted(() => {
     padding: 10px 5px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -151,7 +151,7 @@ onMounted(() => {
     align-items: center;
     width: 90%;
     justify-content: space-between;
-    color: var(--secGray);
+    color: var(--secondTwo);
 }
 
 .phones-container {
@@ -187,12 +187,12 @@ onMounted(() => {
     border-radius: 5px;
     cursor: pointer;
     transition: background-color .4s ease;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     transition: .3s;
 }
 
 .confirm-btn {
-    background-color: var(--baseOrange)
+    background-color: var(--base)
 }
 
 .confirm-btn:active,

@@ -26,9 +26,9 @@ const isActive = (path)=> route.path.startsWith(path)
     padding: 10px 20px;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: var(--baseGray);
+    background-color: var(--second);
     border-radius: 10px;
-    border: 3px solid var(--baseOrange);
+    border: 3px solid var(--base);
     background: #e0e0e0;
     box-shadow: inset 27px 27px 15px #a6a6a6,
         inset -27px -27px 15px #ffffff;
@@ -38,7 +38,7 @@ const isActive = (path)=> route.path.startsWith(path)
     z-index: 999;
 }
 .router{
-    color: var(--baseGray);
+    color: var(--second);
     scale: 1.3;
     filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.842));
     display: flex;
@@ -50,10 +50,10 @@ const isActive = (path)=> route.path.startsWith(path)
 }
 .router.active{
     color: white;
-    background-color: var(--baseGray);
+    background-color: var(--second);
     border-radius: 10px;
     transform: translateY(-5px);
-    border-color: var(--baseOrange); 
+    border-color: var(--base); 
     box-shadow: var(--secShadow);
 }
 

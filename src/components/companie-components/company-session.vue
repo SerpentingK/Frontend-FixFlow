@@ -11,23 +11,24 @@ export default {
     const workerRole = inject("workerRole");
     const showAlert = inject("showAlert");
     const switchWV = inject("switchWV");
+    const switchSWL = inject("switchSWL")
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
     const getCompanyVault = inject("getCompanyVault");
 
-        const getWorkersCount = async () => {
-            try {
-                if (loggedCompany.value) {
-                    const answer = await axios.get(
-                        `/api/company/${loggedCompany.value}/count`
-                    );
-                    workersCount.value = answer.data.count;
-                }
-            } catch (error) {
-                console.error("Error al obtener el conteo de trabajadores", error);
-            }
-        };
+    const getWorkersCount = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `/api/company/${loggedCompany.value}/count`
+          );
+          workersCount.value = answer.data.count;
+        }
+      } catch (error) {
+        console.error("Error al obtener el conteo de trabajadores", error);
+      }
+    };
 
     const updateColor = async () => {
       try {
@@ -43,7 +44,7 @@ export default {
 
     const resetColor = (color) => {
       document.documentElement.style.setProperty(
-        "--baseOrange",
+        "--base",
         color
       );
       localStorage.setItem("baseOrange", color);
@@ -59,7 +60,7 @@ export default {
       // Restaurar el color desde localStorage al cargar
       const storedColor = localStorage.getItem("baseOrange");
       if (storedColor) {
-        document.documentElement.style.setProperty("--baseOrange", storedColor);
+        document.documentElement.style.setProperty("--base", storedColor);
         selectedColor.value = storedColor;
       }
     });
@@ -84,6 +85,7 @@ export default {
       updateColor,
       workerRole,
       switchWV,
+      switchSWL
     };
   },
 };
@@ -110,13 +112,12 @@ export default {
 
     <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
     <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
-    <ion-icon
-      v-if="workerRole === 'Gerente' || workerRole === 'Administrador'"
-      class="withdraw-btn"
-      name="cash-outline"
-      @click="switchWV"
-      title="Retirar dinero de la boveda"
-    ></ion-icon>
+    <div class="withdraw-btns">
+      <ion-icon v-if="workerRole === 'Gerente' || workerRole === 'Administrador'" class="withdraw-btn"
+        name="cash-outline" @click="switchWV" title="Retirar dinero de la boveda"></ion-icon>
+      <ion-icon v-if="workerRole === 'Gerente' || workerRole === 'Administrador'" class="withdraw-list-btn"
+        name="file-tray-full" @click="switchSWL" title="Lista de retiros"></ion-icon>
+    </div>
   </section>
 </template>
 
@@ -136,7 +137,7 @@ export default {
   border-radius: 10px;
   background: #363636;
   box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 2px solid var(--baseOrange);
+  border: 2px solid var(--base);
 }
 
 .info-container {
@@ -156,7 +157,7 @@ export default {
 
 .info-container ion-icon {
   font-size: 250px;
-  color: var(--baseOrange);
+  color: var(--base);
   margin-top: 10px;
 }
 
@@ -186,7 +187,7 @@ export default {
 
 .close-btn {
   all: unset;
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   color: #ffffff;
   padding: 10px 20px;
   border-radius: 5px;
@@ -197,7 +198,7 @@ export default {
 }
 
 .close-btn:active {
-  background-color: var(--baseGray);
+  background-color: var(--second);
   box-shadow: var(--secShadow);
   scale: 0.9;
 }
@@ -215,6 +216,7 @@ export default {
   margin-bottom: 5px;
   color: white;
 }
+
 .color-picker input {
   cursor: pointer;
 }
@@ -232,12 +234,17 @@ export default {
 .apply-color-btn:hover {
   opacity: 0.8;
 }
-
-.withdraw-btn {
+.withdraw-btns{
   position: absolute;
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
   top: 0;
   right: -50px;
-  background-color: var(--baseOrange);
+}
+
+.withdraw-btn, .withdraw-list-btn {
+  background-color: var(--base);
   padding: 5px;
   color: white;
   display: flex;

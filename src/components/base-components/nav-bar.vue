@@ -6,9 +6,9 @@ const loggedCompany = inject("loggedCompany", ref(null));
 const loggedWorker = inject("loggedWorker", ref(null));
 const workerRole = inject('workerRole', ref(null))
 
-const show_navBar = ref(false);
+const showNavBar = ref(false);
 const switch_navBar = () => {
-  show_navBar.value = !show_navBar.value;
+  showNavBar.value = !showNavBar.value;
 };
 
 const route = useRoute();
@@ -16,7 +16,7 @@ const isActive = (path) => route.path.startsWith(path);
 
 const navBarRef = ref(null);
 const handleClickOutside = (event) => {
-  if (navBarRef.value && !navBarRef.value.contains(event.target) && show_navBar.value) {
+  if (navBarRef.value && !navBarRef.value.contains(event.target) && showNavBar.value) {
     switch_navBar();
   }
 };
@@ -31,7 +31,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <nav ref="navBarRef" class="nav-bar" :class="{ show: show_navBar }">
+  <nav ref="navBarRef" class="nav-bar" :class="{ show: showNavBar }">
     <div class="logo-container">
       <img src="/src/assets/img/Logo.png" class="logo">
       <h1>FIX-FLOW</h1>
@@ -47,8 +47,8 @@ onBeforeUnmount(() => {
     </div>
   </nav>
   <button class="nav-btn" @click.stop="switch_navBar" title="Menu">
-    <ion-icon name="menu" v-if="!show_navBar"></ion-icon>
-    <ion-icon name="close" v-if="show_navBar"></ion-icon>
+    <ion-icon name="menu" v-if="!showNavBar"></ion-icon>
+    <ion-icon name="close" v-if="showNavBar"></ion-icon>
   </button>
 </template>
 
@@ -103,7 +103,7 @@ onBeforeUnmount(() => {
 }
 
 .nav-router.active {
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   scale: 1.1;
   color: white;
   transform: translateX(10px) translateY(-10px);
@@ -115,7 +115,7 @@ onBeforeUnmount(() => {
 .nav-btn {
   all: unset;
   color: white;
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   position: absolute;
   top: 20px;
   right: 20px;

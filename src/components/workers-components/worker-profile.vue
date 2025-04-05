@@ -92,10 +92,10 @@
     padding: 5px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
 }
 
 .info-container h2 {
@@ -107,7 +107,7 @@
 }
 
 .info-span {
-    color: var(--secGray);
+    color: var(--secondTwo);
 }
 
 .info-container h3 {
@@ -130,13 +130,13 @@
 .check-label {
     cursor: pointer;
     border-radius: 10px;
-    background-color: var(--baseGray);
-    border: 2px solid var(--baseOrange);
+    background-color: var(--second);
+    border: 2px solid var(--base);
     padding: 10px;
     transition: 0.3s;
     font-weight: bolder;
     text-transform: capitalize;
-    color: var(--secGray);
+    color: var(--secondTwo);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -144,7 +144,7 @@
 
 /* Cambia el estilo del label cuando el input radio correspondiente está marcado */
 .check-input:checked+.check-label {
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     border: 2px solid white;
     color: white;
     scale: 1.04;
@@ -156,7 +156,7 @@
     position: absolute;
     bottom: 20px;
     left: 10px;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     padding: 5px 10px;
     color: white;
     display: flex;
@@ -171,7 +171,7 @@
     position: absolute;
     top: 20px;
     right: 10px;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     padding: 5px;
     color: white;
     display: flex;
@@ -192,7 +192,7 @@
     }
 
     .info-span {
-        color: var(--secGray);
+        color: var(--secondTwo);
         font-size: 1.1rem;
     }
 
@@ -251,7 +251,7 @@
     }
 
     .check-label:hover {
-        background-color: var(--baseOrange);
+        background-color: var(--base);
         box-shadow: var(--secShadow);
         color: white;
         cursor: pointer;
@@ -261,11 +261,11 @@
         font-size: 1rem;
         padding: 10px 13px;
         transition: .3s;
-        border: 4px solid var(--baseOrange);
+        border: 4px solid var(--base);
     }
 
     .close-sesion-btn:hover {
-        background-color: var(--baseGray);
+        background-color: var(--second);
         cursor: pointer;
     }
 }

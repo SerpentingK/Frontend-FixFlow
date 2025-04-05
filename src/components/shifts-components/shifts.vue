@@ -86,10 +86,10 @@ onMounted(loadAllShifts)
     padding: 20px 10px;
     width: 75%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     overflow-y: scroll;
     scrollbar-width: none;
     display: flex;
@@ -113,11 +113,11 @@ onMounted(loadAllShifts)
 .search-form input{
     padding: 5px 10px;
     border-radius: 10px;
-    border: 1px solid var(--baseGray);
+    border: 1px solid var(--second);
     cursor: pointer;
 }
 .search-form button{
-    background: var(--baseOrange);
+    background: var(--base);
     color: white;
     border: none;
     border-radius: 10px;
@@ -146,15 +146,15 @@ onMounted(loadAllShifts)
     cursor: pointer;
 }
 .shift:hover fieldset{
-    background-color: var(--secGray);
+    background-color: var(--secondTwo);
     color: white;
     box-shadow: var(--secShadow);
 
 }
 .shift fieldset{
     border-radius:5px;
-    background-color: var(--thirdGray);
-    border-color: var(--secGray);
+    background-color: var(--secondThree);
+    border-color: var(--secondTwo);
     color: white;
     display: flex;
     justify-content: space-between;

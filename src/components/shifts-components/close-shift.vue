@@ -97,10 +97,10 @@ onMounted(() => {
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -122,7 +122,7 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    color: var(--secGray);
+    color: var(--secondTwo);
     flex-wrap: wrap;
     gap: 15px;
 }
@@ -134,7 +134,7 @@ onMounted(() => {
 }
 .btns button{
     background-color: transparent;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     border-radius: 5px;
     padding: 5px 10px;
     color: white;
@@ -145,7 +145,7 @@ onMounted(() => {
     scale: .9;
 }
 button.confirm-btn{
-    background-color: var(--baseOrange);
+    background-color: var(--base);
 }
 .amount-inp{
     all: unset;

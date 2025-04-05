@@ -4,7 +4,7 @@ export function printInvoice(billData, companyUser) {
         return;
     }
 
-    const printWindow = window.open("", "", "width=400,height=600");
+    const printWindow = window.open("", "", "width=800,height=600");
     printWindow.document.write(`
         <html>
         <head>

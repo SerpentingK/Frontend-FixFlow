@@ -228,10 +228,10 @@ onMounted(() => {
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -251,7 +251,7 @@ h3 {
 }
 
 .btns button {
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     background-color: transparent;
     padding: 5px 10px;
     color: white;
@@ -267,7 +267,7 @@ h3 {
 }
 
 button.confirm-btn {
-    background-color: var(--baseOrange);
+    background-color: var(--base);
 }
 .conf-container form{
     width: 90%;
@@ -298,7 +298,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
     align-items: center;
     justify-content: space-between;
     padding: 5px 10px;
-    color: var(--secGray);
+    color: var(--secondTwo);
 }
 
 @media (min-width: 1024px) {

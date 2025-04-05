@@ -30,10 +30,10 @@ const isActive = (path) => route.path === path
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -61,7 +61,7 @@ const isActive = (path) => route.path === path
     align-items: center;
     gap: 5px;
     transition: .3s;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
@@ -70,7 +70,7 @@ const isActive = (path) => route.path === path
     scale: .9;
 }
 .router.active{
-    background: var(--baseOrange);
+    background: var(--base);
     scale: 1.1;
     box-shadow: var(--secShadow);
 }

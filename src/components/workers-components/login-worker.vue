@@ -103,7 +103,7 @@ export default{
     background: #363636;
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -116,7 +116,7 @@ export default{
 }
 
 .login-container span {
-    color: var(--secGray);
+    color: var(--secondTwo);
     text-align: center;
 }
 
@@ -153,8 +153,8 @@ export default{
 }
 
 .go-btn {
-    background-color: var(--baseOrange);
-    border: 2px solid var(--baseOrange);
+    background-color: var(--base);
+    border: 2px solid var(--base);
     padding: 10px 20px;
     border-radius: 15px;
     color: white;
@@ -212,7 +212,7 @@ export default{
         width: 60%;
     }
     .go-btn:hover{
-        background-color: var(--baseGray);
+        background-color: var(--second);
         color: white;
     }
 }

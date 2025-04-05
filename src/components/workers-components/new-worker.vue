@@ -106,7 +106,7 @@ export default {
     background: #363636;
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -120,13 +120,13 @@ export default {
     text-align: center;
     letter-spacing: 1px;
     color: transparent;
-    background: var(--baseOrange);
-    background: linear-gradient(117deg, var(--baseOrange) 0%, var(--baseOrange) 32%, rgba(230, 140, 107, 1) 72%, rgba(255, 255, 255, 1) 100%, var(--baseOrange) 100%);
+    background: var(--base);
+    background: linear-gradient(117deg, var(--base) 0%, var(--base) 32%, var(--base) 72%, rgba(255, 255, 255, 1) 100%, var(--base) 100%);
     -webkit-background-clip: text;
 }
 
 .form-container span {
-    color: var(--secGray);
+    color: var(--secondTwo);
     text-align: center;
 }
 
@@ -167,7 +167,7 @@ export default {
     display: flex;
     flex-wrap: wrap;
     border-radius: 10px;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     box-sizing: border-box;
     box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
     padding: 0.25rem;
@@ -201,15 +201,15 @@ export default {
     background-color: #fff;
     font-weight: 600;
     color: black;
-    border-color: var(--baseGray);
+    border-color: var(--second);
     scale: 1.1;
     transform: translateY(-5px);
     box-shadow: var(--secShadow);
 }
 
 .go-btn {
-    background-color: var(--baseOrange);
-    border: 2px solid var(--baseOrange);
+    background-color: var(--base);
+    border: 2px solid var(--base);
     padding: 10px 20px;
     border-radius: 15px;
     color: white;

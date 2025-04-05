@@ -9,10 +9,10 @@ const switchSP = inject("switchSP");
 const orderId = 'ORD-UNICO-1722528769';
 const currency = 'COP';
 const amount = '90000';
-const apiKey = 'a1gc85ZtvF2q521ao0HAx4EbDRYuEZx-p1wRc-CacvM';//Cambair esto por consulta al api
+const apiKey = 'a1gc85ZtvF2q521ao0HAx4EbDRYuEZx-p1wRc-CacvM'; // Cambiar esto por consulta al API
 const integritySignature = 'HASH_DE_INTEGRIDAD';
 const redirectionUrl = 'https://micomercio.com/pagos/resultado';
-const description = 'Pago mensual suscripcion';
+const description = 'Renovación de suscripción';
 const tax = 'vat-19';
 const customerData = JSON.stringify({
     email: 'cliente@correo.com',
@@ -34,7 +34,6 @@ const billingAddress = JSON.stringify({
 onMounted(() => {
     const scriptUrl = 'https://checkout.bold.co/library/boldPaymentButton.js';
 
-    // Agregar el script solo si no existe
     if (!document.querySelector(`script[src="${scriptUrl}"]`)) {
         const script = document.createElement('script');
         script.src = scriptUrl;
@@ -68,42 +67,55 @@ function createBoldButton() {
         buttonContainer.appendChild(boldScript);
     }
 }
+
+const loggedCompany = inject("loggedCompany")
+const switchSRS = inject("switchsRS")
+
+const closeCompany = () => {
+    localStorage.removeItem("loggedCompany");
+    loggedCompany.value = null
+    router.push("/loginCompany")
+    switchSRS()
+}
 </script>
-
 <template>
-    <section class="info-container">
-        <h3>Suscripción FIXFLOW</h3>
-        <div class="payment-info">
-            <p><strong>Costo:</strong> $90.000 COP / mes</p>
-            <p><strong>Incluye:</strong></p>
-            <ul>
-                <li>Manejo de turnos</li>
-                <li>Manejo de inventarios para dispositivos</li>
-                <li>Manejo de ventas para el local</li>
-            </ul>
-            <p><strong>Descripción:</strong> Pago mensual de tu suscripción para acceder a todas las herramientas de
-                FIXFLOW.</p>
-        </div>
-
-        <div id="bold-button-container"></div>
-
-        <button @click="switchSP" class="close-btn">Cerrar</button>
-    </section>
+    <div class="modal-overlay">
+        <section class="info-container" @click.stop>
+            <h3>Pago No Renovado</h3>
+            <p class="warning-text">
+                Tu suscripción ha expirado. Por favor, renueva tu pago para continuar disfrutando del servicio.
+            </p>
+            <div id="bold-button-container"></div>
+            <button class="close-btn" @click="closeCompany">Cerrar Sesion</button>
+        </section>
+    </div>
 </template>
 
 <style scoped>
-.info-container {
+/* Fondo que bloquea interacciones fuera del modal */
+.modal-overlay {
     position: fixed;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    backdrop-filter: blur(2px);
+}
+
+/* Contenedor principal */
+.info-container {
+    position: relative;
     padding: 10px 5px;
-    width: 70%;
+    width: 40%;
     border-radius: 10px;
-    background: var(--baseGray);
-    box-shadow: -25px -25px 51px #242424,
-        25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    background: var(--second);
+    box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -114,42 +126,26 @@ function createBoldButton() {
     z-index: 9999;
     gap: 10px;
 }
-
-h3 {
-    font-family: var(--baseFont);
-    font-size: 22px;
+h3{
     color: white;
-    letter-spacing: 2px;
     text-transform: uppercase;
+    font-size: 1.3rem;
 }
 
-.payment-info {
-    width: 50%;
-    padding: 15px;
-    background: var(--baseOrange);
-    border-radius: 8px;
-    color: white;
-    text-align: left;
-    box-shadow:var(--secShadow);
+/* Texto de advertencia */
+.warning-text {
+    color: red;
+    font-size: 18px;
+    text-align: center;
+    margin: 10px 0;
+    width: 80%;
 }
 
-.payment-info h3 {
-    margin-top: 0;
-}
-
-.payment-info ul {
-    padding-left: 20px;
-    margin: 5px 0;
-}
-
-.payment-info li {
-    margin-bottom: 5px;
-}
-
+/* Botón de cerrar sesión */
 .close-btn {
     all: unset;
     padding: 10px 20px;
-    background: var(--secGray);
+    background: var(--base);
     color: white;
     border: none;
     border-radius: 10px;
@@ -158,10 +154,11 @@ h3 {
     transition: all 0.05s ease;
     border: 2px solid transparent;
 }
+
 .close-btn:active {
-  scale: 0.9;
-  background-color: var(--baseGray);
-  border-color: var(--secGray);
+    scale: 0.9;
+    background-color: var(--second);
+    border-color: var(--secondTwo);
 }
 
 @media (min-width: 768px) {
@@ -175,12 +172,13 @@ h3 {
         width: 50%;
         max-height: 70%;
     }
+    
     .close-btn:hover {
-    scale: 1.2;
-  }
+        scale: 1.2;
+    }
 
-  .close-btn:hover:active {
-    scale: 1.1;
-  }
+    .close-btn:hover:active {
+        scale: 1.1;
+    }
 }
 </style>

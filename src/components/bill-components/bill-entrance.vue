@@ -407,9 +407,9 @@ export default {
   padding: 5px 20px;
   width: 80%;
   border-radius: 10px;
-  background: var(--baseGray);
+  background: var(--second);
   box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 4px solid var(--baseOrange);
+  border: 4px solid var(--base);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -453,7 +453,7 @@ export default {
 
 .input-container ion-icon {
   font-size: 1.2rem;
-  color: var(--baseOrange);
+  color: var(--base);
   scale: 1.2;
 }
 
@@ -461,9 +461,9 @@ export default {
   display: flex;
   flex-direction: column;
   border-radius: 8px;
-  border: 1px solid var(--secGray);
+  border: 1px solid var(--secondTwo);
   padding: 10px;
-  background-color: var(--thirdGray);
+  background-color: var(--secondThree);
   width: 90%;
   gap: 10px;
   align-items: center;
@@ -519,7 +519,7 @@ export default {
 }
 
 .other-container ion-icon {
-  color: var(--baseGray);
+  color: var(--second);
   scale: 1.3;
   transition: 0.4s;
 }
@@ -529,7 +529,7 @@ export default {
   align-items: center;
   gap: 5px 15px;
   padding: 5px 15px;
-  background-color: var(--secGray);
+  background-color: var(--secondTwo);
   color: white;
   border-radius: 8px;
   width: 90%;
@@ -539,7 +539,7 @@ export default {
 
 .other-container.active {
   display: flex;
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   color: white;
 }
 
@@ -563,7 +563,7 @@ export default {
   background: none;
   border: none;
   cursor: pointer;
-  color: var(--baseOrange);
+  color: var(--base);
 }
 
 .other-container button ion-icon {
@@ -575,7 +575,7 @@ export default {
   gap: 10px;
   width: 90%;
   justify-content: space-between;
-  color: var(--secGray);
+  color: var(--secondTwo);
 }
 
 .fact-inp input {
@@ -589,16 +589,16 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  color: var(--secGray);
+  color: var(--secondTwo);
 }
 
 .go-btn {
   all: unset;
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   color: white;
   padding: 5px 15px;
   border-radius: 5px;
-  border: 2px solid var(--baseOrange);
+  border: 2px solid var(--base);
   transition: 0.3s;
   margin-bottom: 10px;
 }
@@ -625,17 +625,17 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .action-btn:active ion-icon {
-  color: var(--baseGray);
+  color: var(--second);
   scale: 0.7;
 }
 .submit-btn {
-  background: var(--baseOrange);
+  background: var(--base);
   border: none;
   cursor: pointer;
   color: white;
   padding: 5px 20px;
   border-radius: 5px;
-  border: 2px solid var(--baseOrange);
+  border: 2px solid var(--base);
   transition: 0.3s;
   margin-bottom: 10px;
 }
@@ -694,12 +694,12 @@ input[type="number"]::-webkit-inner-spin-button {
 
   .go-btn:hover {
     scale: 1.1;
-    background-color: var(--baseGray);
+    background-color: var(--second);
     box-shadow: var(--secShadow);
   }
   .submit-btn:hover {
     transform: scale(1.1);
-    background-color: var(--baseGray);
+    background-color: var(--second);
     box-shadow: var(--secShadow);
   }
 }

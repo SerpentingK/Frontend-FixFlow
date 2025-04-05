@@ -143,10 +143,10 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: var(--baseGray);
+  background-color: var(--second);
   width: 90%;
   border-radius: 10px;
-  border: 4px solid var(--baseOrange);
+  border: 4px solid var(--base);
   box-shadow: var(--baseShadow);
   display: flex;
   flex-direction: column;
@@ -167,7 +167,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   gap: 10px;
   width: 90%;
   justify-content: space-between;
-  color: var(--secGray);
+  color: var(--secondTwo);
 }
 .info-label {
   text-transform: uppercase;
@@ -185,7 +185,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 }
 
 .phone-info-container {
-  background-color: var(--baseGray);
+  background-color: var(--second);
   border-radius: 10px;
   padding: 10px;
   display: flex;
@@ -212,9 +212,9 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 .state-btn {
   all: unset;
   cursor: pointer;
-  background-color: var(--baseGray);
+  background-color: var(--second);
   padding: 10px;
-  border: 2px solid var(--baseOrange);
+  border: 2px solid var(--base);
   border-radius: 10px;
   color: white;
   display: flex;
@@ -223,7 +223,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 }
 
 .state-btn.active {
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   color: white;
   box-shadow: var(--secShadow);
 }
@@ -233,7 +233,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   position: absolute;
   right: 10px;
   top: 10px;
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   display: flex;
   align-items: center;
   justify-content: center;

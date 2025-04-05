@@ -108,10 +108,10 @@ onMounted(loadAllBills);
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -139,7 +139,7 @@ onMounted(loadAllBills);
     all: unset;
     border-radius: 10px;
     padding: 5px 10px;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     color: white;
     cursor: pointer;
     transition: .3s;
@@ -175,7 +175,7 @@ onMounted(loadAllBills);
     width: 100%;
     display: flex;
     justify-content: space-between;
-    border: 2px solid var(--secGray);
+    border: 2px solid var(--secondTwo);
     border-radius: 10px;
 }
 .bill-list button:active{
@@ -190,7 +190,7 @@ onMounted(loadAllBills);
 }
 button.load-btn{
     all: unset;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     color: white;
     border-radius: 10px;
     padding: 5px 10px;
@@ -214,7 +214,7 @@ button.load-btn{
 
 .spinner {
     border: 4px solid rgba(255, 255, 255, 0.3);
-    border-top: 4px solid var(--baseOrange);
+    border-top: 4px solid var(--base);
     border-radius: 50%;
     width: 40px;
     height: 40px;

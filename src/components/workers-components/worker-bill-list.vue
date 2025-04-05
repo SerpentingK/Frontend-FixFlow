@@ -103,7 +103,7 @@
         all: unset;
         cursor: pointer;
         width: 85%;
-        background-color: var(--baseOrange);
+        background-color: var(--base);
         border-radius: 10px;
         padding: 10px;
         color: white;

@@ -70,7 +70,6 @@ export default {
         };
         confirmPassword.value = "";
         isLogin.value = true;
-        switchSP();
       } catch (error) {
         if (error.response && error.response.data) {
           showAlert("2",`Error al registrar empresa: ${error.response.data.detail}`);
@@ -120,8 +119,8 @@ export default {
     <section v-if="isLogin" key="login" class="login-container">
       <form class="form" @submit.prevent="loginCompany()">
         <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0">
-          <span style="color: var(--secGray)">FIX</span><span style="color: white">-</span><span
-            style="color: var(--baseOrange)">FLOW</span>
+          <span style="color: var(--secondTwo)">FIX</span><span style="color: white">-</span><span
+            style="color: var(--base)">FLOW</span>
         </h1>
         <h2>Inicio de Sesión</h2>
         <label for="company-input" class="input-container">
@@ -189,9 +188,9 @@ export default {
   padding: 20px 10px;
   width: 75%;
   border-radius: 10px;
-  background: var(--baseGray);
+  background: var(--second);
   box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 2px solid var(--baseOrange);
+  border: 2px solid var(--base);
   overflow-y: auto;
   scrollbar-width: none;
   display: flex;
@@ -254,7 +253,7 @@ export default {
 .go-btn {
   all: unset;
   padding: 10px 20px;
-  background: var(--baseOrange);
+  background: var(--base);
   color: white;
   border: none;
   border-radius: 10px;
@@ -277,8 +276,8 @@ export default {
 
 .go-btn:active {
   scale: 0.9;
-  background-color: var(--baseGray);
-  border-color: var(--baseOrange);
+  background-color: var(--second);
+  border-color: var(--base);
 }
 
 /* Tablets: 768px y mayores */

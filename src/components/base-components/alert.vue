@@ -74,8 +74,8 @@ const alertStyles = computed(() => {
     font-family: Arial, sans-serif;
     max-width: 80%;
     text-align: center;
-    background: var(--baseGray);
-    border: 4px solid var(--baseOrange);
+    background: var(--second);
+    border: 4px solid var(--base);
 }
 
 /* Icono de la alerta */
@@ -91,7 +91,7 @@ const alertStyles = computed(() => {
 
 /* Botón */
 .alert-button {
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     color: white;
     border: none;
     padding: 8px 16px;
@@ -101,7 +101,7 @@ const alertStyles = computed(() => {
 }
 
 .alert-button:hover {
-    background-color: var(--secGray);
+    background-color: var(--secondTwo);
     transform: scale(1.05);
 }
 

@@ -207,9 +207,9 @@ onMounted(() => {
   padding: 20px 10px;
   width: 80%;
   border-radius: 10px;
-  background: var(--baseGray);
+  background: var(--second);
   box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 4px solid var(--baseOrange);
+  border: 4px solid var(--base);
   scrollbar-width: none;
   display: flex;
   align-items: center;
@@ -227,7 +227,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   width: 90%;
-  color: var(--secGray);
+  color: var(--secondTwo);
 }
 
 ::-webkit-scrollbar {
@@ -250,13 +250,13 @@ onMounted(() => {
 .check-label {
   cursor: pointer;
   border-radius: 10px;
-  background-color: var(--baseGray);
-  border: 2px solid var(--baseOrange);
+  background-color: var(--second);
+  border: 2px solid var(--base);
   padding: 10px;
   transition: 0.3s;
   font-weight: bolder;
   text-transform: capitalize;
-  color: var(--secGray);
+  color: var(--secondTwo);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -264,7 +264,7 @@ onMounted(() => {
 
 /* Cambia el estilo del label cuando el input radio correspondiente está marcado */
 .check-input:checked + .check-label {
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   border: 2px solid white;
   color: white;
   scale: 1.04;
@@ -276,7 +276,7 @@ onMounted(() => {
   position: absolute;
   right: 10px;
   top: 10px;
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   display: flex;
   align-items: center;
   justify-content: center;

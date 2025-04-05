@@ -52,10 +52,10 @@ const postWithdrawal = async () => {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: var(--baseGray);
+    background-color: var(--second);
     width: 90%;
     border-radius: 10px;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     box-shadow: var(--baseShadow);
     padding: 20px;
     display: flex;
@@ -93,9 +93,9 @@ const postWithdrawal = async () => {
 
 .state-btn {
     all: unset;
-    background-color: var(--baseGray);
+    background-color: var(--second);
     padding: 10px;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     border-radius: 10px;
     color: white;
     display: flex;
@@ -109,7 +109,7 @@ const postWithdrawal = async () => {
 }
 
 .state-btn.active {
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     color: white;
     box-shadow: var(--secShadow);
 }
@@ -121,7 +121,7 @@ const postWithdrawal = async () => {
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     padding: 5px;
     color: white;
     display: flex;

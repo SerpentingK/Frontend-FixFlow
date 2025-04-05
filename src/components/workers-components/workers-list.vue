@@ -100,10 +100,10 @@ export default{
     padding: 5px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     max-height: 80%;
     overflow: scroll;
     scrollbar-width: none;
@@ -119,13 +119,13 @@ export default{
     all: unset;
     padding: 10px 20px;
     border-radius: 5px;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     color: white;
     cursor: pointer;
 }
 
 button.cancel-btn {
-    background-color: var(--baseOrange);
+    background-color: var(--base);
 }
 .container h2,
 .delete-window h3 {
@@ -147,8 +147,8 @@ button.cancel-btn {
 }
 
 .worker-li {
-    border: 2px solid var(--secGray);
-    background-color: var(--thirdGray);
+    border: 2px solid var(--secondTwo);
+    background-color: var(--secondThree);
     border-radius: 5px;
     display: flex;
     gap: 10px;
@@ -157,7 +157,7 @@ button.cancel-btn {
 }
 
 .worker-li legend {
-    background-color: var(--thirdGray);
+    background-color: var(--secondThree);
     border-radius: 5px;
     padding: 2px 8px;
     color: white;
@@ -166,13 +166,13 @@ button.cancel-btn {
 }
 
 .worker-li span {
-    color: var(--secGray);
+    color: var(--secondTwo);
     font-size: 1rem;
 }
 
 .delete-btn {
     all: unset;
-    color: var(--baseOrange);
+    color: var(--base);
     scale: 1.5;
     cursor: pointer;
 }

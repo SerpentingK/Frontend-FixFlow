@@ -164,11 +164,11 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
     align-items: center;
     justify-content: space-between;
     padding: 5px 10px;
-    color: var(--secGray);
+    color: var(--secondTwo);
 }
 .confirm-btn{
     background-color: transparent;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     padding: 5px 10px;
     color: white;
     text-transform: uppercase;
