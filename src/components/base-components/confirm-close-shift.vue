@@ -48,7 +48,7 @@ const putShift = async () => {
                 total_gain: total_revenue.value,
                 total_received: adjustedTotalSales.value, // Usa el valor ya ajustado
                 total_outs: total_outs.value,
-                vault: adjustedTotalSales.value,
+                vault: totalMoney.value,
             }
         )
 

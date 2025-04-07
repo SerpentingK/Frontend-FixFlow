@@ -12,9 +12,11 @@ export default {
         device: null,
         details: "",
         payment: 0,
+        payment_physical: 0, // Nuevo campo
+        payment_platform: 0, // Nuevo campo
         due: 0,
         individual_price: 0,
-        availableDevices: [], // Lista de dispositivos por teléfono
+        availableDevices: [],
       },
     ]);
     const loggedWorker = inject("loggedWorker", ref(null));
@@ -31,6 +33,8 @@ export default {
     const details = ref(null);
     const clientName = ref(null);
     const clientPhone = ref(null);
+    const total_cash = inject("total_cash");
+    const total_platform = inject("total_platform");
 
     const switchSBC = inject("switchSBC");
 
@@ -41,6 +45,10 @@ export default {
         0
       )
     );
+
+    const totalPayment = computed(
+      () => (cashSale.value || 0) + (platformSale.value || 0)
+    );
     // Métodos
     const increasePhonesAmount = () => {
       if (phones_amount.value < 5) {
@@ -50,10 +58,12 @@ export default {
           brand_id: 0,
           device: null,
           payment: 0,
+          payment_physical: 0,
+          payment_platform: 0,
           due: 0,
           details: "",
           individual_price: 0,
-          availableDevices: [], // Añadido para mantener dispositivos por teléfono
+          availableDevices: [],
         });
       }
     };
@@ -85,9 +95,7 @@ export default {
           return;
         }
 
-        const response = await axios.get(
-          `/api/${id_brands.value}/Devices`
-        );
+        const response = await axios.get(`/api/${id_brands.value}/Devices`);
         phones.value[index].availableDevices = response.data;
       } catch (error) {
         console.error("Error cargando dispositivos para la marca:", error);
@@ -102,10 +110,9 @@ export default {
       ) {
         try {
           // Agregar nueva marca a la API
-          await axios.post(
-            `/api/newBrand/${loggedCompany.value}`,
-            { name: newBrand.value }
-          );
+          await axios.post(`/api/newBrand/${loggedCompany.value}`, {
+            name: newBrand.value,
+          });
           // Añadir la marca a la lista local
           brands.value.push({ name: newBrand.value });
           // Asignar la nueva marca como seleccionada
@@ -179,10 +186,11 @@ export default {
     );
 
     watch(
-      () => phones.value.map(phone => ({
-        individual_price: phone.individual_price,
-        payment: phone.payment
-      })),
+      () =>
+        phones.value.map((phone) => ({
+          individual_price: phone.individual_price,
+          payment: phone.payment,
+        })),
       (newValues, oldValues) => {
         newValues.forEach((value, index) => {
           const phone = phones.value[index];
@@ -192,21 +200,49 @@ export default {
       { deep: true }
     );
 
+    const updatePayment = (index, type, value) => {
+      const phone = phones.value[index];
+
+      if (type === "physical") {
+        phone.payment_physical = Number(value) || 0;
+      } else {
+        phone.payment_platform = Number(value) || 0;
+      }
+
+      // Actualizar el pago total
+      phone.payment =
+        (phone.payment_physical || 0) + (phone.payment_platform || 0);
+      // Actualizar la deuda
+      phone.due = (phone.individual_price || 0) - phone.payment;
+    };
+
     // Ciclo de vida
-    onMounted(fetchBrands);
+    onMounted(async () => {
+      await fetchBrands();
+    });
 
     const submitForm = () => {
-      billData.value.total_price = totalPrice.value;
-      billData.value.client_name = clientName.value;
-      billData.value.client_phone = clientPhone.value;
-      billData.value.wname = loggedWorker.value;
-      billData.value.ref_shift = startShift.value;
-      // Crear una copia de phones_list excluyendo 'availableDevices'
-      billData.value.phones = phones.value.map(
-        ({ availableDevices, ...rest }) => rest
-      );
-
-      switchSBC(); // Cambia a la vista de confirmación
+      billData.value = {
+        ...billData.value,
+        total_price: totalPrice.value,
+        client_name: clientName.value,
+        client_phone: clientPhone.value,
+        wname: loggedWorker.value,
+        ref_shift: startShift.value,
+        phones: phones.value.map(
+          ({
+            availableDevices,
+            payment_physical,
+            payment_platform,
+            ...rest
+          }) => ({
+            ...rest,
+            payment_physical, // ← Asegúrate de incluir estos
+            payment_platform, // ← campos en el envío
+          })
+        ),
+      };
+      switchSBC();
     };
 
     return {
@@ -230,6 +266,8 @@ export default {
       submitForm,
       loggedWorker,
       startShift,
+      totalPayment,
+      updatePayment,
     };
   },
 };
@@ -364,10 +402,27 @@ export default {
           />
         </label>
         <span class="fact-inp">
-          <span>Abono:</span>
-          <input type="number" v-model="phone.payment" required />
+          <span>Abono En Fisico:</span>
+          <input
+            type="number"
+            :value="phone.payment_physical"
+            @input="updatePayment(index, 'physical', $event.target.value)"
+            required
+          />
         </span>
-
+        <span class="fact-inp">
+          <span>Abono En Plataforma:</span>
+          <input
+            type="number"
+            :value="phone.payment_platform"
+            @input="updatePayment(index, 'platform', $event.target.value)"
+            required
+          />
+        </span>
+        <span class="fact-inp">
+          <span>Abono Total:</span>
+          <span>{{ phone.payment }}</span>
+        </span>
         <!-- Detalles -->
         <label :for="`details-inp-${index}`" class="fact-inp">
           <span>Detalles:</span>

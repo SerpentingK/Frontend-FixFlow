@@ -15,6 +15,7 @@ import renewedSuscription from './components/companie-components/renewedSuscript
 import alert from './components/base-components/alert.vue';
 import withdrawVault from './components/companie-components/withdrawVault.vue';
 import mailPaswRestore from './components/companie-components/mailPaswRestore.vue';
+import mailTokenRestore from './components/companie-components/mailTokenRestore.vue';
 import Particles from './components/Particles.vue';
 import withdrawList from './components/companie-components/withdrawList.vue';
 
@@ -432,7 +433,7 @@ const switchWV = () => {
 };
 provide("switchWV", switchWV);
 
-const suscripctionRenewed = ref(true);
+const suscripctionRenewed = ref(false);
 provide("SR", suscripctionRenewed);
 
 const showMailPaswRestore = ref(false);
@@ -440,6 +441,12 @@ const switchSMPR = () => {
   showMailPaswRestore.value = !showMailPaswRestore.value;
 };
 provide("switchSMPR", switchSMPR);
+
+const showMailTokenRestore = ref(false);
+const switchSMTR = () => {
+  showMailTokenRestore.value = !showMailTokenRestore.value;
+};
+provide("switchSMTR", switchSMTR);
 
 // =============================================
 // CICLO DE VIDA Y OBSERVADORES
@@ -512,6 +519,9 @@ watch(
     </transition>
     <transition name="opacity-in" mode="out-in">
       <mailPaswRestore v-if="showMailPaswRestore"></mailPaswRestore>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <mailTokenRestore v-if="showMailTokenRestore"></mailTokenRestore>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <withdrawList v-if="showWithdrawList"></withdrawList>

@@ -9,6 +9,7 @@ export default {
     const showAlert = inject("showAlert");
     const loggedCompany = inject("loggedCompany", ref(null));
     const switchSMPR = inject("switchSMPR");
+    const switchSMTR = inject("switchSMTR");
     const isLogin = ref(true); // Propiedad para alternar entre login y registro
     const getCompanyVault = inject("getCompanyVault")
     const confirmPassword = ref("");
@@ -109,6 +110,7 @@ export default {
       sesion,
       msg,
       switchSMPR,
+      switchSMTR
     };
   },
 };
@@ -138,6 +140,9 @@ export default {
         </button>
         <button type="button" @click="switchSMPR" class="opt-btn">
           ¿Olvidaste tu contraseña?
+        </button>
+        <button type="button" @click="switchSMTR" class="opt-btn">
+          Verifica Tu Correo
         </button>
       </form>
     </section>
