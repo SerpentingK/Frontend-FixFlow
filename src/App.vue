@@ -417,6 +417,11 @@ provide("showAlert", showAlert);
 // SUSCRIPCIÓN Y OTRAS FUNCIONALIDADES
 // =============================================
 
+const printEnabled = ref(false);
+
+provide("printEnabled", printEnabled);
+
+
 const showRenewedSuscription = ref(false);
 const switchSRS = () => {
   if (!suscripctionRenewed.value && loggedCompany.value) {
@@ -433,7 +438,7 @@ const switchWV = () => {
 };
 provide("switchWV", switchWV);
 
-const suscripctionRenewed = ref(false);
+const suscripctionRenewed = ref(true);
 provide("SR", suscripctionRenewed);
 
 const showMailPaswRestore = ref(false);

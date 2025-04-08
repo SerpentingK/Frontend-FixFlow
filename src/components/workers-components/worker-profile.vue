@@ -180,6 +180,8 @@
     border-radius: 5px;
     box-shadow: var(--secShadow);
     font-size: 1.4rem;
+    cursor: pointer;
+    transform:all .3s ease;
 }
 
 @media (min-width: 768px) {
@@ -267,6 +269,9 @@
     .close-sesion-btn:hover {
         background-color: var(--second);
         cursor: pointer;
+    }
+    .worker-list-btn:hover{
+        scale: 1.1;
     }
 }
 </style>

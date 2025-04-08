@@ -169,6 +169,7 @@ onMounted(loadAllBills);
     display: flex;
     color: white;
     transition: .3s;
+    cursor: pointer;
     
 }
 .bill-list button fieldset{

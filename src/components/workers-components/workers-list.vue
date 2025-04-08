@@ -121,7 +121,7 @@ export default {
       </li>
     </ol>
     <transition name="fade">
-      <div class="delete-window" v-if="showDeleteWindow" style="padding: 15px">
+      <div class="window" v-if="showDeleteWindow" style="padding: 15px">
         <h3>Desactivar colaborador?</h3>
         <span>
           <button @click="switchSDW()" class="cancel-btn">No</button>
@@ -132,7 +132,7 @@ export default {
       </div>
     </transition>
     <transition name="fade">
-      <div class="reactive-window" v-if="showReactive" style="padding: 15px">
+      <div class="window" v-if="showReactive" style="padding: 15px">
         <h3>Reactivar colaborador?</h3>
         <span>
           <button @click="switchSRW()" class="cancel-btn">No</button>
@@ -154,26 +154,7 @@ export default {
 
 <style scoped>
 .container,
-.delete-window {
-  display: flex;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  padding: 5px;
-  width: 80%;
-  border-radius: 10px;
-  background: var(--second);
-  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 4px solid var(--base);
-  max-height: 80%;
-  overflow: scroll;
-  scrollbar-width: none;
-}
-.reactive-window {
+.window {
   display: flex;
   flex-direction: column;
   justify-content: start;
@@ -193,26 +174,32 @@ export default {
   scrollbar-width: none;
 }
 
-.delete-window span {
+
+.window span {
   width: 100%;
   display: flex;
   justify-content: space-evenly;
 }
 
-.delete-window button {
+.window button {
   all: unset;
   padding: 10px 20px;
   border-radius: 5px;
   border: 2px solid var(--base);
   color: white;
   cursor: pointer;
+  transition: all .3s ease;
+}
+
+button:hover{
+  scale: 1.1;
 }
 
 button.cancel-btn {
   background-color: var(--base);
 }
 .container h2,
-.delete-window h3 {
+.window h3 {
   color: white;
   text-transform: uppercase;
   font-size: 1.3rem;

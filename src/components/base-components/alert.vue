@@ -108,4 +108,10 @@ const alertStyles = computed(() => {
 .alert-button:active {
     transform: scale(0.95);
 }
+
+@media (min-width: 1024px) {
+    .alert-container{
+        max-width: 40%;
+    }
+}
 </style>

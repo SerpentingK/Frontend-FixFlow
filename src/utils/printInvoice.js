@@ -1,4 +1,4 @@
-export function printInvoice(billData, companyUser) {
+export function printInvoice(billData, companyUser, bill_number) {
     if (!billData) {
         console.error("No hay datos de factura para imprimir.");
         return;
@@ -23,6 +23,7 @@ export function printInvoice(billData, companyUser) {
             <div class="ticket">
                 <h2>${companyUser}</h2>
                 <p>Factura de Venta</p>
+                <p>Numero de Factura: ${bill_number}
                 <p>Cliente: ${billData.client_name}</p>
                 <p>Teléfono: ${billData.client_phone}</p>
                 <hr>

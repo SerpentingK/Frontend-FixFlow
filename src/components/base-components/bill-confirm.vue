@@ -1,15 +1,17 @@
 <script setup>
-import { inject, watch, onMounted } from "vue";
+import { inject, watch, onMounted, ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 import { printInvoice } from "@/utils/printInvoice";
 
 const phonesReceived = inject("phonesReceived");
 const loggedCompany = inject("loggedCompany");
+const printEnabled = inject("printEnabled");
 const router = useRouter();
 const total_sales = inject("total_sales");
 const total_cash = inject("total_cash");
 const total_platform = inject("total_platform");
+const bill_number = ref(null);
 
 const billData = inject("billData");
 
@@ -22,6 +24,12 @@ const postbill = async () => {
       `/api/createBillwithPhones/${loggedCompany.value}`,
       billData.value
     );
+
+    console.log(answer.data.bill_number);
+
+    bill_number.value = answer.data.bill_number;
+
+    console.log(bill_number.value);
 
     // 2. Calcula los totales de efectivo y plataforma
     const { totalCash, totalPlatform } = billData.value.phones.reduce(
@@ -41,7 +49,8 @@ const postbill = async () => {
     // 4. Obtiene valores anteriores del localStorage
     const previousSales = JSON.parse(localStorage.getItem("total_sales")) || 0;
     const previousCash = JSON.parse(localStorage.getItem("total_cash")) || 0;
-    const previousPlatform = JSON.parse(localStorage.getItem("total_platform")) || 0;
+    const previousPlatform =
+      JSON.parse(localStorage.getItem("total_platform")) || 0;
 
     // 5. Actualiza los valores reactivos
     total_sales.value = previousSales + totalPayment;
@@ -51,11 +60,17 @@ const postbill = async () => {
     // 6. Guarda en localStorage
     localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
     localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
-    localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
+    localStorage.setItem(
+      "total_platform",
+      JSON.stringify(total_platform.value)
+    );
 
     // 7. Manejo de la UI después del envío
-    const billDataCopy = JSON.parse(JSON.stringify(billData.value));
     switchSBC();
+    if(printEnabled.value) {
+      // Si la impresión está habilitada, imprime la factura
+      printInvoice(billData.value, loggedCompany.value, bill_number.value);
+    }
     router.push("/bills/bill-list");
 
     // 8. Resetea el formulario
@@ -92,7 +107,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="info-container">
+  <section class="inf-cont">
     <div class="info-row">
       <span class="info-label">Cliente:</span>
       <span>{{ billData.client_name }}</span>
@@ -111,7 +126,7 @@ onMounted(() => {
     </div>
     <article class="phones-container">
       <div
-        class="phone-info-container"
+        class="phone-inf-cont"
         v-for="phone in billData.phones"
         :key="phone.phone_ref"
       >
@@ -153,7 +168,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.info-container {
+.inf-cont {
   position: fixed;
   left: 50%;
   top: 50%;
@@ -192,7 +207,7 @@ onMounted(() => {
   gap: 10px;
 }
 
-.phone-info-container {
+.phone-inf-cont {
   background-color: white;
   display: flex;
   flex-wrap: wrap;
@@ -243,8 +258,8 @@ onMounted(() => {
 }
 
 @media (min-width: 1024px) {
-  .info-container {
-    width: 50%;
+  .inf-cont {
+    width: 40%;
     max-height: 70%;
   }
 }

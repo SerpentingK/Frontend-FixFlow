@@ -2,8 +2,11 @@
 import axios from "axios";
 import { inject, watch, onMounted } from "vue";
 
+import { printInvoice } from "@/utils/printInvoice"; 
+
 const switch_sbf = inject("switch_sbf");
 const bill_number = inject("bill_number");
+const loggedCompany = inject("loggedCompany", null);
 
 const infoBill = inject("infoBill", null);
 
@@ -46,7 +49,10 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 </script>
 
 <template>
-  <section class="info-container">
+  <section class="inf-cont">
+    <button @click="printInvoice(infoBill, loggedCompany, bill_number)" class="print-btn">
+      <ion-icon name="print"></ion-icon>
+    </button>
     <button @click="switch_sbf()" class="close-btn">
       <ion-icon name="close"></ion-icon>
     </button>
@@ -73,7 +79,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
     </div>
     <article class="phones-container">
       <div
-        class="phone-info-container"
+        class="phone-inf-cont"
         v-for="phone in infoBill.phones"
         :key="phone.phone_ref"
       >
@@ -137,7 +143,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 </template>
 
 <style scoped>
-.info-container {
+.inf-cont {
   z-index: 10;
   position: fixed;
   top: 50%;
@@ -156,7 +162,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   overflow: hidden;
 }
 
-.info-container h2 {
+.inf-cont h2 {
   color: white;
   letter-spacing: 3px;
   text-shadow: 0 0 10px black;
@@ -184,7 +190,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   scrollbar-width: none;
 }
 
-.phone-info-container {
+.phone-inf-cont {
   background-color: var(--second);
   border-radius: 10px;
   padding: 10px;
@@ -243,18 +249,36 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   color: white;
   transition: 0.3s;
 }
+.print-btn {
+  all: unset;
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  background-color: var(--base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: var(--secShadow);
+  color: white;
+  transition: 0.3s;
+}
 
 @media (min-width: 768px) {
-  .info-container {
+  .inf-cont {
     font-size: 1.3rem;
   }
 }
 @media (min-width: 1024px) {
-  .info-container {
+  .inf-cont {
     font-size: 1rem;
     width: 40%;
   }
   .close-btn:hover {
+    scale: 1.1;
+  }
+  .print-btn:hover {
     scale: 1.1;
   }
 }

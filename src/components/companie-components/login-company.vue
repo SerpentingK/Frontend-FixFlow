@@ -63,6 +63,7 @@ export default {
           "/api/insertCompany",
           company.value
         );
+        showAlert("1", 'Registro exitoso. Por favor revisa tu correo para verificar tu cuenta.\nPodria estar en "Spam" o en "No deseados".\nTienes 15 minutos de otra manera tendras que hacer la verificacion nuevamente en el apartado "Verifica tu correo".');
         msg.value = answer.data.msg;
         company.value = {
           company_user: "",
@@ -71,6 +72,7 @@ export default {
         };
         confirmPassword.value = "";
         isLogin.value = true;
+
       } catch (error) {
         if (error.response && error.response.data) {
           showAlert("2",`Error al registrar empresa: ${error.response.data.detail}`);
@@ -127,7 +129,7 @@ export default {
         <h2>Inicio de Sesión</h2>
         <label for="company-input" class="input-container">
           <ion-icon name="cube"></ion-icon>
-          <input type="text" id="company-input" class="text-input" placeholder="Compañía" v-model="sesion.identifier" />
+          <input type="text" id="company-input" class="text-input" placeholder="Correo" v-model="sesion.identifier" />
         </label>
         <label for="pasw-input" class="input-container">
           <ion-icon name="lock-closed"></ion-icon>

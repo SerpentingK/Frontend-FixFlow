@@ -33,8 +33,7 @@ export default {
     const details = ref(null);
     const clientName = ref(null);
     const clientPhone = ref(null);
-    const total_cash = inject("total_cash");
-    const total_platform = inject("total_platform");
+    const printEnabled = inject("printEnabled");
 
     const switchSBC = inject("switchSBC");
 
@@ -268,6 +267,7 @@ export default {
       startShift,
       totalPayment,
       updatePayment,
+      printEnabled
     };
   },
 };
@@ -451,9 +451,79 @@ export default {
       </div>
     </form>
   </section>
+  <!-- Interruptor de impresión -->
+  <label class="print-toggle">
+    <span>Imprimir facturas </span>
+    <input type="checkbox" v-model="printEnabled" />
+    <span class="slider"></span>
+    <span class="toggle-label">
+      <ion-icon name="print"></ion-icon>
+    </span>
+  </label>
 </template>
 
 <style scoped>
+.print-toggle {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1000;
+  background-color: var(--second);
+  padding: 10px 20px;
+  border: 2px solid var(--base);
+  border-radius: 20px;
+  display: flex;
+  gap: 10px;
+  color: white;
+  font-weight: bold;
+}
+
+.print-toggle input {
+  display: none;
+}
+
+.slider {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  background-color: #ccc;
+  border-radius: 34px;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: var(--base);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-label {
+  margin-left: 10px;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.toggle-label ion-icon {
+  vertical-align: middle;
+}
 .container {
   position: fixed;
   left: 50%;
@@ -673,6 +743,7 @@ export default {
   justify-content: center;
   align-items: center;
   scale: 1.3;
+  cursor: pointer;
 }
 
 input[type="number"]::-webkit-inner-spin-button {
