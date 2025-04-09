@@ -10,7 +10,7 @@ export default {
     const workerToReactive = ref(null);
     const showDeleteWindow = ref(false);
     const showReactive = ref(false);
-    
+
 
     const switchSDW = (document) => {
       showDeleteWindow.value = !showDeleteWindow.value;
@@ -89,33 +89,19 @@ export default {
     <h2>Lista de <br />colaboradores</h2>
     <ol class="workers-list">
       <li v-for="worker in workers" :key="worker.document">
-        <fieldset class="worker-li">
+        <fieldset class="worker-li" :class="{ active: worker.active, inactive: !worker.active }">
           <legend>{{ worker.wname }}</legend>
           <span>Rol: {{ worker.wrole }}</span>
           <span>Documento: {{ worker.document }}</span>
           <span>Estado: {{ worker.active }}</span>
           <!-- Si el trabajador está activo -->
-          <button
-            v-if="worker.active"
-            class="action-btn"
-            @click="switchSDW(worker.document)"
-          >
-            <ion-icon
-              name="close-circle"
-              title="Desactivar colaborador"
-            ></ion-icon>
+          <button v-if="worker.active" class="action-btn one" @click="switchSDW(worker.document)">
+            <ion-icon name="close-circle" title="Desactivar colaborador"></ion-icon>
           </button>
 
           <!-- Si el trabajador está inactivo -->
-          <button
-            v-if="!worker.active"
-            class="action-btn"
-            @click="switchSRW(worker.document)"
-          >
-            <ion-icon
-              name="lock-open"
-              title="Reactivar colaborador"
-            ></ion-icon>
+          <button v-if="!worker.active" class="action-btn two" @click="switchSRW(worker.document)">
+            <ion-icon name="lock-open" title="Reactivar colaborador"></ion-icon>
           </button>
         </fieldset>
       </li>
@@ -142,11 +128,7 @@ export default {
         </span>
       </div>
     </transition>
-    <router-link
-      to="/workers/new-worker"
-      class="add-btn"
-      title="Añadir colaboradores"
-    >
+    <router-link to="/workers/new-worker" class="add-btn" title="Añadir colaboradores">
       <ion-icon name="add-circle"></ion-icon>
     </router-link>
   </section>
@@ -191,13 +173,14 @@ export default {
   transition: all .3s ease;
 }
 
-button:hover{
+button:hover {
   scale: 1.1;
 }
 
 button.cancel-btn {
   background-color: var(--base);
 }
+
 .container h2,
 .window h3 {
   color: white;
@@ -226,6 +209,13 @@ button.cancel-btn {
   flex-wrap: wrap;
   justify-content: space-between;
 }
+.worker-li.active {
+  border-color: var(--successColor);
+}
+
+.worker-li.inactive {
+  border-color: var(--errorColor);
+}
 
 .worker-li legend {
   background-color: var(--secondThree);
@@ -242,20 +232,25 @@ button.cancel-btn {
 }
 
 .action-btn {
-    padding: 2px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.2s;
-    background-color: var(--base);
+  padding: 2px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+.action-btn.one{
+  background-color: var(--errorColor);
+}
+.action-btn.two{
+  background-color: var(--successColor);
 }
 
 .action-btn ion-icon {
-    color: white;
-    font-size: 1.5rem;
+  color: white;
+  font-size: 1.5rem;
 }
 
 .fade-enter-active,
@@ -267,6 +262,7 @@ button.cancel-btn {
 .fade-leave-to {
   opacity: 0;
 }
+
 .add-btn {
   position: absolute;
   left: 10px;
@@ -274,6 +270,7 @@ button.cancel-btn {
   color: white;
   font-size: 2rem;
 }
+
 @media (min-width: 1024px) {
   .container {
     width: 50%;
