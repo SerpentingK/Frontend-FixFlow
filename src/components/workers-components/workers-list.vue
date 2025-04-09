@@ -97,7 +97,7 @@ export default {
           <!-- Si el trabajador está activo -->
           <button
             v-if="worker.active"
-            class="delete-btn"
+            class="action-btn"
             @click="switchSDW(worker.document)"
           >
             <ion-icon
@@ -109,11 +109,11 @@ export default {
           <!-- Si el trabajador está inactivo -->
           <button
             v-if="!worker.active"
-            class="reactive-btn"
+            class="action-btn"
             @click="switchSRW(worker.document)"
           >
             <ion-icon
-              name="lock-open-outline"
+              name="lock-open"
               title="Reactivar colaborador"
             ></ion-icon>
           </button>
@@ -241,17 +241,21 @@ button.cancel-btn {
   font-size: 1rem;
 }
 
-.delete-btn {
-  all: unset;
-  color: var(--base);
-  scale: 1.5;
-  cursor: pointer;
+.action-btn {
+    padding: 2px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    background-color: var(--base);
 }
-.reactive-btn {
-  all: unset;
-  color: var(--base);
-  scale: 1.5;
-  cursor: pointer;
+
+.action-btn ion-icon {
+    color: white;
+    font-size: 1.5rem;
 }
 
 .fade-enter-active,

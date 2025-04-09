@@ -5,10 +5,26 @@ export default {
     setup() {
         const switchSLP = inject("switchSLP");
         const premisesCount = inject("premisesCount");
+        const workerRole = inject("workerRole")
+        const selectedPremise = inject("selectedPremise");
+
+        const editPremise = (id) => {
+            // lógica pendiente
+            console.log("Editar local", id);
+        };
+
+        const deactivatePremise = (id) => {
+            // lógica pendiente
+            console.log("Desactivar local", id);
+        };
 
         return {
             premisesCount,
-            switchSLP
+            switchSLP,
+            editPremise,
+            deactivatePremise,
+            workerRole,
+            selectedPremise
         };
     }
 };
@@ -16,18 +32,32 @@ export default {
 
 <template>
     <section class="container">
-        <h2>Locales Registrados</h2>
-        <ol class="locals-list">
+        <h2>Selecciona un local</h2>
+        <ol class="premises-list">
             <li v-for="i in premisesCount" :key="i">
-                <fieldset class="local-card" @click="switchSLP('Local 1')">
+                <fieldset class="premise-card" :class="{ selected: selectedPremise === `Local ${i}` }">
                     <legend>Local {{ i }}</legend>
                     <ion-icon name="storefront"></ion-icon>
                     <span>Dirección: Calle 12 #25-40</span>
+                    <div class="premise-btns">
+                        <button class="action-btn login" @click="switchSLP(`Local ${i}`)" title="Iniciar sesión"
+                            :class="{ selected: selectedPremise === `Local ${i}` }">
+                            <ion-icon name="log-in-outline"></ion-icon>
+                        </button>
+                        <button class="action-btn edit" @click="editPremise(i)" title="Editar local"
+                            v-if="workerRole === 'Gerente'">
+                            <ion-icon name="create-outline"></ion-icon>
+                        </button>
+                        <button class="action-btn deactivate" @click="deactivatePremise(i)" title="Desactivar local"
+                            v-if="workerRole === 'Gerente'">
+                            <ion-icon name="lock-closed-outline"></ion-icon>
+                        </button>
+                    </div>
                 </fieldset>
             </li>
         </ol>
     </section>
-    <router-link to="/premises/new-premise" class="new-local-btn">
+    <router-link to="/premises/new-premise" class="new-premise-btn">
         <ion-icon name="add-circle-outline"></ion-icon>
     </router-link>
 </template>
@@ -62,7 +92,7 @@ export default {
     margin-bottom: 15px;
 }
 
-.locals-list {
+.premises-list {
     list-style: none;
     padding: 0;
     display: flex;
@@ -71,20 +101,32 @@ export default {
     width: 90%;
 }
 
-.local-card {
+.premise-card {
     border: 2px solid var(--secondTwo);
     background-color: var(--secondThree);
     border-radius: 5px;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     padding: 15px;
-    cursor: pointer;
 }
 
-.local-card legend {
+.premise-card.selected {
+    background-color: var(--successColor);
+}
+
+.premise-card.selected span,
+.premise-card.selected ion-icon {
+    color: white;
+}
+
+.premise-card.selected legend {
+    background-color: var(--successColor);
+}
+
+.premise-card legend {
     background-color: var(--secondThree);
     border-radius: 5px;
     padding: 2px 8px;
@@ -94,42 +136,84 @@ export default {
     font-size: 1rem;
 }
 
-.local-card span {
+.premise-card span {
     color: var(--secondTwo);
     font-size: 1rem;
 }
 
-.local-card ion-icon {
+.premise-card ion-icon {
     font-size: 60px;
     color: var(--base);
 }
 
-.new-local-btn {
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  background-color: var(--base);
-  color: white;
-  padding: 10px 15px;
-  border-radius: 10px;
-  font-weight: bold;
-  text-transform: uppercase;
-  font-size: 0.9rem;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: var(--secShadow);
-  transition: transform 0.3s;
-  text-decoration: none;
+.new-premise-btn {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background-color: var(--base);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--secShadow);
+    transition: transform 0.3s;
+    text-decoration: none;
 }
 
-.new-local-btn:hover {
-  transform: scale(1.05);
+.new-premise-btn:hover {
+    transform: scale(1.05);
 }
 
-.new-local-btn ion-icon {
-  font-size: 1.2rem;
+.new-premise-btn ion-icon {
+    font-size: 1.2rem;
+}
+
+.premise-btns {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.action-btn {
+    padding: 2px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+}
+
+.action-btn ion-icon {
+    color: white;
+    font-size: 1.5rem;
+}
+
+.action-btn.login {
+    background-color: var(--successColor);
+}
+.login.selected{
+    display: none;
+}
+
+.action-btn.edit {
+    background-color: var(--warningColor);
+}
+
+.action-btn.deactivate {
+    background-color: var(--errorColor);
+}
+
+.action-btn:hover {
+    filter: brightness(1.1);
 }
 
 

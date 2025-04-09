@@ -32,7 +32,7 @@ import axios from 'axios';
 // Datos de la empresa y trabajador
 const loggedCompany = ref(null);          // Empresa logueada
 const loggedWorker = ref(null);           // Trabajador logueado
-const selectedPremise = ref(null);        // Local seleccionado 
+const selectedPremise = ref("Local 2");        // Local seleccionado 
 const premisesCount = ref(0);          // Numero de locales
 const loggedDocument = ref(null);         // Documento del trabajador
 const workersCount = ref(0);              // Cantidad de trabajadores

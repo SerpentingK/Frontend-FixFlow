@@ -1,5 +1,5 @@
 <script>
-import { inject, onMounted, provide, ref } from "vue";
+import { inject, onMounted, provide, ref, computed } from "vue";
 import router from "@/routers/routes";
 import axios from "axios";
 
@@ -11,7 +11,7 @@ export default {
     const workerRole = inject("workerRole");
     const showAlert = inject("showAlert");
     const switchWV = inject("switchWV");
-    const switchSWL = inject("switchSWL")
+    const switchSWL = inject("switchSWL");
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
@@ -43,12 +43,9 @@ export default {
     };
 
     const resetColor = (color) => {
-      document.documentElement.style.setProperty(
-        "--base",
-        color
-      );
+      document.documentElement.style.setProperty("--base", color);
       localStorage.setItem("baseOrange", color);
-      window.location.reload()
+      window.location.reload();
     };
 
     provide("resetColor", resetColor);
@@ -57,7 +54,6 @@ export default {
       getWorkersCount();
       getCompanyVault();
 
-      // Restaurar el color desde localStorage al cargar
       const storedColor = localStorage.getItem("baseOrange");
       if (storedColor) {
         document.documentElement.style.setProperty("--base", storedColor);
@@ -76,6 +72,10 @@ export default {
       }
     };
 
+    const companyPhone = computed(() => {
+      return loggedCompany.value?.phone || "No disponible";
+    });
+
     return {
       loggedCompany,
       workersCount,
@@ -85,23 +85,32 @@ export default {
       updateColor,
       workerRole,
       switchWV,
-      switchSWL
+      switchSWL,
+      companyPhone
     };
   },
 };
 </script>
 
 <template>
-  <section class="session-container">
+  <section class="session-cont">
     <div class="info-container">
       <h3 style="color: black">{{ loggedCompany }}</h3>
+
       <div class="info-cont">
         <div>Total en boveda:</div>
         <div>{{ totalInCash }}</div>
       </div>
+
       <div class="info-cont">
         <div>Número de trabajadores:</div>
         <div>{{ workersCount }}</div>
+      </div>
+
+      <div class="info-cont">
+        <div>Teléfono:</div>
+        <div>{{ companyPhone }}</div>
+        <button class="edit-phone-btn" @click="">Editar</button>
       </div>
     </div>
 
@@ -112,20 +121,36 @@ export default {
 
     <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
     <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
+
     <div class="withdraw-btns">
-      <ion-icon v-if="workerRole === 'Gerente' || workerRole === 'Administrador'" class="withdraw-btn"
-        name="cash-outline" @click="switchWV" title="Retirar dinero de la boveda"></ion-icon>
-      <ion-icon v-if="workerRole === 'Gerente' || workerRole === 'Administrador'" class="withdraw-list-btn"
-        name="file-tray-full" @click="switchSWL" title="Lista de retiros"></ion-icon>
+      <ion-icon
+        v-if="workerRole === 'Gerente' || workerRole === 'Administrador'"
+        class="withdraw-btn"
+        name="cash-outline"
+        @click="switchWV"
+        title="Retirar dinero de la boveda"
+      ></ion-icon>
+      <ion-icon
+        v-if="workerRole === 'Gerente' || workerRole === 'Administrador'"
+        class="withdraw-list-btn"
+        name="file-tray-full"
+        @click="switchSWL"
+        title="Lista de retiros"
+      ></ion-icon>
     </div>
   </section>
 </template>
 
 <style scoped>
-.session-container {
+
+</style>
+
+
+<style scoped>
+.session-cont {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 20px;
   align-items: center;
   position: fixed;
@@ -138,6 +163,10 @@ export default {
   background: #363636;
   box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
   border: 2px solid var(--base);
+  overflow-y: scroll;
+}
+.session-cont::-webkit-scrollbar{
+  display: none;
 }
 
 .info-container {
@@ -153,23 +182,6 @@ export default {
   box-shadow: inset -25px -25px 51px #a8a8a8, inset 25px 25px 51px #ffffff;
   display: flex;
   padding: 10px 0;
-}
-
-.info-container ion-icon {
-  font-size: 250px;
-  color: var(--base);
-  margin-top: 10px;
-}
-
-.company-img {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  /* Recorta la imagen para llenar el contenedor sin deformarse */
-  border-radius: 10px;
-  /* Opcional, para esquinas redondeadas */
-  display: block;
-  filter: drop-shadow(0 0 15px rgba(39, 39, 39, 0.877));
 }
 
 .info-container h3 {
@@ -260,10 +272,24 @@ export default {
 .withdraw-btn:hover {
   scale: 1.2;
 }
+.edit-phone-btn {
+  all: unset;
+  margin-left: 10px;
+  padding: 4px 8px;
+  background-color: var(--base);
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+.edit-phone-btn:hover {
+  background-color: var(--second);
+}
 
 /* Tablets: 768px y mayores */
 @media (min-width: 768px) {
-  .session-container {
+  .session-cont {
     gap: 30px;
     height: auto;
     max-height: 90%;
@@ -318,7 +344,7 @@ export default {
 
 /* Computadoras de escritorio: 1280px y mayores */
 @media (min-width: 1280px) {
-  .session-container {
+  .session-cont {
     width: 30%;
     height: 75%;
     gap: 40px;
