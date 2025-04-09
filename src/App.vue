@@ -425,7 +425,7 @@ provide("showAlert", showAlert);
 // GESTIÓN DE LOCALES
 // =============================================
 
-const showLoginPremise = ref(true)
+const showLoginPremise = ref(false)
 
 const switchSLP = (premiseName) => {
   if (showLoginPremise.value) {

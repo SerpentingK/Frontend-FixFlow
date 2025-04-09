@@ -238,9 +238,9 @@ export default {
   position: absolute;
   display: flex;
   gap: 10px;
-  flex-direction: column;
-  top: 0;
-  right: -50px;
+  flex-direction: row;
+  top: -50px;
+  right: 0;
 }
 
 .withdraw-btn, .withdraw-list-btn {
@@ -334,6 +334,11 @@ export default {
 
   .close-btn {
     scale: 0.9;
+  }
+  .withdraw-btns{
+    top: 0;
+    right: -50px;
+    flex-direction: column;
   }
 }
 </style>

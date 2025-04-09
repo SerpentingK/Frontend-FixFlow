@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 
 const props = defineProps({
   premiseName: {
@@ -30,47 +30,69 @@ const verifyKey = () => {
   }
   showAlert("1", "Ingreso al local exitoso.");
   switchSLP(null); // Cierra modal al acceder correctamente
-  selectedPremise.value = premiseName.value
+  selectedPremise.value = premiseName
 };
 
 const cancelAccess = () => {
   keyInput.value = '';
   switchSLP(null);
 };
+
+const overlayAlpha = ref(0);
+
+onMounted(() => {
+  setTimeout(() => {
+    overlayAlpha.value = 0.5;
+  }, 100); // Pequeño retraso antes de iniciar la animación
+});
 </script>
 
 <template>
-  <section class="withdraw-container">
-    <h2>Acceso a {{ premiseName }}</h2>
+  <div class="overlay" :style="{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }">
+    <section class="login-premise-cont">
+      <h2>Acceso a {{ premiseName }}</h2>
 
-    <form @submit.prevent="verifyKey">
-      <label class="input-container">
-        <span class="info-label">Ingrese clave:</span>
-        <input
-          type="password"
-          placeholder="Clave secreta"
-          required
-          v-model="keyInput"
-        />
-      </label>
+      <form @submit.prevent="verifyKey">
+        <label class="input-container">
+          <span class="info-label">Ingrese clave:</span>
+          <input type="password" placeholder="Clave local" required v-model="keyInput" />
+        </label>
 
-      <div class="btn-group">
-        <button class="state-btn cancel" type="button" @click="cancelAccess">Cancelar</button>
-        <button class="state-btn" type="submit">Acceder</button>
-      </div>
-    </form>
-  </section>
+        <div class="btn-group">
+          <button class="state-btn cancel" type="button" @click="cancelAccess">Cancelar</button>
+          <button class="state-btn" type="submit">Acceder</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
 </template>
 
 <style scoped>
-.withdraw-container {
+.overlay {
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0);
+  /* Empieza completamente transparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  transition: background-color .5s ease-in-out;
+}
+
+.login-premise-cont {
   z-index: 10;
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: var(--second);
-  width: 90%;
+  width: 60%;
   border-radius: 10px;
   border: 4px solid var(--base);
   box-shadow: var(--baseShadow);
@@ -82,7 +104,7 @@ const cancelAccess = () => {
   gap: 10px;
 }
 
-.withdraw-container h2 {
+.login-premise-cont h2 {
   color: white;
   letter-spacing: 3px;
   text-shadow: 0 0 10px black;
@@ -116,6 +138,9 @@ form {
   gap: 10px;
   width: 100%;
   justify-content: center;
+  flex-direction: column-reverse;
+  align-items: center;
+
 }
 
 .state-btn {
@@ -161,14 +186,19 @@ form {
 }
 
 @media (min-width: 768px) {
-  .withdraw-container {
+  .login-premise-cont {
     font-size: 1.3rem;
   }
 }
+
 @media (min-width: 1024px) {
-  .withdraw-container {
+  .login-premise-cont {
     font-size: 1rem;
-    width: 40%;
+    width: 30%;
+  }
+
+  .btn-group {
+    flex-direction: row;
   }
 }
 </style>

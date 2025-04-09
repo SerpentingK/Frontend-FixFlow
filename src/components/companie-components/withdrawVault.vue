@@ -29,23 +29,48 @@ const postWithdrawal = async () => {
         }
     }
 };
+const overlayAlpha = ref(0);
+
+onMounted(() => {
+  setTimeout(() => {
+    overlayAlpha.value = 0.5;
+  }, 100); // Pequeño retraso antes de iniciar la animación
+});
 </script>
 
 <template>
-    <section class="withdraw-container">
-        <ion-icon name="close-circle-outline" class="close-btn" @click="switchWV"></ion-icon>
-        <h2>Registrar Retiro</h2>
-        <form @submit.prevent="postWithdrawal">
-            <label class="input-container" to="amount">
-                <span class="info-label">Cantidad a retirar:</span>
-                <input type="number" placeholder="Ingrese monto" required v-model="quantity" id="amount"/>
-            </label>
-            <button class="state-btn">Confirmar</button>
-        </form>
-    </section>
+    <div class="overlay" :style="{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }">
+        <section class="withdraw-container">
+            <ion-icon name="close-circle-outline" class="close-btn" @click="switchWV"></ion-icon>
+            <h2>Registrar Retiro</h2>
+            <form @submit.prevent="postWithdrawal">
+                <label class="input-container" to="amount">
+                    <span class="info-label">Cantidad a retirar:</span>
+                    <input type="number" placeholder="Ingrese monto" required v-model="quantity" id="amount" />
+                </label>
+                <button class="state-btn">Confirmar</button>
+            </form>
+        </section>
+    </div>
+
 </template>
 
 <style scoped>
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    /* Empieza completamente transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: background-color .5s ease-in-out;
+}
+
 .withdraw-container {
     z-index: 10;
     position: fixed;
@@ -53,7 +78,7 @@ const postWithdrawal = async () => {
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: var(--second);
-    width: 90%;
+    width: 80%;
     border-radius: 10px;
     border: 4px solid var(--base);
     box-shadow: var(--baseShadow);
@@ -70,14 +95,17 @@ const postWithdrawal = async () => {
     letter-spacing: 3px;
     text-shadow: 0 0 10px black;
 }
- .withdraw-container form{
+
+.withdraw-container form {
     gap: 10px;
     display: flex;
     width: 100%;
- }
+    flex-direction: column;
+    align-items: center;
+}
 
 .input-container {
-    width: 100%;
+    width: 90%;
     background-color: white;
     padding: 5px 10px;
     border-radius: 5px;
@@ -113,7 +141,8 @@ const postWithdrawal = async () => {
     color: white;
     box-shadow: var(--secShadow);
 }
-.state-btn:hover{
+
+.state-btn:hover {
     scale: 1.05;
 }
 
@@ -138,7 +167,7 @@ const postWithdrawal = async () => {
     scale: 1.1;
 }
 
-.close-btn *{
+.close-btn * {
     position: absolute;
 }
 
@@ -147,6 +176,7 @@ const postWithdrawal = async () => {
         font-size: 1.3rem;
     }
 }
+
 @media (min-width: 1024px) {
     .withdraw-container {
         font-size: 1rem;

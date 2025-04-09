@@ -51,11 +51,18 @@ watch(search, searchWithdrawals);
 
 // Cargar todos los retiros al montar el componente
 onMounted(loadAllWithdrawals);
+const overlayAlpha = ref(0);
+
+onMounted(() => {
+    setTimeout(() => {
+        overlayAlpha.value = 0.5;
+    }, 100); // Pequeño retraso antes de iniciar la animación
+});
 </script>
 
 <template>
-    <!-- Overlay de fondo que cubre toda la pantalla -->
-    <div class="fullscreen-overlay" @click.self="switchSWL">
+    <div class="fullscreen-overlay" @click.self="switchSWL"
+        :style="{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }">
         <section class="container">
             <div v-if="isLoading" class="overlay">
                 <div class="spinner"></div>
@@ -63,7 +70,8 @@ onMounted(loadAllWithdrawals);
             <h2>LISTA DE RETIROS</h2>
             <ion-icon name="close-circle-outline" class="close-btn" @click="switchSWL"></ion-icon>
             <form @submit.prevent="searchWithdrawals" class="search-form">
-                <input type="text" placeholder="Buscar por nombre de trabajador" v-model="search" />
+                <span>Buscar Por Fecha</span>
+                <input type="date" v-model="search" />
             </form>
             <ol class="withdraw-list">
                 <transition-group name="fade">
@@ -81,19 +89,19 @@ onMounted(loadAllWithdrawals);
 </template>
 
 <style scoped>
-/* Overlay de fondo que cubre toda la pantalla */
 .fullscreen-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.7);
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    /* Empieza completamente transparente */
     display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 9999; /* Asegura que esté por encima de todo */
-    backdrop-filter: blur(2px); /* Efecto de desenfoque */
+    align-items: center;
+    z-index: 1000;
+    transition: background-color .5s ease-in-out;
 }
 
 .container {
@@ -108,7 +116,8 @@ onMounted(loadAllWithdrawals);
     align-items: center;
     max-height: 70%;
     transition: all .4s ease;
-    z-index: 10000; /* Por encima del overlay */
+    z-index: 10000;
+    /* Por encima del overlay */
 }
 
 .container h2 {
@@ -121,6 +130,8 @@ onMounted(loadAllWithdrawals);
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
+    color: white;
     gap: 10px;
     width: 100%;
 }
@@ -224,7 +235,7 @@ onMounted(loadAllWithdrawals);
     scale: 1.1;
 }
 
-.close-btn *{
+.close-btn * {
     position: absolute;
 }
 

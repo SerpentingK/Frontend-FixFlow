@@ -3,72 +3,77 @@ import { inject, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
-export default{
-    setup(){
-    const showAlert = inject("showAlert");
-    const loggedWorker = inject("loggedWorker", ref(null))
-    const loggedDocument = inject("loggedDocument", ref(null))
-    const workerRole = inject("workerRole", ref(null))
-    const loggedCompany = inject("loggedCompany", ref(null));
-    const startShift = inject("startShift", ref(null));
-    const sessionworker = ref({
-        document: "",
-        password: "",
-    });
-    const msg = ref("");
+export default {
+    setup() {
+        const showAlert = inject("showAlert");
+        const loggedWorker = inject("loggedWorker", ref(null))
+        const loggedDocument = inject("loggedDocument", ref(null))
+        const workerRole = inject("workerRole", ref(null))
+        const loggedCompany = inject("loggedCompany", ref(null));
+        const startShift = inject("startShift", ref(null));
+        const selectedPremise = inject("selectedPremise", ref(null))
+        const sessionworker = ref({
+            document: "",
+            password: "",
+        });
+        const msg = ref("");
 
-    const router = useRouter()
+        const router = useRouter()
 
-    const loginWorker = async () => {
-        try {
-            console.log("loggedCompany:", loggedCompany.value);
-            const answer = await axios.post(`/api/loginWorker/${loggedCompany.value}`, {
-            document: sessionworker.value.document,
-            password: sessionworker.value.password,
-            });
-            loggedDocument.value = answer.data.id;
-            localStorage.setItem("loggedDocument", JSON.stringify(answer.data.id));
-            msg.value = answer.data.status;
-            loggedWorker.value = answer.data.wname;
-            localStorage.setItem("loggedWorker", JSON.stringify(answer.data.wname));
-            workerRole.value = answer.data.role;
-            localStorage.setItem("workerRole", JSON.stringify(answer.data.role));
-            startShift.value = answer.data.shift
-            localStorage.setItem("startShift", JSON.stringify(answer.data.shift));
-            router.push('/bills')
-        } catch (error) {
-            if (error.response && error.response.data) {
-            showAlert("2", `Error al iniciar sesión: ${error.response.data.detail}`);
-            console.error("Error al iniciar sesión", error.response.data);
-            } else {
-            showAlert("2","Ha ocurrido un error inesperado. Inténtalo de nuevo.");
-            console.error(error);
+        const loginWorker = async () => {
+            try {
+                if (selectedPremise.value) {
+                    const answer = await axios.post(`/api/loginWorker/${loggedCompany.value}`, {
+                        document: sessionworker.value.document,
+                        password: sessionworker.value.password,
+                    });
+                    loggedDocument.value = answer.data.id;
+                    localStorage.setItem("loggedDocument", JSON.stringify(answer.data.id));
+                    msg.value = answer.data.status;
+                    loggedWorker.value = answer.data.wname;
+                    localStorage.setItem("loggedWorker", JSON.stringify(answer.data.wname));
+                    workerRole.value = answer.data.role;
+                    localStorage.setItem("workerRole", JSON.stringify(answer.data.role));
+                    startShift.value = answer.data.shift
+                    localStorage.setItem("startShift", JSON.stringify(answer.data.shift));
+                    router.push('/bills')
+                } else {
+                    showAlert("2", "Necesitas iniciar en un local para empezar un turno")
+                }
+
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    showAlert("2", `Error al iniciar sesión: ${error.response.data.detail}`);
+                    console.error("Error al iniciar sesión", error.response.data);
+                } else {
+                    showAlert("2", "Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+                    console.error(error);
+                }
             }
         }
-    }
-    onMounted(() => {
-    const storedDocument = localStorage.getItem("loggedDocument");
-    const storedWorker = localStorage.getItem("loggedWorker");
-    const storedRole = localStorage.getItem("workerRole");
-    const storedShift = localStorage.getItem("startShift");
+        onMounted(() => {
+            const storedDocument = localStorage.getItem("loggedDocument");
+            const storedWorker = localStorage.getItem("loggedWorker");
+            const storedRole = localStorage.getItem("workerRole");
+            const storedShift = localStorage.getItem("startShift");
 
-    if (storedDocument && storedWorker && storedRole && storedShift) {
-        loggedDocument.value = JSON.parse(storedDocument);
-        loggedWorker.value = JSON.parse(storedWorker);
-        workerRole.value = JSON.parse(storedRole);
-        startShift.value = JSON.parse(storedShift);
+            if (storedDocument && storedWorker && storedRole && storedShift) {
+                loggedDocument.value = JSON.parse(storedDocument);
+                loggedWorker.value = JSON.parse(storedWorker);
+                workerRole.value = JSON.parse(storedRole);
+                startShift.value = JSON.parse(storedShift);
 
-        // 🔄 Forzar actualización de Vue
-        setTimeout(() => {
-        router.push("/workers/worker-profile");
-        }, 100);
-    }
-    });
+                // 🔄 Forzar actualización de Vue
+                setTimeout(() => {
+                    router.push("/workers/worker-profile");
+                }, 100);
+            }
+        });
 
-    return{
-        loginWorker,
-        sessionworker
-    }
+        return {
+            loginWorker,
+            sessionworker
+        }
     }
 }
 
@@ -211,11 +216,13 @@ export default{
         gap: 15px;
         width: 60%;
     }
-    .go-btn:hover{
+
+    .go-btn:hover {
         background-color: var(--second);
         color: white;
     }
 }
+
 @media (min-width: 1280px) {
     .login-container {
         width: 30%;
