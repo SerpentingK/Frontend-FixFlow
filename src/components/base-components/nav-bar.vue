@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router';
 const loggedCompany = inject("loggedCompany", ref(null));
 const loggedWorker = inject("loggedWorker", ref(null));
 const workerRole = inject('workerRole', ref(null))
+const selectedPremise = inject('selectedPremise', ref(null))
 
 const showNavBar = ref(false);
 const switch_navBar = () => {
@@ -37,6 +38,7 @@ onBeforeUnmount(() => {
       <h1>FIX-FLOW</h1>
     </div>
     <router-link to="/companySession" class="nav-router" :class="{ active: isActive('/companySession') }">Compañia</router-link>
+    <router-link v-if="loggedCompany" to="/premises" class="nav-router" :class="{ active: isActive('/premises') }">Locales</router-link>
     <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
     <router-link v-if="loggedWorker" to="/bills" class="nav-router" :class="{ active: isActive('/bills') }">Facturación</router-link>
     <router-link v-if="workerRole == 'Gerente' || workerRole == 'Administrador'" to="/shifts" class="nav-router" :class="{ active: isActive('/shifts') }">Turnos</router-link>
@@ -44,6 +46,8 @@ onBeforeUnmount(() => {
       <span style="text-transform: uppercase;">{{ loggedCompany }}</span>
       <span style="text-transform: capitalize;">{{ loggedWorker }}</span>
       <span style="text-transform: capitalize;">{{ workerRole }}</span>
+      <span style="text-transform: capitalize;">{{ selectedPremise }}</span>
+
     </div>
   </nav>
   <button class="nav-btn" @click.stop="switch_navBar" title="Menu">

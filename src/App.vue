@@ -18,6 +18,7 @@ import mailPaswRestore from './components/companie-components/mailPaswRestore.vu
 import mailTokenRestore from './components/companie-components/mailTokenRestore.vue';
 import Particles from './components/Particles.vue';
 import withdrawList from './components/companie-components/withdrawList.vue';
+import loginPremise from './components/premises-components/login-premise.vue';
 
 // Importación de funciones de Vue y otras dependencias
 import { provide, ref, watch, onMounted } from 'vue';
@@ -31,6 +32,8 @@ import axios from 'axios';
 // Datos de la empresa y trabajador
 const loggedCompany = ref(null);          // Empresa logueada
 const loggedWorker = ref(null);           // Trabajador logueado
+const selectedPremise = ref(null);        // Local seleccionado 
+const premisesCount = ref(0);          // Numero de locales
 const loggedDocument = ref(null);         // Documento del trabajador
 const workersCount = ref(0);              // Cantidad de trabajadores
 const workerRole = ref(null);             // Rol del trabajador
@@ -76,6 +79,8 @@ provide('workerRole', workerRole);
 provide('phonesRepaired', phonesRepaired);
 provide('phonesReceived', phonesReceived);
 provide('phonesDelivered', phonesDelivered);
+provide('selectedPremise', selectedPremise);
+provide('premisesCount', premisesCount);
 
 // Datos de la factura
 const billData = ref({
@@ -144,7 +149,7 @@ provide("switchCCS", switchCCS);
 
 const showWithdrawList = ref(false);
 const switchSWL = () => {
-  showWithdrawList.value =!showWithdrawList.value;
+  showWithdrawList.value = !showWithdrawList.value;
 };
 provide("switchSWL", switchSWL);
 
@@ -366,7 +371,10 @@ const handlePath = () => {
     router.push('/loginCompany');
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
     router.push('/companyShift');
-  } else if (route.path.startsWith('/workers') && workersCount.value < 1) {
+  } else if (route.path.startsWith('/premises') && premisesCount.value === 0) {
+    router.push('/premises/new-premise');
+  }
+  else if (route.path.startsWith('/workers') && workersCount.value < 1) {
     router.push('/workers/new-worker');
   } else if (route.path.startsWith('/workers') && loggedWorker.value === null && workersCount > 0) {
     router.push('/workers/login-worker');
@@ -412,6 +420,24 @@ const showAlert = (type, message) => {
   }
 };
 provide("showAlert", showAlert);
+
+// =============================================
+// GESTIÓN DE LOCALES
+// =============================================
+
+const showLoginPremise = ref(true)
+
+const switchSLP = (premiseName) => {
+  if (showLoginPremise.value) {
+    showLoginPremise.value = false;
+    selectedPremise.value = null
+  } else {
+    selectedPremise.value = premiseName
+    showLoginPremise.value = true
+  }
+}
+
+provide("switchSLP", switchSLP)
 
 // =============================================
 // SUSCRIPCIÓN Y OTRAS FUNCIONALIDADES
@@ -530,6 +556,9 @@ watch(
     </transition>
     <transition name="opacity-in" mode="out-in">
       <withdrawList v-if="showWithdrawList"></withdrawList>
+    </transition>
+    <transition name="opacity-in" mode="out-in">
+      <loginPremise v-if="showLoginPremise" :premise-name="selectedPremise"></loginPremise>
     </transition>
 
 
