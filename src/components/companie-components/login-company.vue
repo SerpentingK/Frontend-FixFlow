@@ -120,18 +120,18 @@ export default {
 
 <template>
   <transition name="slide-fade">
-    <section v-if="isLogin" key="login" class="login-container">
+    <section v-if="isLogin" key="login" class="login-cont">
       <form class="form" @submit.prevent="loginCompany()">
         <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0">
           <span style="color: var(--secondTwo)">FIX</span><span style="color: white">-</span><span
             style="color: var(--base)">FLOW</span>
         </h1>
         <h2>Inicio de Sesión</h2>
-        <label for="company-input" class="input-container">
+        <label for="company-input" class="input-cont">
           <ion-icon name="cube"></ion-icon>
           <input type="text" id="company-input" class="text-input" placeholder="Correo" v-model="sesion.identifier" />
         </label>
-        <label for="pasw-input" class="input-container">
+        <label for="pasw-input" class="input-cont">
           <ion-icon name="lock-closed"></ion-icon>
           <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
             v-model="sesion.password" />
@@ -149,24 +149,32 @@ export default {
       </form>
     </section>
 
-    <section v-else key="signup" class="signup-container">
+    <section v-else key="signup" class="signup-cont">
       <form class="form" @submit.prevent="signupCompany">
+        <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0">
+          <span style="color: var(--secondTwo)">FIX</span><span style="color: white">-</span><span
+            style="color: var(--base)">FLOW</span>
+        </h1>
         <h2>Registro</h2>
-        <label for="email-input" class="input-container">
+        <label for="email-input" class="input-cont">
           <ion-icon name="mail"></ion-icon>
           <input type="mail" id="email-input" class="text-input" placeholder="Correo" v-model="company.mail" />
         </label>
-        <label for="company-input" class="input-container">
+        <label for="company-input" class="input-cont">
           <ion-icon name="cube"></ion-icon>
           <input type="text" id="company-input" class="text-input" placeholder="Nombre Compañía"
             v-model="company.company_user" />
         </label>
-        <label for="pasw-input" class="input-container">
+        <label for="company-input" class="input-cont">
+          <ion-icon name="cube"></ion-icon>
+          <input type="number" id="tel-input" class="text-input" placeholder="Numero de Telefono"/>
+        </label>
+        <label for="pasw-input" class="input-cont">
           <ion-icon name="lock-closed"></ion-icon>
           <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
             v-model="company.password" />
         </label>
-        <label for="confirm-pasw-input" class="input-container">
+        <label for="confirm-pasw-input" class="input-cont">
           <ion-icon name="lock-closed"></ion-icon>
           <input type="password" id="confirm-pasw-input" class="text-input" v-model="confirmPassword"
             placeholder="Confirmar Contraseña" />
@@ -186,14 +194,14 @@ export default {
 </template>
 
 <style scoped>
-.login-container,
-.signup-container {
-  position: fixed;
+.login-cont,
+.signup-cont {
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   padding: 20px 10px;
-  width: 75%;
+  width: 80%;
   border-radius: 10px;
   background: var(--second);
   box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
@@ -202,12 +210,13 @@ export default {
   scrollbar-width: none;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
 }
 
 /* Transición personalizada */
 .slide-fade-enter-active {
   transition: transform 1s ease, opacity 2s ease;
-}
+} 
 
 .slide-fade-leave-active {
   transition: transform 0.8s ease, opacity 2s ease;
@@ -226,7 +235,7 @@ export default {
 .form {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   gap: 20px;
   width: 100%;
@@ -241,7 +250,7 @@ export default {
   text-transform: uppercase;
 }
 
-.input-container {
+.input-cont {
   padding: 10px;
   border-radius: 10px;
   background: #ffffff;
@@ -298,7 +307,7 @@ export default {
     letter-spacing: 3px;
   }
 
-  .input-container {
+  .input-cont {
     font-size: 25px;
   }
 
@@ -314,9 +323,9 @@ export default {
 /* Portátiles: 1024px y mayores */
 @media (min-width: 1024px) {
 
-  .login-container,
-  .signup-container {
-    width: 30%;
+  .login-cont,
+  .signup-cont {
+    width: 80%;
   }
 
   .form {
@@ -327,7 +336,7 @@ export default {
     font-size: 25px;
   }
 
-  .input-container {
+  .input-cont {
     font-size: 20px;
     padding-left: 20px;
   }
@@ -344,13 +353,13 @@ export default {
 /* Computadoras de escritorio: 1280px y mayores */
 @media (min-width: 1280px) {
 
-  .login-container,
-  .signup-container {
+  .login-cont,
+  .signup-cont {
     width: 28%;
     height: 65%;
   }
 
-  .input-container {
+  .input-cont {
     font-size: 18px;
     width: 60%;
   }
