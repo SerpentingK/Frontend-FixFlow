@@ -93,7 +93,6 @@ export default {
           <legend>{{ worker.wname }}</legend>
           <span>Rol: {{ worker.wrole }}</span>
           <span>Documento: {{ worker.document }}</span>
-          <span>Estado: {{ worker.active }}</span>
           <!-- Si el trabajador está activo -->
           <button v-if="worker.active" class="action-btn one" @click="switchSDW(worker.document)">
             <ion-icon name="close-circle" title="Desactivar colaborador"></ion-icon>

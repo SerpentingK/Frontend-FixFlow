@@ -21,6 +21,15 @@ const loggedCompany = inject("loggedCompany");
 const total_user = inject('total_user', ref(0));
 const loggedDocument = ref(null)
 
+// Función para formatear valores como moneda
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2
+  }).format(value || 0);
+};
+
 // Modifica totalMoney para que sea solo de lectura
 const totalMoney = computed(() => {
     return Math.max(total_user.value, total_cash.value);
@@ -37,7 +46,6 @@ const adjustedTotalSales = computed(() => {
 });
 
 const router = useRouter()
-
 const showAlert = inject("showAlert")
 
 const putShift = async () => {
@@ -46,7 +54,7 @@ const putShift = async () => {
             `/api/closeshift/${startShift.value}/${loggedCompany.value}`, 
             {
                 total_gain: total_revenue.value,
-                total_received: adjustedTotalSales.value, // Usa el valor ya ajustado
+                total_received: adjustedTotalSales.value,
                 total_outs: total_outs.value,
                 vault: totalMoney.value,
             }
@@ -83,8 +91,6 @@ const putShift = async () => {
     }
 };
 
-
-
 onMounted(() => {
     total_sales.value = JSON.parse(localStorage.getItem("total_sales")) || 0;
     total_revenue.value = JSON.parse(localStorage.getItem("total_revenue")) || 0;
@@ -93,57 +99,57 @@ onMounted(() => {
     total_cash.value = JSON.parse(localStorage.getItem("total_cash")) || 0;
     totalInvestment.value = JSON.parse(localStorage.getItem("totalInvestment")) || 0;
 });
-
 </script>
 
 <template>
     <section class="c-container">
-        <h3>CERRAR TURNPO</h3>
+        <h3>CERRAR TURNO</h3>
         <div class="info-cont">
-            <span>Cantidad Reportada en Fisico: </span>
-            <span>{{ total_user }}</span>
+            <span>Cantidad Reportada en Físico: </span>
+            <span>{{ formatCurrency(total_user) }}</span>
         </div>
         <div class="info-cont">
-            <span>Cantidad Real en Fisico: </span>
-            <span>{{ total_cash }}</span>
+            <span>Cantidad Real en Físico: </span>
+            <span>{{ formatCurrency(total_cash) }}</span>
         </div>
         <div class="info-cont">
-            <span>Cantidad a Entregar en Fisico: </span>
-            <span>{{ totalMoney }}</span>
+            <span>Cantidad a Entregar en Físico: </span>
+            <span>{{ formatCurrency(totalMoney) }}</span>
         </div>
         <div class="info-cont">
-            <span>Cantidad En Plataforma: </span>
-            <span>{{ total_platform }}</span>
+            <span>Cantidad en Plataforma: </span>
+            <span>{{ formatCurrency(total_platform) }}</span>
         </div>
         <div class="info-cont">
             <span>Cantidad Total: </span>
-            <span>{{ adjustedTotalSales }}</span>
-            <span v-if="calculatedExcess > 0" style="color: orange;">
-            (Incluye {{ calculatedExcess }} de ajuste)
-    </span>
+            <span>{{ formatCurrency(adjustedTotalSales) }}</span>
+            <span v-if="calculatedExcess > 0" class="excess-amount">
+                (Incluye {{ formatCurrency(calculatedExcess) }} de ajuste)
+            </span>
         </div>
         <div class="info-cont">
-            <span>Inversion: </span>
-            <span>{{ totalInvestment }}</span>
+            <span>Inversión: </span>
+            <span>{{ formatCurrency(totalInvestment) }}</span>
         </div>
         <div class="info-cont">
             <span>Ganancia: </span>
-            <span>{{ total_revenue }}</span>
+            <span>{{ formatCurrency(total_revenue) }}</span>
         </div>
         
         <div class="btns">
             <button @click="switchCCS()">Cancelar</button>
-            <button @click="putShift() " class="confirm-btn">Confirmar</button>
+            <button @click="putShift()" class="confirm-btn">Confirmar</button>
         </div>
     </section>
 </template>
+
 <style scoped>
 .c-container {
     position: fixed;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    padding: 5px 20px;
+    padding: 20px;
     width: 80%;
     border-radius: 10px;
     background: var(--second);
@@ -153,11 +159,12 @@ onMounted(() => {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-height: 70%;
-    overflow-y: scroll;
+    max-height: 80vh;
+    overflow-y: auto;
     scrollbar-width: none;
     transition: all .4s ease;
     z-index: 10;
+    gap: 15px;
 }
 
 h3 {
@@ -166,43 +173,87 @@ h3 {
     font-size: 1.3rem;
     text-align: center;
     letter-spacing: 2px;
+    margin-bottom: 10px;
 }
-.info-cont{
+
+.info-cont {
     width: 90%;
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
+    align-items: center;
     color: white;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-.btns{
-    display:flex;
+
+.info-cont span:last-child {
+    font-weight: bold;
+    color: var(--base);
+}
+
+.excess-amount {
+    color: orange;
+    font-size: 0.9rem;
+    margin-left: 5px;
+}
+
+.btns {
+    display: flex;
     gap: 20px;
-    margin: 0 0 20px 0;
+    margin: 15px 0 10px;
+    width: 90%;
 }
-.btns button{
+
+.btns button {
+    flex: 1;
     border: 2px solid var(--base);
     background-color: transparent;
-    padding: 5px 10px;
+    padding: 10px;
     color: white;
     text-transform: uppercase;
-    font-weight: bolder;
+    font-weight: bold;
     letter-spacing: 1.5px;
     border-radius: 5px;
-    transition: .3s;
+    transition: all 0.3s;
 }
-.btns button:active{
-    scale: .9;
+
+.btns button:hover {
+    transform: translateY(-2px);
 }
-button.confirm-btn{
+
+.btns button:active {
+    transform: translateY(0);
+    scale: 0.98;
+}
+
+button.confirm-btn {
     background-color: var(--base);
 }
-@media (min-width: 1024px) {
-    .c-container{
-        width: 35%;
+
+@media (min-width: 768px) {
+    .c-container {
+        width: 60%;
+        max-width: 500px;
     }
     
-    button:hover{
-        scale: 1.1;
+    .info-cont {
+        font-size: 1.1rem;
+    }
+    
+    h3 {
+        font-size: 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .c-container {
+        width: 40%;
+        max-width: 450px;
+        padding: 25px;
+    }
+    
+    .btns button {
+        padding: 12px;
     }
 }
 </style>

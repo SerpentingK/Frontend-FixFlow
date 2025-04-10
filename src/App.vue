@@ -17,7 +17,7 @@ import withdrawVault from './components/companie-components/withdrawVault.vue';
 import mailPaswRestore from './components/companie-components/mailPaswRestore.vue';
 import mailTokenRestore from './components/companie-components/mailTokenRestore.vue';
 import Particles from './components/Particles.vue';
-import withdrawList from './components/companie-components/withdrawList.vue';
+import withdrawList from './components/companie-components/withdrawInfo.vue';
 import loginPremise from './components/premises-components/login-premise.vue';
 
 // Importación de funciones de Vue y otras dependencias
@@ -147,11 +147,11 @@ provide("switchCCS", switchCCS);
 
 //Control de vista de lista de retiros
 
-const showWithdrawList = ref(false);
-const switchSWL = () => {
-  showWithdrawList.value = !showWithdrawList.value;
+const showVaultInfo = ref(false);
+const switchSVI = () => {
+  showVaultInfo.value = !showVaultInfo.value;
 };
-provide("switchSWL", switchSWL);
+provide("switchSVI", switchSVI);
 
 // =============================================
 // GESTIÓN DE REPARACIONES
@@ -555,7 +555,7 @@ watch(
       <mailTokenRestore v-if="showMailTokenRestore"></mailTokenRestore>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <withdrawList v-if="showWithdrawList"></withdrawList>
+      <withdrawList v-if="showVaultInfo"></withdrawList>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <loginPremise v-if="showLoginPremise" :premise-name="selectedPremise"></loginPremise>

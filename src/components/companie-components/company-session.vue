@@ -10,8 +10,6 @@ export default {
     const loggedWorker = inject("loggedWorker", ref(null));
     const workerRole = inject("workerRole");
     const showAlert = inject("showAlert");
-    const switchWV = inject("switchWV");
-    const switchSWL = inject("switchSWL");
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
@@ -84,8 +82,6 @@ export default {
       selectedColor,
       updateColor,
       workerRole,
-      switchWV,
-      switchSWL,
       companyPhone
     };
   },
@@ -122,22 +118,7 @@ export default {
     <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
     <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
 
-    <div class="withdraw-btns">
-      <ion-icon
-        v-if="workerRole === 'Gerente' || workerRole === 'Administrador'"
-        class="withdraw-btn"
-        name="cash-outline"
-        @click="switchWV"
-        title="Retirar dinero de la boveda"
-      ></ion-icon>
-      <ion-icon
-        v-if="workerRole === 'Gerente' || workerRole === 'Administrador'"
-        class="withdraw-list-btn"
-        name="file-tray-full"
-        @click="switchSWL"
-        title="Lista de retiros"
-      ></ion-icon>
-    </div>
+    
   </section>
 </template>
 

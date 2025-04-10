@@ -1,21 +1,25 @@
 <script setup>
 import axios from 'axios';
-import { inject, ref,onMounted } from 'vue';
-
+import { inject, ref, onMounted } from 'vue';
 
 const phonesRepaired = inject('phonesRepaired');
 const phonesReceived = inject('phonesReceived');
 const phonesDelivered = inject('phonesDelivered');
-
-const switchCS = inject("switchCS")
-
-
+const switchCS = inject("switchCS");
 const loggedWorker = inject("loggedWorker", ref(null));
 const startShift = inject("startShift", ref(null));
-const switchCCS = inject("switchCCS")
-const start_time = ref("")
+const switchCCS = inject("switchCCS");
+const start_time = ref("");
 const total_user = inject('total_user');
 
+// Función para formatear valores como moneda
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2
+  }).format(value || 0);
+};
 
 onMounted(async () => {
     try {
@@ -46,9 +50,7 @@ onMounted(() => {
     if (storedReceived) phonesReceived.value = JSON.parse(storedReceived)
     if (storedRepaired) phonesRepaired.value = JSON.parse(storedRepaired)
 });
-
 </script>
-
 
 <template>
     <section class="container">
@@ -68,6 +70,7 @@ onMounted(() => {
         <div class="info-div inp-div">
             <span>Total Recibido Efectivo: </span>
             <input type="number" v-model="total_user" class="amount-inp" placeholder="">
+            <span v-if="total_user" class="currency-preview">{{ formatCurrency(total_user) }}</span>
         </div>
         <div class="info-div">
             <span>Celulares recibidos:</span>
@@ -75,11 +78,11 @@ onMounted(() => {
         </div>
         <div class="info-div">
             <span>Celulares reparados:</span>
-            <span>{{phonesRepaired}}</span>
+            <span>{{ phonesRepaired }}</span>
         </div>
         <div class="info-div">
             <span>Celulares entregados:</span>
-            <span>{{phonesDelivered}}</span>
+            <span>{{ phonesDelivered }}</span>
         </div>
         <div class="btns">
             <button @click="switchCS">Cancelar</button>
@@ -94,7 +97,7 @@ onMounted(() => {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    padding: 5px 20px;
+    padding: 15px 20px;
     width: 80%;
     border-radius: 10px;
     background: var(--second);
@@ -109,15 +112,16 @@ onMounted(() => {
     scrollbar-width: none;
     transition: all .4s ease;
     z-index: 2;
-    gap: 5px;
+    gap: 10px;
 }
-.container h2{
+.container h2 {
     color: white;
     letter-spacing: 2px;
     font-size: 1.3rem;
     text-align: center;
+    margin-bottom: 10px;
 }
-.info-div{
+.info-div {
     width: 90%;
     display: flex;
     align-items: center;
@@ -125,38 +129,78 @@ onMounted(() => {
     color: var(--secondTwo);
     flex-wrap: wrap;
     gap: 15px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-.btns{
-    margin: 10px 0;
+.inp-div {
+    flex-direction: column;
+    align-items: flex-start;
+}
+.btns {
+    margin: 15px 0 10px;
     width: 90%;
     display: flex;
     justify-content: space-around;
+    gap: 15px;
 }
-.btns button{
+.btns button {
+    flex: 1;
     background-color: transparent;
     border: 2px solid var(--base);
     border-radius: 5px;
-    padding: 5px 10px;
+    padding: 8px 10px;
     color: white;
     text-transform: uppercase;
     letter-spacing: 1px;
+    font-weight: bold;
+    transition: all 0.3s;
 }
-.btns button:active{
-    scale: .9;
+.btns button:hover {
+    transform: translateY(-2px);
 }
-button.confirm-btn{
+.btns button:active {
+    transform: translateY(0);
+    scale: .98;
+}
+button.confirm-btn {
     background-color: var(--base);
 }
-.amount-inp{
-    all: unset;
+.amount-inp {
+    width: 100%;
     background-color: white;
-    padding: 2px 10px;
+    padding: 8px 12px;
     border-radius: 5px;
+    color: black;
+    margin-top: 5px;
+}
+.currency-preview {
+    color: white;
+    font-weight: bold;
+    margin-top: 5px;
+    font-size: 1.1rem;
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 60%;
+        max-width: 500px;
+    }
+    .info-div {
+        font-size: 1.1rem;
+    }
+    .container h2 {
+        font-size: 1.5rem;
+    }
 }
 
 @media (min-width: 1024px) {
-    .container{
-        width: 30%;
+    .container {
+        width: 40%;
+        max-width: 450px;
+        padding: 20px;
+    }
+    .btns button {
+        padding: 10px;
     }
 }
 </style>

@@ -7,6 +7,7 @@ export default {
         const premisesCount = inject("premisesCount");
         const workerRole = inject("workerRole")
         const selectedPremise = inject("selectedPremise");
+        const switchSVI = inject("switchSVI");
 
         const editPremise = (id) => {
             // lógica pendiente
@@ -24,7 +25,8 @@ export default {
             editPremise,
             deactivatePremise,
             workerRole,
-            selectedPremise
+            selectedPremise,
+            switchSVI   
         };
     }
 };
@@ -52,6 +54,11 @@ export default {
                             v-if="workerRole === 'Gerente'">
                             <ion-icon name="lock-closed-outline"></ion-icon>
                         </button>
+                        <button class="action-btn vault" @click="switchSVI" title="Vaul"
+                            v-if="workerRole === 'Gerente'">
+                            <ion-icon name="cash-outline"></ion-icon>
+                        </button>
+                        
                     </div>
                 </fieldset>
             </li>
@@ -182,7 +189,7 @@ export default {
 }
 
 .action-btn {
-    padding: 2px;
+    padding: 3px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -210,6 +217,10 @@ export default {
 
 .action-btn.deactivate {
     background-color: var(--errorColor);
+}
+
+.action-btn.vault {
+    background-color: var(--base);
 }
 
 .action-btn:hover {
