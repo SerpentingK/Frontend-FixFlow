@@ -42,6 +42,10 @@ export default {
                     <ion-icon name="storefront"></ion-icon>
                     <span>Dirección: Calle 12 #25-40</span>
                     <div class="premise-btns">
+                        <button class="action-btn logout" @click="" title="Cerrar Sesion"
+                            :class="{ selected: selectedPremise === `Local ${i}` }">
+                            <ion-icon name="close"></ion-icon>
+                        </button>
                         <button class="action-btn login" @click="switchSLP(`Local ${i}`)" title="Iniciar sesión"
                             :class="{ selected: selectedPremise === `Local ${i}` }">
                             <ion-icon name="log-in-outline"></ion-icon>
@@ -213,6 +217,9 @@ export default {
 
 .action-btn.edit {
     background-color: var(--warningColor);
+}
+.action-btn.logout {
+    background-color: var(--errorColor);
 }
 
 .action-btn.deactivate {

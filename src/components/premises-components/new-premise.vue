@@ -2,12 +2,13 @@
 import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
+import { toInteger } from 'lodash';
 
 export default {
     setup() {
         const showAlert = inject("showAlert");
         const router = useRouter();
-        const premisesCount = inject("premisesCount");
+        const premisesCount = inject("premisesCount", ref(0));
 
         const local = ref({
             name: "",
@@ -22,6 +23,7 @@ export default {
                 return;
             }
             premisesCount.value += 1;
+            localStorage.setItem("premisesCount", premisesCount.value);
             router.push('/premises/select-premise')
         };
 

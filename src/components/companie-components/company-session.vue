@@ -14,6 +14,7 @@ export default {
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
     const getCompanyVault = inject("getCompanyVault");
+    const premiseCount = inject("premiseCount", ref(0));
 
     const getWorkersCount = async () => {
       try {

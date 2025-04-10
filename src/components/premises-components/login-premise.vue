@@ -28,8 +28,7 @@ const verifyKey = () => {
     showAlert?.("2", "Clave incorrecta para el local.");
     return;
   }
-  showAlert("1", "Ingreso al local exitoso.");
-  switchSLP(null); // Cierra modal al acceder correctamente
+  switchSLP(props.premiseName);
   selectedPremise.value = premiseName
 };
 

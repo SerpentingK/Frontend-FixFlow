@@ -32,7 +32,7 @@ import axios from 'axios';
 // Datos de la empresa y trabajador
 const loggedCompany = ref(null);          // Empresa logueada
 const loggedWorker = ref(null);           // Trabajador logueado
-const selectedPremise = ref("Local 2");        // Local seleccionado 
+const selectedPremise = ref(null);        // Local seleccionado 
 const premisesCount = ref(0);          // Numero de locales
 const loggedDocument = ref(null);         // Documento del trabajador
 const workersCount = ref(0);              // Cantidad de trabajadores
@@ -426,13 +426,18 @@ provide("showAlert", showAlert);
 // =============================================
 
 const showLoginPremise = ref(false)
+const toSelectPremise = ref(null)
 
 const switchSLP = (premiseName) => {
   if (showLoginPremise.value) {
     showLoginPremise.value = false;
-    selectedPremise.value = null
+    if(premiseName) {
+      selectedPremise.value = premiseName
+    } else {
+      selectedPremise.value = null
+    }
   } else {
-    selectedPremise.value = premiseName
+    toSelectPremise.value = premiseName
     showLoginPremise.value = true
   }
 }
@@ -494,6 +499,7 @@ watch(
     setTimeout(() => {
       switchSRS();
       handlePath();
+      premisesCount.value = parseInt(localStorage.getItem("premisesCount") || 0);
     }, 150);
   }
 );
@@ -558,7 +564,7 @@ watch(
       <withdrawList v-if="showVaultInfo"></withdrawList>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <loginPremise v-if="showLoginPremise" :premise-name="selectedPremise"></loginPremise>
+      <loginPremise v-if="showLoginPremise" :premise-name="toSelectPremise"></loginPremise>
     </transition>
 
 
