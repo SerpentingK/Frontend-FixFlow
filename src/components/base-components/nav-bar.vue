@@ -1,6 +1,7 @@
 <script setup>
 import { ref, inject, onMounted, onBeforeUnmount } from 'vue';
 import { useRoute } from 'vue-router';
+import HelpModal from './help-modal.vue';
 
 const loggedCompany = inject("loggedCompany", ref(null));
 const loggedWorker = inject("loggedWorker", ref(null));
@@ -8,8 +9,14 @@ const workerRole = inject('workerRole', ref(null))
 const selectedPremise = inject('selectedPremise', ref(null))
 
 const showNavBar = ref(false);
+const showHelpModal = ref(false);
+
 const switch_navBar = () => {
   showNavBar.value = !showNavBar.value;
+};
+
+const toggleHelpModal = () => {
+  showHelpModal.value = !showHelpModal.value;
 };
 
 const route = useRoute();
@@ -47,13 +54,17 @@ onBeforeUnmount(() => {
       <span style="text-transform: capitalize;">{{ loggedWorker }}</span>
       <span style="text-transform: capitalize;">{{ workerRole }}</span>
       <span style="text-transform: capitalize;">{{ selectedPremise }}</span>
-
     </div>
+    <button class="help-button" @click="toggleHelpModal">
+      <ion-icon name="help-circle"></ion-icon>
+      Ayuda
+    </button>
   </nav>
   <button class="nav-btn" @click.stop="switch_navBar" title="Menu">
     <ion-icon name="menu" v-if="!showNavBar"></ion-icon>
     <ion-icon name="close" v-if="showNavBar"></ion-icon>
   </button>
+  <HelpModal :is-open="showHelpModal" @close="toggleHelpModal" />
 </template>
 
 
@@ -67,12 +78,17 @@ onBeforeUnmount(() => {
   background-color: rgba(255, 255, 255, 0.295);
   padding: 10px 20px;
   height: auto;
+  max-height: 80vh;
   border-radius: 10px;
   top: 70px;
   left: 10px;
   transition: .3s;
   transform: translateX(-120%);
   backdrop-filter: blur(5px);
+  overflow-y: scroll;
+}
+.nav-bar::-webkit-scrollbar{
+  display: none;
 }
 .logo-container{
   display: flex;
@@ -170,5 +186,31 @@ onBeforeUnmount(() => {
     .logo{
       margin-bottom: 20px;
     }
+}
+
+.help-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--base);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+  font-weight: bold;
+  width: 100%;
+  justify-content: center;
+}
+
+.help-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--secShadow);
+}
+
+.help-button ion-icon {
+  font-size: 20px;
 }
 </style>

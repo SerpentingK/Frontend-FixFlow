@@ -14,7 +14,7 @@ const switchCS = inject("switchCS")
 <style scoped>
 button{
     all: unset;
-    z-index: 99999;
+    z-index: 9;
     position: fixed;
     left: 10px;
     bottom: 10px;

@@ -16,6 +16,7 @@ import shifts from "@/components/shifts-components/shifts.vue";
 import premises from "@/components/premises-components/premises.vue";
 import newPremise from "@/components/premises-components/new-premise.vue";
 import selectPremise from "@/components/premises-components/select-premise.vue";
+import brands from "@/components/bill-components/brands.vue";
 
 const routes = [
   {
@@ -97,6 +98,11 @@ const routes = [
         path: "bill-list",
         name: "billList",
         component: billList,
+      },
+      {
+        path: "brands",
+        name: "brands",
+        component: brands,
       },
       {
         path: "outflows",

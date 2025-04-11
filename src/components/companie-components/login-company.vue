@@ -2,8 +2,12 @@
 import { computed, inject, ref, onMounted } from "vue";
 import router from "@/routers/routes";
 import axios from "axios";
+import HelpModal from '../base-components/help-modal.vue';
 
 export default {
+  components: {
+    HelpModal
+  },
   setup() {
     const switchSP = inject("switchSP");
     const showAlert = inject("showAlert");
@@ -11,6 +15,8 @@ export default {
     const switchSMPR = inject("switchSMPR");
     const switchSMTR = inject("switchSMTR");
     const isLogin = ref(true); // Propiedad para alternar entre login y registro
+    const isLoading = ref(false); // Nuevo estado para controlar la pantalla de carga
+    const showHelpModal = ref(false);
     const getCompanyVault = inject("getCompanyVault")
     const confirmPassword = ref("");
     const msg = ref("");
@@ -23,6 +29,10 @@ export default {
       identifier: "",
       password: "",
     });
+
+    const openHelpModal = () => {
+      switchSP();
+    };
 
     const loginCompany = async () => {
       try {
@@ -59,6 +69,7 @@ export default {
           showAlert("2", "Las contraseñas no coinciden.");
           return;
         }
+        isLoading.value = true; // Activar pantalla de carga
         const answer = await axios.post(
           "/api/insertCompany",
           company.value
@@ -72,7 +83,6 @@ export default {
         };
         confirmPassword.value = "";
         isLogin.value = true;
-
       } catch (error) {
         if (error.response && error.response.data) {
           showAlert("2",`Error al registrar empresa: ${error.response.data.detail}`);
@@ -81,6 +91,8 @@ export default {
           showAlert("2","Ha ocurrido un error inesperado. Inténtalo de nuevo.");
           console.error(error);
         }
+      } finally {
+        isLoading.value = false; // Desactivar pantalla de carga
       }
     };
 
@@ -91,6 +103,10 @@ export default {
     // Función para alternar la vista
     const toggleForm = () => {
       isLogin.value = !isLogin.value;
+    };
+
+    const toggleHelpModal = () => {
+      showHelpModal.value = !showHelpModal.value;
     };
 
     onMounted(() => {
@@ -112,13 +128,20 @@ export default {
       sesion,
       msg,
       switchSMPR,
-      switchSMTR
+      switchSMTR,
+      isLoading,
+      showHelpModal,
+      toggleHelpModal
     };
   },
 };
 </script>
 
 <template>
+  <div v-if="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Procesando registro...</p>
+  </div>
   <transition name="slide-fade">
     <section v-if="isLogin" key="login" class="login-cont">
       <form class="form" @submit.prevent="loginCompany()">
@@ -191,6 +214,10 @@ export default {
       </form>
     </section>
   </transition>
+  <button class="help-button" @click="toggleHelpModal">
+    <ion-icon name="help-circle"></ion-icon>
+  </button>
+  <HelpModal :is-open="showHelpModal" @close="toggleHelpModal" />
 </template>
 
 <style scoped>
@@ -380,5 +407,78 @@ export default {
   .opt-btn {
     font-size: 11px;
   }
+}
+
+.main-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid var(--base);
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+.loading-overlay p {
+  color: white;
+  font-size: 18px;
+  font-family: var(--baseFont);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.help-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--base);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.help-button ion-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.help-button:hover {
+  transform: scale(1.1);
+  background: var(--secondTwo);
+}
+
+.help-button:active {
+  transform: scale(0.95);
 }
 </style>

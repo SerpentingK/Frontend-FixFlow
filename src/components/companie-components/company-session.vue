@@ -2,6 +2,7 @@
 import { inject, onMounted, provide, ref, computed } from "vue";
 import router from "@/routers/routes";
 import axios from "axios";
+import * as XLSX from 'xlsx';
 
 export default {
   setup() {
@@ -75,6 +76,55 @@ export default {
       return loggedCompany.value?.phone || "No disponible";
     });
 
+    const downloadExcel = async () => {
+      try {
+        // Obtener facturas
+        const billsResponse = await axios.get(`/api/someDataOfBill/${loggedCompany.value}`);
+        const bills = billsResponse.data;
+
+        // Obtener turnos
+        const shiftsResponse = await axios.get(`/api/allShiftCompany/${loggedCompany.value}`);
+        const shifts = shiftsResponse.data;
+
+        // Crear workbook
+        const wb = XLSX.utils.book_new();
+
+        // Hoja de Facturas
+        const billsData = bills.map(bill => ({
+          'Número de Factura': bill.bill_number,
+          'Cliente': bill.client_name,
+          'Teléfono': bill.client_phone,
+          'Fecha': bill.entry_date,
+          'Total': bill.total_price,
+          'Técnico': bill.wname
+        }));
+        const billsWS = XLSX.utils.json_to_sheet(billsData);
+        XLSX.utils.book_append_sheet(wb, billsWS, "Facturas");
+
+        // Hoja de Turnos
+        const shiftsData = shifts.map(shift => ({
+          'Referencia': shift.ref_shift,
+          'Técnico': shift.id,
+          'Fecha': shift.date_shift,
+          'Hora Inicio': shift.start_time,
+          'Hora Fin': shift.finish_time,
+          'Total Recibido': shift.total_received,
+          'Ganancia': shift.total_gain,
+          'Salidas': shift.total_outs
+        }));
+        const shiftsWS = XLSX.utils.json_to_sheet(shiftsData);
+        XLSX.utils.book_append_sheet(wb, shiftsWS, "Turnos");
+
+        // Generar archivo
+        XLSX.writeFile(wb, `${loggedCompany.value}_reporte_${new Date().toISOString().split('T')[0]}.xlsx`);
+        
+        showAlert("1", "Reporte descargado exitosamente");
+      } catch (error) {
+        console.error("Error al generar el reporte:", error);
+        showAlert("2", "Error al generar el reporte");
+      }
+    };
+
     return {
       loggedCompany,
       workersCount,
@@ -83,7 +133,8 @@ export default {
       selectedColor,
       updateColor,
       workerRole,
-      companyPhone
+      companyPhone,
+      downloadExcel
     };
   },
 };
@@ -117,6 +168,10 @@ export default {
     </div>
 
     <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
+    <button class="download-btn" @click="downloadExcel">
+      <ion-icon name="download"></ion-icon>
+      Descargar Reporte
+    </button>
     <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
 
     
@@ -269,6 +324,31 @@ export default {
   background-color: var(--second);
 }
 
+.download-btn {
+  all: unset;
+  background-color: var(--base);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: var(--baseFont);
+  font-size: 18px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.download-btn:active {
+  background-color: var(--second);
+  box-shadow: var(--secShadow);
+  scale: 0.9;
+}
+
+.download-btn ion-icon {
+  font-size: 24px;
+}
+
 /* Tablets: 768px y mayores */
 @media (min-width: 768px) {
   .session-cont {
@@ -322,6 +402,10 @@ export default {
       transform: translateY(0%);
     }
   }
+
+  .download-btn {
+    scale: 1.3;
+  }
 }
 
 /* Computadoras de escritorio: 1280px y mayores */
@@ -347,6 +431,10 @@ export default {
     top: 0;
     right: -50px;
     flex-direction: column;
+  }
+
+  .download-btn {
+    scale: 0.9;
   }
 }
 </style>
