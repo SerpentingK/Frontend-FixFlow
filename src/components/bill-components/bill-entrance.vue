@@ -25,10 +25,6 @@ const phones_amount = ref(1);
 const newBrand = ref(null);
 const newDevice = ref(null);
 const brands = ref([]);
-const devices = ref([]);
-const individual_price = ref(0);
-const payment = ref(0);
-const details = ref(null);
 const clientName = ref(null);
 const clientPhone = ref(null);
 const printEnabled = inject("printEnabled");
@@ -42,9 +38,6 @@ const totalPrice = computed(() =>
   )
 );
 
-const totalPayment = computed(
-  () => phones.value.reduce((total, phone) => total + (phone.payment || 0), 0)
-);
 
 // Métodos
 const increasePhonesAmount = () => {
@@ -220,12 +213,14 @@ const submitForm = () => {
         payment_platform,
         ...rest
       }) => ({
-        ...rest,
-        payment_physical,
-        payment_platform,
+        ...rest
       })
     ),
   };
+
+  // Verificar los datos completos antes de enviarlos
+  console.log("Datos completos de la factura:", billData.value);
+  
   switchSBC();
 };
 </script>

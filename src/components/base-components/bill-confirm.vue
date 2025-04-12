@@ -25,13 +25,10 @@ const formatCurrency = (value) => {
 
 const postbill = async () => {
   try {
-    // Verifica los datos antes de enviar
-    console.log("Datos a enviar:", JSON.stringify(billData.value, null, 2));
     const answer = await axios.post(
       `/api/createBillwithPhones/${loggedCompany.value}`,
       billData.value
     );
-
     bill_number.value = answer.data.bill_number;
 
     const { totalCash, totalPlatform } = billData.value.phones.reduce(
@@ -52,13 +49,13 @@ const postbill = async () => {
     const previousPlatform =
       JSON.parse(localStorage.getItem("total_platform")) || 0;
 
-      total_sales.value = previousSales + totalPayment;
-      total_cash.value = previousCash + totalCash;
-      total_platform.value = previousPlatform + totalPlatform;
+    total_sales.value = previousSales + totalPayment;
+    total_cash.value = previousCash + totalCash;
+    total_platform.value = previousPlatform + totalPlatform;
 
-      localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
-      localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
-      localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
+    localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
+    localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
+    localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
 
     switchSBC();
     if (printEnabled.value) {

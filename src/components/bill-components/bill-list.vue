@@ -118,23 +118,27 @@ onMounted(loadAllBills);
     max-height: 70%;
     transition: all .4s ease;
 }
+
 .container h2{
     color: white;
     letter-spacing: 2px;
     text-align: center;
 }
+
 .search-form{
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
 }
+
 .search-form *{
     background-color: white;
     color: black;
     border-radius: 10px;
     padding: 5px 10px;
 }
+
 .search-form button{
     all: unset;
     border-radius: 10px;
@@ -144,9 +148,11 @@ onMounted(loadAllBills);
     cursor: pointer;
     transition: .3s;
 }
+
 .search-form button:active{
     scale: .9;
 }
+
 .bill-list{
     list-style: none;
     padding: 0;
@@ -161,6 +167,7 @@ onMounted(loadAllBills);
     scrollbar-width: none;
     padding: 5px 10px;
 }
+
 .bill-list button{
     all: unset;
     border-radius: 5px;
@@ -170,8 +177,8 @@ onMounted(loadAllBills);
     color: white;
     transition: .3s;
     cursor: pointer;
-    
 }
+
 .bill-list button fieldset{
     width: 100%;
     display: flex;
@@ -179,9 +186,11 @@ onMounted(loadAllBills);
     border: 2px solid var(--secondTwo);
     border-radius: 10px;
 }
+
 .bill-list button:active{
     scale: .9;
 }
+
 .fade-enter-active, .fade-leave-active {
     transition: opacity 0.5s ease;
 }
@@ -189,6 +198,7 @@ onMounted(loadAllBills);
 .fade-enter, .fade-leave-to {
     opacity: 0;
 }
+
 button.load-btn{
     all: unset;
     background-color: var(--base);
