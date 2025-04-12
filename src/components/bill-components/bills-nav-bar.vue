@@ -38,7 +38,7 @@ const isActive = (path)=> route.path.startsWith(path)
     backdrop-filter: blur(5px);
     display: flex;
     gap: 40px;
-    z-index: 999;
+    z-index: 11;
 }
 .router{
     color: var(--second);

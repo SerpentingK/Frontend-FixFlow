@@ -110,7 +110,7 @@ onMounted(() => {
     <h2>{{ workerName }}</h2>
     <div class="info-div">
       <span>Colaborador:</span>
-      <span>{{ shift.id.split('_').slice(1).join('_') }}</span>
+      <span>{{ workerName }}</span>
     </div>
     <div class="info-div">
       <span>Horario:</span>
@@ -240,6 +240,10 @@ onMounted(() => {
   scrollbar-width: none;
   gap: 20px;
   z-index: 10;
+}
+.info-div > :first-child {
+  color: var(--base);
+  text-transform: uppercase;
 }
 
 .container h2 {

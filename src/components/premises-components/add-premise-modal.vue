@@ -251,5 +251,6 @@ async function initiateBoldPayment() {
 
 .confirm-btn ion-icon, .cancel-btn ion-icon {
     font-size: 1.2rem;
+
 }
 </style> 

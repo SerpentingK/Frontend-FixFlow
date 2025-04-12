@@ -29,7 +29,7 @@ const verifyKey = () => {
     return;
   }
   switchSLP(props.premiseName);
-  selectedPremise.value = premiseName
+  selectedPremise.value = props.premiseName;
 };
 
 const cancelAccess = () => {
@@ -80,7 +80,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 10;
   transition: background-color .5s ease-in-out;
 }
 
