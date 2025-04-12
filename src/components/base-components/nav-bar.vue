@@ -1,15 +1,17 @@
 <script setup>
 import { ref, inject, onMounted, onBeforeUnmount } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import HelpModal from './help-modal.vue';
 
 const loggedCompany = inject("loggedCompany", ref(null));
 const loggedWorker = inject("loggedWorker", ref(null));
 const workerRole = inject('workerRole', ref(null))
 const selectedPremise = inject('selectedPremise', ref(null))
+const premisesCount = inject('premisesCount', ref(0));
 
 const showNavBar = ref(false);
 const showHelpModal = ref(false);
+const router = useRouter();
 
 const switch_navBar = () => {
   showNavBar.value = !showNavBar.value;
@@ -17,6 +19,14 @@ const switch_navBar = () => {
 
 const toggleHelpModal = () => {
   showHelpModal.value = !showHelpModal.value;
+};
+
+const handlePremisesClick = () => {
+  if (premisesCount.value === 0) {
+    router.push('/premises/new-premise');
+  } else {
+    router.push('/premises/select-premise');
+  }
 };
 
 const route = useRoute();
@@ -57,7 +67,7 @@ onBeforeUnmount(() => {
       <h1>FIX-FLOW</h1>
     </div>
     <router-link to="/companySession" class="nav-router" :class="{ active: isActive('/companySession') }">Compañia</router-link>
-    <router-link v-if="loggedCompany" to="/premises" class="nav-router" :class="{ active: isActive('/premises') }">Locales</router-link>
+    <a v-if="loggedCompany" @click="handlePremisesClick" class="nav-router" :class="{ active: isActive('/premises') }">Locales</a>
     <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">Colaboradores</router-link>
     <router-link v-if="loggedWorker" to="/bills" class="nav-router" :class="{ active: isActive('/bills') }">Facturación</router-link>
     <router-link v-if="workerRole == 'Gerente' || workerRole == 'Administrador'" to="/shifts" class="nav-router" :class="{ active: isActive('/shifts') }">Turnos</router-link>

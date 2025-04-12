@@ -383,7 +383,6 @@ const handlePath = () => {
   } else if (route.path === '/workers/login-worker' && loggedWorker.value) {
     router.push('/workers/worker-profile');
   }
-
   // Control de estado en sección de facturas
   if (route.path.startsWith('/bills')) {
     inBills.value = true;
@@ -511,7 +510,7 @@ watch(
   () => route.path,
   (newPath) => {
     setTimeout(() => {
-      switchSRS();
+        switchSRS();
       handlePath();
       premisesCount.value = parseInt(localStorage.getItem("premisesCount") || 0);
     }, 150);

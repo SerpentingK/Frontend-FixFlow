@@ -14,8 +14,7 @@ export default {
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
-    const getCompanyColor = inject("getCompanyColor");
-    const premiseCount = inject("premiseCount", ref(0));
+    const getCompanyColor = inject("getCompanyColor");    
     const numberCompany = inject("numberCompany", ref(0));
 
     const getWorkersCount = async () => {
