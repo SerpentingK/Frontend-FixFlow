@@ -29,12 +29,24 @@ const handleClickOutside = (event) => {
   }
 };
 
+const handleKeyPress = (event) => {
+  // Verificar si el elemento activo es un input o textarea
+  const activeElement = document.activeElement;
+  const isInput = activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA';
+  
+  if (event.key.toLowerCase() === 'm' && !isInput) {
+    switch_navBar();
+  }
+};
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+  document.addEventListener('keydown', handleKeyPress);
 });
 
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('keydown', handleKeyPress);
 });
 </script>
 
@@ -212,5 +224,15 @@ onBeforeUnmount(() => {
 
 .help-button ion-icon {
   font-size: 20px;
+}
+
+.keyboard-shortcut {
+  position: absolute;
+  bottom: -15px;
+  font-size: 10px;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding: 2px 4px;
+  border-radius: 3px;
+  display: none;
 }
 </style>

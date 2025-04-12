@@ -272,6 +272,7 @@
     }
     .worker-list-btn:hover{
         scale: 1.1;
+        cursor: pointer;
     }
 }
 </style>

@@ -1,5 +1,5 @@
 <script>
-import { inject } from 'vue';
+import { inject, ref } from 'vue';
 
 export default {
     setup() {
@@ -8,15 +8,47 @@ export default {
         const workerRole = inject("workerRole")
         const selectedPremise = inject("selectedPremise");
         const switchSVI = inject("switchSVI");
+        const switchSAPM = inject("switchSAPM");
+
+        // Estados para los modales
+        const showLogoutModal = ref(false);
+        const showEditModal = ref(false);
+        const showDeactivateModal = ref(false);
+        const currentPremiseId = ref(null);
+        const editForm = ref({
+            name: '',
+            address: ''
+        });
 
         const editPremise = (id) => {
-            // lógica pendiente
-            console.log("Editar local", id);
+            currentPremiseId.value = id;
+            editForm.value = {
+                name: `Local ${id}`,
+                address: 'Calle 12 #25-40' // Aquí deberías obtener la dirección real
+            };
+            showEditModal.value = true;
+        };
+
+        const saveEditPremise = () => {
+            // Aquí iría la lógica para guardar los cambios
+            console.log("Guardando cambios para local", currentPremiseId.value, editForm.value);
+            showEditModal.value = false;
         };
 
         const deactivatePremise = (id) => {
-            // lógica pendiente
-            console.log("Desactivar local", id);
+            currentPremiseId.value = id;
+            showDeactivateModal.value = true;
+        };
+
+        const confirmDeactivate = () => {
+            // Aquí iría la lógica para desactivar el local
+            console.log("Desactivando local", currentPremiseId.value);
+            showDeactivateModal.value = false;
+        };
+
+        const confirmLogout = () => {
+            switchSLP(null);
+            showLogoutModal.value = false;
         };
 
         return {
@@ -26,7 +58,15 @@ export default {
             deactivatePremise,
             workerRole,
             selectedPremise,
-            switchSVI   
+            switchSVI,
+            showLogoutModal,
+            showEditModal,
+            showDeactivateModal,
+            editForm,
+            saveEditPremise,
+            confirmDeactivate,
+            confirmLogout,
+            switchSAPM
         };
     }
 };
@@ -42,7 +82,7 @@ export default {
                     <ion-icon name="storefront"></ion-icon>
                     <span>Dirección: Calle 12 #25-40</span>
                     <div class="premise-btns">
-                        <button class="action-btn logout" @click="" title="Cerrar Sesion"
+                        <button class="action-btn logout" @click="showLogoutModal = true" title="Cerrar Sesion"
                             :class="{ selected: selectedPremise === `Local ${i}` }">
                             <ion-icon name="close"></ion-icon>
                         </button>
@@ -62,15 +102,59 @@ export default {
                             v-if="workerRole === 'Gerente'">
                             <ion-icon name="cash-outline"></ion-icon>
                         </button>
-                        
                     </div>
                 </fieldset>
             </li>
         </ol>
     </section>
-    <router-link to="/premises/new-premise" class="new-premise-btn">
+    <button @click="switchSAPM" class="new-premise-btn">
         <ion-icon name="add-circle-outline"></ion-icon>
-    </router-link>
+    </button>
+
+    <!-- Modal de Cierre de Sesión -->
+    <div class="modal" v-if="showLogoutModal">
+        <div class="modal-content">
+            <h3>Confirmar Cierre de Sesión</h3>
+            <p>¿Estás seguro que deseas cerrar sesión en este local?</p>
+            <div class="modal-buttons">
+                <button @click="confirmLogout" class="confirm-btn">Confirmar</button>
+                <button @click="showLogoutModal = false" class="cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edición -->
+    <div class="modal" v-if="showEditModal">
+        <div class="modal-content">
+            <h3>Editar Local</h3>
+            <form @submit.prevent="saveEditPremise">
+                <div class="form-group">
+                    <label for="premiseName">Nombre del Local:</label>
+                    <input type="text" id="premiseName" v-model="editForm.name" required>
+                </div>
+                <div class="form-group">
+                    <label for="premiseAddress">Dirección:</label>
+                    <input type="text" id="premiseAddress" v-model="editForm.address" required>
+                </div>
+                <div class="modal-buttons">
+                    <button type="submit" class="confirm-btn">Guardar</button>
+                    <button type="button" @click="showEditModal = false" class="cancel-btn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Desactivación -->
+    <div class="modal" v-if="showDeactivateModal">
+        <div class="modal-content">
+            <h3>Confirmar Desactivación</h3>
+            <p>¿Estás seguro que deseas desactivar este local? Esta acción no se puede deshacer.</p>
+            <div class="modal-buttons">
+                <button @click="confirmDeactivate" class="confirm-btn">Confirmar</button>
+                <button @click="showDeactivateModal = false" class="cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <style scoped>
@@ -158,6 +242,7 @@ export default {
 }
 
 .new-premise-btn {
+    all: unset;
     position: absolute;
     bottom: 15px;
     right: 15px;
@@ -234,6 +319,93 @@ export default {
     filter: brightness(1.1);
 }
 
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--second);
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    border: 2px solid var(--base);
+}
+
+.modal-content h3 {
+    color: white;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.modal-content p {
+    color: var(--secondTwo);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.confirm-btn, .cancel-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
+}
+
+.confirm-btn {
+    background-color: var(--successColor);
+    color: white;
+}
+
+.cancel-btn {
+    background-color: var(--errorColor);
+    color: white;
+}
+
+.confirm-btn:hover, .cancel-btn:hover {
+    transform: scale(1.05);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    color: white;
+    margin-bottom: 5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid var(--base);
+    background-color: var(--secondThree);
+    color: white;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--successColor);
+}
 
 @media (min-width: 1024px) {
     .container {

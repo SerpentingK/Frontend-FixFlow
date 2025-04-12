@@ -217,6 +217,7 @@ export default {
     letter-spacing: 1.5px;
     font-weight: bolder;
     transition: .3s;
+    cursor: pointer;
 }
 
 .go-btn:active {

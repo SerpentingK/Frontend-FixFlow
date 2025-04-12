@@ -83,38 +83,39 @@ const handleDelivery = async (phoneRef, brandName, device) => {
         v-for="phone in infoBill.phones"
         :key="phone.phone_ref"
       >
-        <span class="info-span">
-          <div>Referencia dispositivo:</div>
-          <div>{{ phone.phone_ref.split("-").slice(1).join("-") }}</div>
-        </span>
-        <span class="info-span">
-          <div>Dispositivo:</div>
-          <div>{{ phone.brand_name }} {{ phone.device }}</div>
-        </span>
-        <span class="info-span">
-          <div>Descripcion:</div>
-          <div>{{ phone.details }}</div>
-        </span>
-        <span class="info-span">
-          <div>Precio Estimado:</div>
-          <div>{{ phone.individual_price }}</div>
-        </span>
-        <span class="info-span">
-          <div>Pendiente:</div>
-          <div>{{ phone.due }}</div>
-        </span>
-        <span class="info-span">
-          <div>Abono:</div>
-          <div>{{ phone.payment }}</div>
-        </span>
-        <span v-if="phone.date_delivered" class="info-span">
-          <div>Fecha de entrega:</div>
-          <div>{{ phone.date_delivered }}</div>
-        </span>
-        <span v-if="phone.final_price" class="info-span">
-          <div>Precio Final:</div>
-          <div>{{ phone.final_price }}</div>
-        </span>
+        <div class="info-row">
+          <span class="info-label">Referencia dispositivo:</span>
+          <span>{{ phone.phone_ref.split("-").slice(1).join("-") }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Dispositivo:</span>
+          <span>{{ phone.brand_name }} {{ phone.device }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Descripción:</span>
+          <span>{{ phone.details }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Precio Estimado:</span>
+          <span>{{ phone.individual_price }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Pendiente:</span>
+          <span>{{ phone.due }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Abono:</span>
+          <span>{{ phone.payment }}</span>
+        </div>
+        <div v-if="phone.date_delivered" class="info-row">
+          <span class="info-label">Fecha de entrega:</span>
+          <span>{{ phone.date_delivered }}</span>
+        </div>
+        <div v-if="phone.final_price" class="info-row">
+          <span class="info-label">Precio Final:</span>
+          <span>{{ phone.final_price }}</span>
+        </div>
+        <hr class="divider" />
         <span class="state-info">
           <button
             class="state-btn"
@@ -144,68 +145,70 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 
 <style scoped>
 .inf-cont {
-  z-index: 10;
   position: fixed;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
-  background-color: var(--second);
+  padding: 20px;
   width: 90%;
   border-radius: 10px;
+  background: var(--second);
+  box-shadow: -10px -10px 30px #242424, 10px 10px 30px #484848;
   border: 4px solid var(--base);
-  box-shadow: var(--baseShadow);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
-  overflow: hidden;
+  max-height: 80%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  gap: 20px;
+  z-index: 9999;
 }
 
 .inf-cont h2 {
-  color: white;
+  color: var(--base);
   letter-spacing: 3px;
-  text-shadow: 0 0 10px black;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
 }
 
 .info-row {
   display: flex;
-  gap: 10px;
-  width: 90%;
   justify-content: space-between;
+  width: 100%;
   color: var(--secondTwo);
+  font-weight: bold;
 }
+
 .info-label {
+  color: var(--base);
   text-transform: uppercase;
 }
 
 .phones-container {
-  max-height: 200px;
-  overflow: scroll;
-  background-color: white;
-  padding: 10px;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  scrollbar-width: none;
+  gap: 20px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
 }
 
 .phone-inf-cont {
-  background-color: var(--second);
   border-radius: 10px;
-  padding: 10px;
+  padding: 15px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
 }
 
-.info-span {
-  background-color: white;
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: var(--secShadow);
+.divider {
+  border: none;
+  border-top: 2px dashed var(--base);
+  margin: 10px 0;
+  width: 100%;
 }
 
 .state-info {
@@ -213,73 +216,78 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   gap: 10px;
   width: 100%;
   justify-content: space-around;
+  margin-top: 10px;
 }
 
 .state-btn {
   all: unset;
   cursor: pointer;
   background-color: var(--second);
-  padding: 10px;
+  padding: 10px 20px;
   border: 2px solid var(--base);
-  border-radius: 10px;
+  border-radius: 8px;
   color: white;
   display: flex;
   gap: 5px;
   align-items: center;
+  font-weight: bold;
+  transition: 0.3s ease;
 }
 
 .state-btn.active {
   background-color: var(--base);
   color: white;
-  box-shadow: var(--secShadow);
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+}
+
+.state-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.close-btn, .print-btn {
+  all: unset;
+  position: absolute;
+  background-color: var(--base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+  color: white;
+  transition: 0.3s ease;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 .close-btn {
-  all: unset;
-  position: absolute;
   right: 10px;
   top: 10px;
-  background-color: var(--base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: var(--secShadow);
-  color: white;
-  transition: 0.3s;
 }
+
 .print-btn {
-  all: unset;
-  position: absolute;
   left: 10px;
   top: 10px;
-  background-color: var(--base);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: var(--secShadow);
-  color: white;
-  transition: 0.3s;
+}
+
+.close-btn:hover, .print-btn:hover {
+  transform: scale(1.1);
 }
 
 @media (min-width: 768px) {
+  * {
+    font-size: 1.1rem;
+  }
+
   .inf-cont {
-    font-size: 1.3rem;
+    width: 60%;
   }
 }
+
 @media (min-width: 1024px) {
   .inf-cont {
-    font-size: 1rem;
     width: 40%;
-  }
-  .close-btn:hover {
-    scale: 1.1;
-  }
-  .print-btn:hover {
-    scale: 1.1;
   }
 }
 </style>

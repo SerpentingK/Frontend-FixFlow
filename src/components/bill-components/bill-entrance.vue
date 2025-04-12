@@ -508,6 +508,7 @@ h4 {
   letter-spacing: 1.5px;
   border-radius: 5px;
   transition: all 0.3s;
+  cursor: pointer;
 }
 
 .btns button:hover {
