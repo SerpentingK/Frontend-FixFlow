@@ -54,7 +54,7 @@ onMounted(() => {
 
 <template>
     <section class="container">
-        <h2>CERRAR SESION</h2>
+        <h2>TERMINAR TURNO</h2>
         <div class="info-div">
             <span>Colaborador:</span>
             <span>{{ loggedWorker }}</span>

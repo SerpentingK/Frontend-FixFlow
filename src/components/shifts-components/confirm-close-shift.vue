@@ -103,7 +103,7 @@ onMounted(() => {
 
 <template>
     <section class="c-container">
-        <h3>CERRAR TURNO</h3>
+        <h3>TERMINAR TURNO</h3>
         <div class="info-cont">
             <span>Cantidad Reportada en Físico: </span>
             <span>{{ formatCurrency(total_user) }}</span>

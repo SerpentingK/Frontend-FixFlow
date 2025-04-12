@@ -66,6 +66,7 @@ export default {
         showAlert("2", "Se debe cerrar turno para cerrar sesión.");
       } else {
         localStorage.removeItem("loggedCompany");
+        localStorage.removeItem("premiseCount");
         resetColor(defaultColor.value);
         loggedCompany.value = null;
         router.push("/loginCompany");

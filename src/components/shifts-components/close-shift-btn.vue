@@ -6,7 +6,7 @@ const switchCS = inject("switchCS")
 
 <template>
     <button @click="switchCS">
-        <span>Cerrar Sesion</span>
+        <span>Terminar turno</span>
         <ion-icon name="exit"></ion-icon>
     </button>
 </template>
