@@ -17,6 +17,8 @@ export default {
     const getCompanyColor = inject("getCompanyColor");
     const premiseCount = inject("premiseCount", ref(0));
     const numberCompany = inject("numberCompany", ref(0));
+    const showPhoneModal = ref(false);
+    const newPhoneNumber = ref("");
 
     const getWorkersCount = async () => {
       try {
@@ -138,6 +140,18 @@ export default {
       }
     };
 
+    const updatePhoneNumber = async () => {
+      try {
+        await axios.put(`/api/company/${loggedCompany.value}/phone/${newPhoneNumber.value}`);
+        numberCompany.value = newPhoneNumber.value;
+        showPhoneModal.value = false;
+        showAlert("1", "Número de teléfono actualizado exitosamente");
+      } catch (error) {
+        console.error("Error al actualizar el número de teléfono", error);
+        showAlert("2", "Error al actualizar el número de teléfono");
+      }
+    };
+
     return {
       loggedCompany,
       workersCount,
@@ -147,7 +161,10 @@ export default {
       updateColor,
       workerRole,
       downloadExcel,
-      numberCompany
+      numberCompany,
+      showPhoneModal,
+      newPhoneNumber,
+      updatePhoneNumber
     };
   },
 };
@@ -171,7 +188,7 @@ export default {
       <div class="info-cont">
         <div>Teléfono:</div>
         <div>{{ numberCompany }}</div>
-        <button class="edit-phone-btn" @click="">Editar</button>
+        <button class="edit-phone-btn" @click="showPhoneModal = true">Editar</button>
       </div>
     </div>
 
@@ -189,12 +206,23 @@ export default {
 
     
   </section>
+  <!-- Modal para editar teléfono -->
+    <div v-if="showPhoneModal" class="modal-overlay" @click="showPhoneModal = false">
+      <div class="modal-content" @click.stop>
+        <h3>Editar Número de Teléfono</h3>
+        <input 
+          type="tel" 
+          v-model="newPhoneNumber" 
+          placeholder="Ingrese el nuevo número"
+          class="phone-input"
+        />
+        <div class="modal-buttons">
+          <button class="cancel-btn" @click="showPhoneModal = false">Cancelar</button>
+          <button class="save-btn" @click="updatePhoneNumber">Guardar</button>
+        </div>
+      </div>
+    </div>
 </template>
-
-<style scoped>
-
-</style>
-
 
 <style scoped>
 .session-cont {
@@ -448,6 +476,97 @@ export default {
 
   .download-btn {
     scale: 0.9;
+  }
+}
+
+/* Estilos para el modal */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--second);
+  padding: 20px;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
+  border: 2px solid var(--base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content h3 {
+  color: white;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.phone-input {
+  width: 90%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid var(--base);
+  border-radius: 5px;
+  background: #ffffff;
+  font-size: 16px;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cancel-btn, .save-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: var(--baseFont);
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background-color: #666;
+  color: white;
+}
+
+.save-btn {
+  background-color: var(--base);
+  color: white;
+}
+
+.cancel-btn:hover, .save-btn:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+/* Ajustes responsive para el modal */
+@media (min-width: 768px) {
+  .modal-content {
+    width: 50%;
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .modal-content {
+    width: 20%;
+    max-width: 600px;
   }
 }
 </style>
