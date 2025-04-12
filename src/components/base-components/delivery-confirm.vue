@@ -144,6 +144,20 @@ const deliveryPhone = async () => {
     }
 };
 
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(value || 0);
+};
+
+const formatNumberInput = (value) => {
+  // Eliminar todos los caracteres no numéricos
+  const numericValue = value.toString().replace(/\D/g, '');
+  // Convertir a número
+  return numericValue ? parseInt(numericValue, 10) : 0;
+};
 
 onMounted(() => {
     getBillRepair()
@@ -181,28 +195,44 @@ onMounted(() => {
                 <span>{{ client_name }}</span>
             </div>
             <div class="info-container">
-                <span>Abono:     </span>
-                <span>{{ payment }}</span>
+                <span>Abono: </span>
+                <span>{{ formatCurrency(payment) }}</span>
             </div>
             <div class="info-container">
                 <span>Deuda:</span>
-                <span>{{ due }}</span>
+                <span>{{ formatCurrency(due) }}</span>
             </div>
             <div class="input-container">
                 <span>Pago efectivo:</span>
-                <input type="number" v-model="cashSale" placeholder="0" required />
+                <input 
+                    type="text" 
+                    :value="formatCurrency(cashSale)"
+                    @input="(e) => cashSale = formatNumberInput(e.target.value)"
+                    placeholder="0"
+                />
             </div>
             <div class="input-container">
                 <span>Pago plataforma:</span>
-                <input type="number" v-model="platformSale" placeholder="0" required />
+                <input 
+                    type="text" 
+                    :value="formatCurrency(platformSale)"
+                    @input="(e) => platformSale = formatNumberInput(e.target.value)"
+                    placeholder="0"
+                />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
-                <input type="number" v-model="codeValue" placeholder="0" required />
+                <input 
+                    type="text" 
+                    :value="formatCurrency(codeValue)"
+                    @input="(e) => codeValue = formatNumberInput(e.target.value)"
+                    placeholder="0" 
+                    required 
+                />
             </div>
             <div class="info-container">
                 <span>Ganancia:</span>
-                <span>{{ revenue_price }}</span>
+                <span>{{ formatCurrency(revenue_price) }}</span>
             </div>
 
             <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
@@ -239,7 +269,7 @@ onMounted(() => {
     overflow-y: scroll;
     scrollbar-width: none;
     transition: all .4s ease;
-    z-index: 10;
+    z-index: 13;
 }
 
 h3 {
@@ -288,6 +318,7 @@ button.confirm-btn {
 .input-container input{
     all: unset;
     width: 60%;
+    text-align: right;
 }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
     display: none;

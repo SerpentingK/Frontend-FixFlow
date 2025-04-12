@@ -373,7 +373,7 @@ const handlePath = () => {
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
     router.push('/companyShift');
   } else if (route.path.startsWith('/premises') && premisesCount.value === 0) {
-    router.push('/premises/new-premise');
+    router.push('/premises/select-premise');
   }
   else if (route.path.startsWith('/workers') && workersCount.value < 1) {
     router.push('/workers/new-worker');
@@ -432,6 +432,8 @@ const showAddPremiseModal = ref(false)
 
 const switchSAPM = () => {
     showAddPremiseModal.value = !showAddPremiseModal.value;
+    // Asegurarse de que no se muestre el modal de renovación de suscripción
+    showRenewedSuscription.value = false;
 }
 
 provide("showAddPremiseModal", showAddPremiseModal)
@@ -444,6 +446,8 @@ const switchSLP = (premiseName) => {
             selectedPremise.value = premiseName
         } else {
             selectedPremise.value = null
+            // Asegurarse de que no se muestre el modal de inicio de sesión al cerrar sesión
+            showLoginPremise.value = false;
         }
     } else {
         toSelectPremise.value = premiseName
@@ -478,7 +482,7 @@ const switchWV = () => {
 };
 provide("switchWV", switchWV);
 
-const suscripctionRenewed = ref(false);
+const suscripctionRenewed = ref(true);
 provide("SR", suscripctionRenewed);
 
 const showMailPaswRestore = ref(false);

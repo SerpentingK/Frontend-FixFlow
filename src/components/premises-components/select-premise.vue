@@ -47,7 +47,7 @@ export default {
         };
 
         const confirmLogout = () => {
-            switchSLP(null);
+            selectedPremise.value = null;
             showLogoutModal.value = false;
         };
 

@@ -162,7 +162,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   overflow-y: auto;
   scrollbar-width: none;
   gap: 20px;
-  z-index: 9999;
+  z-index: 12;
 }
 
 .inf-cont h2 {

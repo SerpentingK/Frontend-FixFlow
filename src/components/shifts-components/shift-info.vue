@@ -107,10 +107,10 @@ onMounted(() => {
     <button @click="switchSI" class="close-btn" title="Cerrar">
       <ion-icon name="close"></ion-icon>
     </button>
-    <h2>{{ workerName }}</h2>
+    <h2>{{ shift.id }}</h2>
     <div class="info-div">
       <span>Colaborador:</span>
-      <span>{{ shift.id.split('_').slice(1).join('_') }}</span>
+      <span>{{ workerName }}</span>
     </div>
     <div class="info-div">
       <span>Horario:</span>
@@ -223,43 +223,42 @@ onMounted(() => {
 <style scoped>
 .container {
   position: fixed;
-  left: 50%;
   top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
-  padding: 20px;
-  width: 90%;
+  padding: 20px 10px;
+  width: 80%;
   border-radius: 10px;
   background: var(--second);
-  box-shadow: -10px -10px 30px #242424, 10px 10px 30px #484848;
+  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
   border: 4px solid var(--base);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  max-height: 80%;
-  overflow-y: auto;
   scrollbar-width: none;
-  gap: 20px;
-  z-index: 10;
+  display: flex;
+  align-items: center;
+  max-height: 70%;
+  flex-direction: column;
+  justify-content: flex-start;
 }
-
 .container h2 {
-  color: var(--base);
+  color: white;
   letter-spacing: 3px;
-  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  font-weight: bold;
+  font-size: 1.8rem;
 }
-
 .info-div {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  width: 100%;
+  width: 90%;
   color: var(--secondTwo);
-  font-weight: bold;
 }
-
-.info-div span:first-child {
+.info-div > :first-child {
   color: var(--base);
   text-transform: uppercase;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .list-options {
@@ -267,37 +266,35 @@ onMounted(() => {
   padding: 10px;
   display: flex;
   justify-content: space-around;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
 }
 
 .check-input {
   display: none;
+  /* Oculta el input de tipo radio */
 }
 
 .check-label {
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 10px;
   background-color: var(--second);
   border: 2px solid var(--base);
-  padding: 10px 20px;
-  transition: 0.3s ease;
-  font-weight: bold;
+  padding: 10px;
+  transition: 0.3s;
+  font-weight: bolder;
   text-transform: capitalize;
-  color: white;
+  color: var(--secondTwo);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
 }
 
+/* Cambia el estilo del label cuando el input radio correspondiente está marcado */
 .check-input:checked + .check-label {
   background-color: var(--base);
   border: 2px solid white;
   color: white;
-  transform: scale(1.1);
-  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+  scale: 1.04;
+  box-shadow: var(--secShadow);
 }
 
 .close-btn {
@@ -310,31 +307,28 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 10px;
-  border-radius: 8px;
-  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+  border-radius: 5px;
+  box-shadow: var(--secShadow);
   color: white;
-  transition: 0.3s ease;
-  font-weight: bold;
+  transition: 0.3s;
   cursor: pointer;
 }
-
-.close-btn:hover {
-  transform: scale(1.1);
+.close-btn:hover{
+  scale: 1.1;
 }
-
 @media (min-width: 768px) {
   * {
-    font-size: 1.1rem;
-  }
-
-  .container {
-    width: 60%;
+    font-size: 1.3rem;
   }
 }
 
 @media (min-width: 1024px) {
+  * {
+    font-size: 1.1rem;
+  }
   .container {
-    width: 40%;
+    width: 38%;
+    max-height: 70%;
   }
 }
 </style>

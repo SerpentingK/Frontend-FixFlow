@@ -180,17 +180,32 @@ watch(
   { deep: true }
 );
 
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(value || 0);
+};
+
+const formatNumberInput = (value) => {
+  // Eliminar todos los caracteres no numéricos
+  const numericValue = value.toString().replace(/\D/g, '');
+  // Convertir a número
+  return numericValue ? parseInt(numericValue, 10) : 0;
+};
+
 const updatePayment = (index, type, value) => {
   const phone = phones.value[index];
+  const numericValue = formatNumberInput(value);
 
   if (type === "physical") {
-    phone.payment_physical = Number(value) || 0;
+    phone.payment_physical = numericValue;
   } else {
-    phone.payment_platform = Number(value) || 0;
+    phone.payment_platform = numericValue;
   }
 
-  phone.payment =
-    (phone.payment_physical || 0) + (phone.payment_platform || 0);
+  phone.payment = (phone.payment_physical || 0) + (phone.payment_platform || 0);
   phone.due = (phone.individual_price || 0) - phone.payment;
 };
 
@@ -305,24 +320,40 @@ const submitForm = () => {
       <!-- Precio y pagos -->
       <div class="info-cont">
         <span>Precio Estimado: </span>
-        <input type="number" v-model="phone.individual_price" required class="input-field" />
+        <input 
+          type="text" 
+          :value="formatCurrency(phone.individual_price)"
+          @input="(e) => phone.individual_price = formatNumberInput(e.target.value)"
+          required 
+          class="input-field" 
+        />
       </div>
 
       <div class="info-cont">
         <span>Abono en Físico: </span>
-        <input type="number" :value="phone.payment_physical"
-          @input="updatePayment(index, 'physical', $event.target.value)" required class="input-field" />
+        <input 
+          type="text" 
+          :value="formatCurrency(phone.payment_physical)"
+          @input="(e) => updatePayment(index, 'physical', e.target.value)"
+          required 
+          class="input-field" 
+        />
       </div>
 
       <div class="info-cont">
         <span>Abono en Plataforma: </span>
-        <input type="number" :value="phone.payment_platform"
-          @input="updatePayment(index, 'platform', $event.target.value)" required class="input-field" />
+        <input 
+          type="text" 
+          :value="formatCurrency(phone.payment_platform)"
+          @input="(e) => updatePayment(index, 'platform', e.target.value)"
+          required 
+          class="input-field" 
+        />
       </div>
 
       <div class="info-cont">
         <span>Abono Total: </span>
-        <span class="value-display">{{ phone.payment }}</span>
+        <span class="value-display">{{ formatCurrency(phone.payment) }}</span>
       </div>
 
       <div class="info-cont">
@@ -332,14 +363,14 @@ const submitForm = () => {
 
       <div class="info-cont">
         <span>Deuda: </span>
-        <span class="value-display">{{ phone.due }}</span>
+        <span class="value-display">{{ formatCurrency(phone.due) }}</span>
       </div>
     </div>
 
     <!-- Totales -->
     <div class="info-cont total-section">
       <span>Total Factura: </span>
-      <span class="value-display total-amount">{{ totalPrice }}</span>
+      <span class="value-display total-amount">{{ formatCurrency(totalPrice) }}</span>
     </div>
 
     <!-- Botones -->

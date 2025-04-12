@@ -1,255 +1,243 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import CryptoJS from "crypto-js";
+import { ref, inject } from 'vue';
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 
 const router = useRouter();
-const paymentStatus = ref(null); // 'pending', 'completed', 'failed'
-const isProcessing = ref(false);
-const boldCheckoutLoaded = ref(false);
+const showAlert = inject("showAlert");
+const premisesCount = inject("premisesCount", ref(0));
+const switchSAPM = inject("switchSAPM");
 
-// Configuración de prueba (usa tus credenciales directamente)
-const paymentConfig = {
-  orderId: `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-  currency: "COP",
-  amount: "90000",
-  apiKey: "jliJGmSDQMhYqht2I1TfYW5aTUHC-Xq56hZIpDiz6-w",
-  secretKey: "bpj4Sn9D009hYJ6cPrbaFg",
-  environment: "sandbox"
-};
-
-// Generar firma de integridad
-const integritySignature = CryptoJS.SHA256(
-  `${paymentConfig.orderId}${paymentConfig.amount}${paymentConfig.currency}${paymentConfig.secretKey}`
-).toString(CryptoJS.enc.Base64);
-
-// Cargar el script de Bold cuando el componente se monta
-onMounted(async () => {
-  try {
-    await loadBoldScript();
-    setupBoldListeners();
-    boldCheckoutLoaded.value = true;
-  } catch (error) {
-    console.error("Error cargando Bold Checkout:", error);
-    paymentStatus.value = "failed";
-  }
+const local = ref({
+  name: "",
+  address: "",
+  password: "",
+  confirmPassword: ""
 });
 
-// Función para cargar el script de Bold
-function loadBoldScript() {
-  return new Promise((resolve, reject) => {
-    if (window.BoldCheckout) {
-      resolve();
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://checkout.bold.co/library/boldCheckout.js";
-    script.async = true;
-    
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("Error cargando script de Bold"));
-    
-    document.head.appendChild(script);
-  });
-}
-
-// Configurar listeners para eventos de Bold
-function setupBoldListeners() {
-  window.addEventListener("BoldCheckoutCompleted", (event) => {
-    paymentStatus.value = "completed";
-    isProcessing.value = false;
-    console.log("Pago completado:", event.detail);
-  });
-
-  window.addEventListener("BoldCheckoutFailed", (event) => {
-    paymentStatus.value = "failed";
-    isProcessing.value = false;
-    console.error("Pago fallido:", event.detail);
-  });
-
-  window.addEventListener("BoldCheckoutPending", () => {
-    paymentStatus.value = "pending";
-    isProcessing.value = false;
-  });
-}
-
-// Iniciar el proceso de pago con Bold
-async function initiateBoldPayment() {
-  if (isProcessing.value || !boldCheckoutLoaded.value) return;
-  
-  isProcessing.value = true;
+const registerLocal = async () => {
+  if (local.value.password !== local.value.confirmPassword) {
+    showAlert("2", "Las contraseñas no coinciden.");
+    return;
+  }
   
   try {
-    const boldConfig = {
-      api_key: paymentConfig.apiKey,
-      order_id: paymentConfig.orderId,
-      amount: paymentConfig.amount,
-      currency: paymentConfig.currency,
-      integrity_signature: integritySignature,
-      environment: paymentConfig.environment,
-      redirect_url: window.location.href,
-      description: "Renovación de suscripción - Prueba",
-      customer: JSON.stringify({
-        email: "test@example.com",
-        fullName: "Cliente de Prueba",
-        phone: "3001234567",
-        dialCode: "+57",
-        documentNumber: "123456789",
-        documentType: "CC",
-      }),
-      billing_address: JSON.stringify({
-        address: "Calle 123 # 4-5",
-        zipCode: "110111",
-        city: "Bogotá",
-        state: "Cundinamarca",
-        country: "CO",
-      }),
-      test_mode: true,
-      debug: true
-    };
-
-    window.BoldCheckout.init(boldConfig);
-    window.BoldCheckout.open();
-    
+    // Aquí iría la lógica para registrar el local en el backend
+    // Por ahora solo incrementamos el contador y navegamos
+    premisesCount.value += 1;
+    localStorage.setItem("premisesCount", premisesCount.value);
+    switchSAPM(); // Cerrar el modal
+    router.push('/premises/select-premise');
   } catch (error) {
-    console.error("Error al iniciar el pago:", error);
-    paymentStatus.value = "failed";
-    isProcessing.value = false;
+    console.error("Error al registrar el local:", error);
+    showAlert("2", "Error al registrar el local. Intente nuevamente.");
   }
-}
+};
+
+const handleNewPremise = () => {
+  switchSAPM(); // Cerrar el modal actual
+  router.push('/premises/new-premise');
+};
+
+const cancelAdd = () => {
+  switchSAPM(); // Cerrar el modal
+};
 </script>
 
 <template>
   <div class="modal-overlay">
-    <section class="info-container">
-      <h3>Pago No Renovado</h3>
-      
-      <p class="status-message" :class="{
-        'error': paymentStatus === 'failed',
-        'success': paymentStatus === 'completed',
-        'info': !paymentStatus
-      }">
-        <span v-if="paymentStatus === 'failed'">
-          El pago no pudo ser procesado. Por favor, intenta nuevamente.
-        </span>
-        <span v-else-if="paymentStatus === 'completed'">
-          ¡Pago completado exitosamente! Estamos procesando tu renovación.
-        </span>
-        <span v-else>
-          Tu suscripción ha expirado. Por favor, renueva tu pago para continuar
-          disfrutando del servicio.
-        </span>
-      </p>
-      
-      <button
-        class="pay-btn"
-        @click="initiateBoldPayment"
-        :disabled="isProcessing || !boldCheckoutLoaded"
-      >
-        <span v-if="isProcessing">Procesando pago...</span>
-        <span v-else-if="!boldCheckoutLoaded">Cargando pasarela de pago...</span>
-        <span v-else>Pagar ${{ paymentConfig.amount }} COP</span>
-      </button>
-      
-      <button
-        v-if="paymentStatus === 'completed'"
-        class="continue-btn"
-        @click="$router.push('/')"
-      >
-        Continuar
-      </button>
+    <section class="form-container">
+      <h2>Añadir Nuevo Local</h2>
+      <div class="alert-container">
+        <ion-icon name="alert-circle"></ion-icon>
+        <p>Al añadir un nuevo local, se sumarán <span class="highlight">$30,000</span> a su facturación mensual.</p>
+      </div>
+      <span>¿Desea crear un nuevo local en el sistema?</span>
+      <div class="btn-group">
+        <button type="button" class="cancel-btn" @click="cancelAdd">Cancelar</button>
+        <button type="button" class="submit-btn" @click="handleNewPremise">Crear Local</button>
+      </div>
     </section>
   </div>
 </template>
 
 <style scoped>
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    transition: background-color .5s ease-in-out;
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
-.modal-content {
-    background-color: var(--second);
-    padding: 25px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 500px;
-    border: 2px solid var(--base);
-    text-align: center;
+.form-container {
+  padding: 20px 10px;
+  width: 75%;
+  border-radius: 10px;
+  background: var(--second);
+  box-shadow: -25px -25px 51px #242424,
+      25px 25px 51px #484848;
+  border: 2px solid var(--base);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1px, 5px, 10px);
 }
 
-.modal-content h3 {
-    color: white;
-    margin-bottom: 20px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+.form-container h2 {
+  font-size: 25px;
+  font-family: var(--baseFont);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 1px;
+  color: white;
 }
 
-.warning-icon {
-    font-size: 3rem;
-    color: var(--warningColor);
-    margin-bottom: 15px;
+.form-container span {
+  color: var(--secondTwo);
+  text-align: center;
 }
 
-.warning-text {
-    color: var(--secondTwo);
-    margin-bottom: 15px;
-    font-size: 1.1rem;
-    line-height: 1.4;
+.form-container form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
 }
 
-.additional-info {
-    color: var(--base);
-    font-size: 0.9rem;
-    margin-bottom: 25px;
-    font-style: italic;
+.input-container {
+  padding: 10px;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: inset -25px -25px 51px #a8a8a8,
+      inset 25px 25px 51px #ffffff;
+  display: flex;
+  align-items: center;
+  width: 80%;
+  margin-top: 10px;
 }
 
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
+.input-container ion-icon {
+  margin-left: 10px;
+  scale: 1.3;
 }
 
-.confirm-btn, .cancel-btn {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.input-container input {
+  all: unset;
+  width: 80%;
+  padding: 0 20px;
 }
 
-.confirm-btn {
-    background-color: var(--successColor);
-    color: white;
+.btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.submit-btn, .cancel-btn {
+  padding: 10px 20px;
+  border-radius: 15px;
+  color: white;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: bolder;
+  transition: .3s;
+  border: none;
+  cursor: pointer;
+}
+
+.submit-btn {
+  background-color: var(--successColor);
 }
 
 .cancel-btn {
-    background-color: var(--errorColor);
-    color: white;
+  background-color: var(--errorColor);
 }
 
-.confirm-btn:hover, .cancel-btn:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
+.submit-btn:active, .cancel-btn:active {
+  scale: 0.9;
 }
 
-.confirm-btn ion-icon, .cancel-btn ion-icon {
-    font-size: 1.2rem;
+/* Tablets: 768px y mayores */
+@media (min-width: 768px) {
+  .form-container {
+    gap: clamp(5px, 10px, 15px);
+  }
+
+  .form-container h2 {
+    font-size: 30px;
+  }
+
+  .form-container span {
+    font-size: 20px;
+  }
+
+  .form-container form {
+    gap: 20px;
+  }
+
+  .input-container {
+    padding: 15px;
+  }
+}
+
+/* Portátiles: 1024px y mayores */
+@media (min-width: 1024px) {
+  .form-container {
+    width: 40%;
+    padding: 10px 30px;
+    gap: clamp(5px, 10px, 15px);
+  }
+}
+
+.alert-container {
+  background-color: var(--warningColor);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: pulse 2s infinite;
+}
+
+.alert-container ion-icon {
+  font-size: 24px;
+  color: white;
+}
+
+.alert-container p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.highlight {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: var(--base);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style> 
