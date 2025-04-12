@@ -223,38 +223,43 @@ onMounted(() => {
 <style scoped>
 .container {
   position: fixed;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
-  padding: 20px 10px;
-  width: 80%;
+  padding: 20px;
+  width: 90%;
   border-radius: 10px;
   background: var(--second);
-  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
+  box-shadow: -10px -10px 30px #242424, 10px 10px 30px #484848;
   border: 4px solid var(--base);
-  scrollbar-width: none;
   display: flex;
-  align-items: center;
-  max-height: 70%;
   flex-direction: column;
-  justify-content: flex-start;
-}
-.container h2 {
-  color: white;
-  letter-spacing: 3px;
-  font-size: 1.8rem;
-}
-.info-div {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 90%;
-  color: var(--secondTwo);
+  max-height: 80%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  gap: 20px;
+  z-index: 10;
 }
 
-::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+.container h2 {
+  color: var(--base);
+  letter-spacing: 3px;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+}
+
+.info-div {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  color: var(--secondTwo);
+  font-weight: bold;
+}
+
+.info-div span:first-child {
+  color: var(--base);
+  text-transform: uppercase;
 }
 
 .list-options {
@@ -262,35 +267,37 @@ onMounted(() => {
   padding: 10px;
   display: flex;
   justify-content: space-around;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
 }
 
 .check-input {
   display: none;
-  /* Oculta el input de tipo radio */
 }
 
 .check-label {
   cursor: pointer;
-  border-radius: 10px;
+  border-radius: 8px;
   background-color: var(--second);
   border: 2px solid var(--base);
-  padding: 10px;
-  transition: 0.3s;
-  font-weight: bolder;
+  padding: 10px 20px;
+  transition: 0.3s ease;
+  font-weight: bold;
   text-transform: capitalize;
-  color: var(--secondTwo);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 5px;
 }
 
-/* Cambia el estilo del label cuando el input radio correspondiente está marcado */
 .check-input:checked + .check-label {
   background-color: var(--base);
   border: 2px solid white;
   color: white;
-  scale: 1.04;
-  box-shadow: var(--secShadow);
+  transform: scale(1.1);
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
 }
 
 .close-btn {
@@ -303,28 +310,31 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 10px;
-  border-radius: 5px;
-  box-shadow: var(--secShadow);
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
   color: white;
-  transition: 0.3s;
+  transition: 0.3s ease;
+  font-weight: bold;
   cursor: pointer;
 }
-.close-btn:hover{
-  scale: 1.1;
+
+.close-btn:hover {
+  transform: scale(1.1);
 }
+
 @media (min-width: 768px) {
   * {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
+  }
+
+  .container {
+    width: 60%;
   }
 }
 
 @media (min-width: 1024px) {
-  * {
-    font-size: 1.1rem;
-  }
   .container {
-    width: 38%;
-    max-height: 70%;
+    width: 40%;
   }
 }
 </style>

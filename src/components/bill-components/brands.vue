@@ -227,8 +227,7 @@ onMounted(async () => {
 
 .edit-input {
     all: unset;
-    background: white;
-    color: #333;
+    color: white;
     padding: 5px 10px;
     border-radius: 5px;
     width: 90%;

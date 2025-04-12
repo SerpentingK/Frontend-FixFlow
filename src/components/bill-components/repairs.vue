@@ -169,6 +169,7 @@ const handleRepair = async (phoneRef, brandName, device) => {
     padding: 5px;
     border-radius: 5px;
     transition: .2s;
+    cursor: pointer;
 }
 .repair-btn:active{
     scale: .9;

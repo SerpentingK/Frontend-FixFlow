@@ -19,6 +19,7 @@ import mailTokenRestore from './components/companie-components/mailTokenRestore.
 import Particles from './components/Particles.vue';
 import withdrawList from './components/companie-components/withdrawInfo.vue';
 import loginPremise from './components/premises-components/login-premise.vue';
+import addPremiseModal from './components/premises-components/add-premise-modal.vue';
 
 // Importación de funciones de Vue y otras dependencias
 import { provide, ref, watch, onMounted } from 'vue';
@@ -427,19 +428,27 @@ provide("showAlert", showAlert);
 
 const showLoginPremise = ref(false)
 const toSelectPremise = ref(null)
+const showAddPremiseModal = ref(false)
+
+const switchSAPM = () => {
+    showAddPremiseModal.value = !showAddPremiseModal.value;
+}
+
+provide("showAddPremiseModal", showAddPremiseModal)
+provide("switchSAPM", switchSAPM)
 
 const switchSLP = (premiseName) => {
-  if (showLoginPremise.value) {
-    showLoginPremise.value = false;
-    if(premiseName) {
-      selectedPremise.value = premiseName
+    if (showLoginPremise.value) {
+        showLoginPremise.value = false;
+        if(premiseName) {
+            selectedPremise.value = premiseName
+        } else {
+            selectedPremise.value = null
+        }
     } else {
-      selectedPremise.value = null
+        toSelectPremise.value = premiseName
+        showLoginPremise.value = true
     }
-  } else {
-    toSelectPremise.value = premiseName
-    showLoginPremise.value = true
-  }
 }
 
 provide("switchSLP", switchSLP)
@@ -469,7 +478,7 @@ const switchWV = () => {
 };
 provide("switchWV", switchWV);
 
-const suscripctionRenewed = ref(true);
+const suscripctionRenewed = ref(false);
 provide("SR", suscripctionRenewed);
 
 const showMailPaswRestore = ref(false);
@@ -566,9 +575,9 @@ watch(
     <transition name="opacity-in" mode="out-in">
       <loginPremise v-if="showLoginPremise" :premise-name="toSelectPremise"></loginPremise>
     </transition>
-
-
-
+    <transition name="opacity-in" mode="out-in">
+      <addPremiseModal v-if="showAddPremiseModal"></addPremiseModal>
+    </transition>
   </section>
 </template>
 

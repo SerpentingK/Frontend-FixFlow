@@ -8,6 +8,7 @@ const cashSale = ref(0);
 const platformSale = ref(0);
 const original_price = ref(0);
 const revenue_price = computed(() => (cashSale.value + platformSale.value) - original_price.value);
+const showVerification = ref(false);
 
 // Inyecta las variables globales
 const startShift = inject("startShift");
@@ -76,10 +77,15 @@ const postSales = async () => {
         sale.value = 0;
         original_price.value = 0;
         sales.value.product = "";
+        showVerification.value = false;
 
     } catch (error) {
         console.error('Error en ventas: ', error);
     }
+}
+
+const verifySale = () => {
+    showVerification.value = true;
 }
 
 onMounted(() => {
@@ -93,96 +99,207 @@ onMounted(() => {
 
 </script>
 
-
-
 <template>
-    <section class="out-container">
-        <form @submit.prevent="postSales">
-            <div class="input-container">
+    <section class="sales-container">
+        <form @submit.prevent="verifySale">
+            <div class="info-cont">
                 <span>Producto: </span>
-                <input type="text" placeholder="Ej: Airpods Pro" required v-model="sales.product"/>
+                <input type="text" placeholder="Ej: Airpods Pro" required v-model="sales.product" class="input-field"/>
             </div>
-            <div class="input-container">
+            <div class="info-cont">
                 <span>Venta efectivo:</span>
-                <input type="number" placeholder="100000" required v-model="cashSale"/>
+                <input type="number" placeholder="100000" required v-model="cashSale" class="input-field"/>
             </div>
-            <div class="input-container">
+            <div class="info-cont">
                 <span>Venta plataforma:</span>
-                <input type="number" placeholder="100000" required v-model="platformSale"/>
+                <input type="number" placeholder="100000" required v-model="platformSale" class="input-field"/>
             </div>
-            <div class="input-container">
+            <div class="info-cont">
                 <span>Codigo:</span>
-                <input type="number" placeholder="30000" required v-model="original_price"/>
+                <input type="number" placeholder="30000" required v-model="original_price" class="input-field"/>
             </div>
-            <div class="info-container">
+            <div class="info-cont">
                 <span>Ganancia:</span>
-                <span>{{revenue_price}}</span>
+                <span class="value-display">{{revenue_price}}</span>
             </div>
-            <button class="confirm-btn">Confirmar</button>
+            <div class="btns">
+                <button type="button" @click="$emit('close')">Cancelar</button>
+                <button type="submit" class="confirm-btn">Verificar Venta</button>
+            </div>
         </form>
+
+        <!-- Ventana de verificación -->
+        <div v-if="showVerification" class="verification-modal">
+            <div class="verification-content">
+                <h4>Verificar Venta</h4>
+                <div class="info-cont">
+                    <span>Producto:</span>
+                    <span class="value-display">{{sales.product}}</span>
+                </div>
+                <div class="info-cont">
+                    <span>Venta Efectivo:</span>
+                    <span class="value-display">{{cashSale}}</span>
+                </div>
+                <div class="info-cont">
+                    <span>Venta Plataforma:</span>
+                    <span class="value-display">{{platformSale}}</span>
+                </div>
+                <div class="info-cont">
+                    <span>Código:</span>
+                    <span class="value-display">{{original_price}}</span>
+                </div>
+                <div class="info-cont">
+                    <span>Ganancia:</span>
+                    <span class="value-display">{{revenue_price}}</span>
+                </div>
+                <div class="btns">
+                    <button @click="showVerification = false">Cancelar</button>
+                    <button @click="postSales" class="confirm-btn">Confirmar Venta</button>
+                </div>
+            </div>
+        </div>
     </section>
 </template>
 
 <style scoped>
-.out-container{
-    margin-top: 30px;
+.sales-container {
     width: 100%;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    flex-direction: column;
-    max-height: 400px;
-    overflow-y: scroll;
-    scrollbar-width: none;
-}
-.out-container form{
-    width: 90%;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
-.input-container{
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-}
-.input-container input{
-    all: unset;
-    width: 60%;
-}
-input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
-    display: none;
-}
-.info-container{
-    width: 90%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 10px;
-    color: var(--secondTwo);
-}
-.confirm-btn{
-    background-color: transparent;
-    border: 2px solid var(--base);
-    padding: 5px 10px;
+
+h3 {
     color: white;
     text-transform: uppercase;
+    font-size: 1.6rem;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+
+h4 {
+    color: var(--base);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 1.3rem;
+    margin: 10px 0;
+    width: 100%;
+    text-align: center;
+}
+
+.info-cont {
+    width: 95%;
+    margin: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-field {
+    background: white;
+    border: none;
     border-radius: 5px;
-    letter-spacing: 1px;
+    padding: 5px 10px;
+    width: 50%;
+    color: #333;
+}
+
+.value-display {
+    font-weight: bold;
+    color: var(--base);
+}
+
+.btns {
+    display: flex;
+    gap: 20px;
+    margin: 15px 0 10px;
+    width: 100%;
+}
+
+.btns button {
+    flex: 1;
+    border: 2px solid var(--base);
+    background-color: transparent;
+    padding: 10px;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    border-radius: 5px;
+    transition: all 0.3s;
     cursor: pointer;
-    transition: .3s;
 }
-.confirm-btn:active{
-    scale: .9;
+
+.btns button:hover {
+    transform: translateY(-2px);
 }
+
+.btns button:active {
+    transform: translateY(0);
+    scale: 0.98;
+}
+
+button.confirm-btn {
+    background-color: var(--base);
+}
+
+.verification-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.verification-content {
+    background: var(--second);
+    padding: 20px;
+    border-radius: 10px;
+    border: 4px solid var(--base);
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 768px) {
+    .sales-container {
+        width: 90%;
+        max-width: 700px;
+    }
+
+    .info-cont {
+        font-size: 1.1rem;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
+
+    .input-field {
+        padding: 8px 12px;
+    }
+}
+
 @media (min-width: 1024px) {
-    .out-container{
-        width: 70%;
+    .sales-container {
+        width: 80%;
+        max-width: 800px;
+        padding: 25px;
+    }
+
+    .btns button {
+        padding: 12px;
     }
 }
 </style>
