@@ -24,15 +24,48 @@ const loadAllShifts = async () => {
             return `${hours}:${minutes} ${period}`;
         };
 
-        shifts.value = answer.data.map(shift => {
-            return {
-                ...shift,
-                start_time: formatTime(shift.start_time), // Reemplaza start_time con la fecha formateada
-                finish_time: formatTime(shift.finish_time) // Reemplaza finish_time con la fecha formateada
-            };
-        });
+        // Obtener los nombres de los técnicos para cada turno
+        const shiftsWithNames = await Promise.all(
+            answer.data.map(async (shift) => {
+                try {
+                    // Extraer el documento del ID del turno
+                    const workerDocument = shift.id.split('_').slice(1).join('_');
+                    
+                    // Consultar el nombre del técnico
+                    const workerResponse = await axios.get(`/api/worker/${workerDocument}/${loggedCompany.value}`);
+                    
+                    // Verificar si la respuesta tiene el formato esperado
+                    if (workerResponse.data && workerResponse.data.wname) {
+                        return {
+                            ...shift,
+                            start_time: formatTime(shift.start_time),
+                            finish_time: formatTime(shift.finish_time),
+                            worker_name: workerResponse.data.wname
+                        };
+                    } else {
+                        console.warn(`Respuesta inesperada para el trabajador ${workerDocument}:`, workerResponse.data);
+                        return {
+                            ...shift,
+                            start_time: formatTime(shift.start_time),
+                            finish_time: formatTime(shift.finish_time),
+                            worker_name: "Técnico desconocido"
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error al obtener el nombre del técnico para el turno ${shift.id}:`, error);
+                    return {
+                        ...shift,
+                        start_time: formatTime(shift.start_time),
+                        finish_time: formatTime(shift.finish_time),
+                        worker_name: "Técnico desconocido"
+                    };
+                }
+            })
+        );
+
+        shifts.value = shiftsWithNames;
     } catch (error) {
-        console.error("Error al cargar los turno", error);
+        console.error("Error al cargar los turnos", error);
     }
 };
 
@@ -68,7 +101,7 @@ onMounted(loadAllShifts)
         <ul class="shifts-list">
             <li v-for="shift in shifts" :key="shift" class="shift">
                 <fieldset @click="switchSI(shift)">
-                    <legend>{{ shift.ref_shift }}</legend>
+                    <legend>{{ shift.worker_name }}</legend>
                     <span>{{ shift.id.split('_').slice(1).join('_') }}</span>
                     <span>{{ shift.date_shift }}</span>
                 </fieldset>

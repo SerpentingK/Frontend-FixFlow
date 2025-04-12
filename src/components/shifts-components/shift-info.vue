@@ -32,6 +32,27 @@ const isEmpty = ref(false);
 
 const switchSI = inject("switchSI");
 
+const loggedCompany = inject("loggedCompany");
+
+const workerName = ref("");
+
+const getWorkerName = async () => {
+  try {
+    const workerDocument = props.shift.id.split('_').slice(1).join('_');
+    
+    const response = await axios.get(`/api/worker/${workerDocument}/${loggedCompany.value}`);
+    
+    if (response.data && response.data.wname) {
+      workerName.value = response.data.wname;
+    } else {
+      workerName.value = "Técnico desconocido";
+    }
+  } catch (error) {
+    console.error("Error al obtener el nombre del técnico:", error);
+    workerName.value = "Error al obtener datos";
+  }
+};
+
 const getList = async () => {
     let url = "";
     try {
@@ -73,6 +94,7 @@ const getList = async () => {
 
 onMounted(() => {
     getList();
+    getWorkerName();
     watchEffect(() => {
         isEmpty.value = bills.value.length === 0 && sales.value.length === 0 && outs.value.length === 0;
     });
@@ -85,7 +107,7 @@ onMounted(() => {
     <button @click="switchSI" class="close-btn" title="Cerrar">
       <ion-icon name="close"></ion-icon>
     </button>
-    <h2>{{ shift.ref_shift }}</h2>
+    <h2>{{ workerName }}</h2>
     <div class="info-div">
       <span>Colaborador:</span>
       <span>{{ shift.id.split('_').slice(1).join('_') }}</span>
