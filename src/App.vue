@@ -482,7 +482,7 @@ const switchWV = () => {
 };
 provide("switchWV", switchWV);
 
-const suscripctionRenewed = ref(false);
+const suscripctionRenewed = ref(true);
 provide("SR", suscripctionRenewed);
 
 const showMailPaswRestore = ref(false);
