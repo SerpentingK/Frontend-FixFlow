@@ -14,8 +14,9 @@ export default {
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
-    const getCompanyVault = inject("getCompanyVault");
+    const getCompanyColor = inject("getCompanyColor");
     const premiseCount = inject("premiseCount", ref(0));
+    const numberCompany = inject("numberCompany", ref(0));
 
     const getWorkersCount = async () => {
       try {
@@ -27,6 +28,19 @@ export default {
         }
       } catch (error) {
         console.error("Error al obtener el conteo de trabajadores", error);
+      }
+    };
+
+    const getWorkerNumber = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `/api/company/${loggedCompany.value}/number`
+          );
+          numberCompany.value = answer.data.number;
+        }
+      } catch (error) {
+        console.error("Error al obtener el numero de la empresa", error);
       }
     };
 
@@ -52,7 +66,8 @@ export default {
 
     onMounted(() => {
       getWorkersCount();
-      getCompanyVault();
+      getCompanyColor();
+      getWorkerNumber();
 
       const storedColor = localStorage.getItem("baseOrange");
       if (storedColor) {
@@ -73,9 +88,6 @@ export default {
       }
     };
 
-    const companyPhone = computed(() => {
-      return loggedCompany.value?.phone || "No disponible";
-    });
 
     const downloadExcel = async () => {
       try {
@@ -134,8 +146,8 @@ export default {
       selectedColor,
       updateColor,
       workerRole,
-      companyPhone,
-      downloadExcel
+      downloadExcel,
+      numberCompany
     };
   },
 };
@@ -158,7 +170,7 @@ export default {
 
       <div class="info-cont">
         <div>Teléfono:</div>
-        <div>{{ companyPhone }}</div>
+        <div>{{ numberCompany }}</div>
         <button class="edit-phone-btn" @click="">Editar</button>
       </div>
     </div>

@@ -33,6 +33,7 @@ import axios from 'axios';
 // Datos de la empresa y trabajador
 const loggedCompany = ref(null);          // Empresa logueada
 const loggedWorker = ref(null);           // Trabajador logueado
+const numbercompany = ref(null);          // Número de la empresa
 const selectedPremise = ref(null);        // Local seleccionado 
 const premisesCount = ref(0);          // Numero de locales
 const loggedDocument = ref(null);         // Documento del trabajador
@@ -63,6 +64,7 @@ const totalInCash = ref(0);               // Efectivo en caja
 
 // Proveer estados a componentes hijos
 
+provide('numbercompany', numbercompany);
 provide('totalInvestment', totalInvestment)
 provide('totalInCash', totalInCash);
 provide('total_user', total_user);
@@ -170,13 +172,12 @@ provide("selectedColor", selectedColor);
 /**
  * Obtiene la bóveda de la empresa y su color base
  */
-const getCompanyVault = async () => {
+const getCompanyColor = async () => {
   try {
     if (loggedCompany.value) {
       const answer = await axios.get(
-        `/api/company/${loggedCompany.value}/vault/baseColor`
+        `/api/company/${loggedCompany.value}/baseColor`
       );
-      totalInCash.value = answer.data.vault;
       selectedColor.value = answer.data.baseColor;
       document.documentElement.style.setProperty(
         "--base",
@@ -187,7 +188,7 @@ const getCompanyVault = async () => {
     console.error("Error al obtener la boveda y el color", error);
   }
 };
-provide('getCompanyVault', getCompanyVault);
+provide('getCompanyColor', getCompanyColor);
 
 const phonesRepair = ref([]);
 

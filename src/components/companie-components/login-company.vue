@@ -17,12 +17,13 @@ export default {
     const isLogin = ref(true); // Propiedad para alternar entre login y registro
     const isLoading = ref(false); // Nuevo estado para controlar la pantalla de carga
     const showHelpModal = ref(false);
-    const getCompanyVault = inject("getCompanyVault")
+    const getCompanyColor = inject("getCompanyColor")
     const confirmPassword = ref("");
     const msg = ref("");
     const company = ref({
       company_user: "",
       mail: "",
+      number: "",
       password: "",
     });
     const sesion = ref({
@@ -46,7 +47,7 @@ export default {
 
         msg.value = response.data;
         loggedCompany.value = response.data.name;
-        getCompanyVault()
+        getCompanyColor()
 
         // Guardar en localStorage
         localStorage.setItem("loggedCompany", JSON.stringify(response.data));
@@ -79,6 +80,7 @@ export default {
         company.value = {
           company_user: "",
           mail: "",
+          number: "",
           password: "",
         };
         confirmPassword.value = "";
@@ -190,7 +192,8 @@ export default {
         </label>
         <label for="company-input" class="input-cont">
           <ion-icon name="cube"></ion-icon>
-          <input type="number" id="tel-input" class="text-input" placeholder="Numero de Telefono"/>
+          <input type="text" id="tel-input" class="text-input" placeholder="Numero de Telefono"
+          v-model="company.number"/>
         </label>
         <label for="pasw-input" class="input-cont">
           <ion-icon name="lock-closed"></ion-icon>
