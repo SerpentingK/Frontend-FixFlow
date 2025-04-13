@@ -6,6 +6,7 @@ import axios from 'axios';
 export default {
     setup() {
         const showAlert = inject("showAlert");
+        const workersCount = inject("workersCount", ref(0));
         const loggedWorker = inject("loggedWorker", ref(null))
         const loggedDocument = inject("loggedDocument", ref(null))
         const workerRole = inject("workerRole", ref(null))
@@ -22,11 +23,13 @@ export default {
 
         const loginWorker = async () => {
             try {
-                if (selectedPremise.value) {
+                if (selectedPremise.value || workersCount.value === 1) {
                     const answer = await axios.post(`/api/loginWorker/${loggedCompany.value}`, {
                         document: sessionworker.value.document,
                         password: sessionworker.value.password,
                     });
+                    
+                    // Guardar datos del trabajador
                     loggedDocument.value = answer.data.id;
                     localStorage.setItem("loggedDocument", JSON.stringify(answer.data.id));
                     msg.value = answer.data.status;
@@ -34,8 +37,19 @@ export default {
                     localStorage.setItem("loggedWorker", JSON.stringify(answer.data.wname));
                     workerRole.value = answer.data.role;
                     localStorage.setItem("workerRole", JSON.stringify(answer.data.role));
-                    startShift.value = answer.data.shift
-                    localStorage.setItem("startShift", JSON.stringify(answer.data.shift));
+                    
+                    // Solo guardar startShift si hay un local seleccionado
+                    if (selectedPremise.value) {
+                        startShift.value = answer.data.shift;
+                        localStorage.setItem("startShift", JSON.stringify(answer.data.shift));
+                    }
+
+                    // Si es el primer gerente y no hay local seleccionado, redirigir a crear local
+                    if (workersCount.value === 1 && !selectedPremise.value) {
+                        router.push('/premises/new-premise');
+                        return;
+                    }
+                    
                     router.push('/bills')
                 } else {
                     showAlert("2", "Necesitas iniciar en un local para empezar un turno")

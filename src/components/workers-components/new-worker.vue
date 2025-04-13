@@ -36,7 +36,7 @@ export default {
                 );
                 msg.value = answer.data.msg;
                 workersCount.value++
-                router.push("/workers/workers-list");
+                router.push("/premises/new-premise");
             }
         } catch (error) {
             if (error.response && error.response.data) {

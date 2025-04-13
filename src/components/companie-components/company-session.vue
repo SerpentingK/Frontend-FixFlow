@@ -141,7 +141,7 @@ export default {
 
     const updatePhoneNumber = async () => {
       try {
-        await axios.put(`/api/company/${loggedCompany.value}/phone/${newPhoneNumber.value}`);
+        await axios.put(`/api/company/${loggedCompany.value}/number/${newPhoneNumber.value}`);
         numberCompany.value = newPhoneNumber.value;
         showPhoneModal.value = false;
         showAlert("1", "Número de teléfono actualizado exitosamente");

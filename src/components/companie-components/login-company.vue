@@ -205,10 +205,7 @@ export default {
           <input type="password" id="confirm-pasw-input" class="text-input" v-model="confirmPassword"
             placeholder="Confirmar Contraseña" />
         </label>
-        <p v-if="!passwordMatch" style="color: white">
-          Las contraseñas no coinciden.
-        </p>
-        <button class="go-btn" type="submit" :disabled="!passwordMatch">
+        <button class="go-btn" type="submit">
           Registrarse
         </button>
         <button type="button" @click="toggleForm" class="opt-btn">

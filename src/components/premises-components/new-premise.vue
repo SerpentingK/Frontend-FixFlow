@@ -9,12 +9,13 @@ export default {
         const showAlert = inject("showAlert");
         const router = useRouter();
         const premisesCount = inject("premisesCount", ref(0));
+        const loggedCompany = inject("loggedCompany", ref(null));
 
         const local = ref({
             name: "",
             address: "",
             password: "",
-            confirmPassword: ""
+            company: ""
         });
 
         const registerLocal = async () => {
@@ -22,6 +23,12 @@ export default {
                 showAlert("2", "Las contraseñas no coinciden.");
                 return;
             }
+            const answer = await axios.post(`/api/newPremises/${loggedCompany.value}`, {
+                name: local.value.name,
+                address: local.value.address,
+                password: local.value.password,
+                company: loggedCompany.value
+            });
             premisesCount.value += 1;
             localStorage.setItem("premisesCount", premisesCount.value);
             router.push('/premises/select-premise')
