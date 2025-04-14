@@ -301,6 +301,7 @@ export default {
     box-shadow: var(--secShadow);
     transition: transform 0.3s;
     text-decoration: none;
+    cursor: pointer;
 }
 
 .new-premise-btn:hover {

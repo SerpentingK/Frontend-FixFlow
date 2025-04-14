@@ -14,6 +14,7 @@ onMounted(() => {
 
 const handleAccept = () => {
     router.push('/premises/new-premise');
+    switchSAPM();
 };
 </script>
 
@@ -27,7 +28,7 @@ const handleAccept = () => {
             </p>
             <div class="alert-buttons">
                 <button class="alert-button accept" @click="handleAccept">Aceptar</button>
-                <button class="alert-button cancel" @click="switchSAPM()">Cancelar</button>
+                <button class="alert-button cancel" @click="switchSAPM();">Cancelar</button>
             </div>
         </div>
     </div>
