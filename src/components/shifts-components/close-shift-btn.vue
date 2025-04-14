@@ -26,5 +26,6 @@ button{
     gap: 10px;
     color: white;
     box-shadow: var(--baseShadow);
+    cursor: pointer;
 }
 </style>

@@ -59,8 +59,25 @@ export default {
       }
     };
 
+    const isColorTooLight = (color) => {
+      // Convertir el color hexadecimal a RGB
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      
+      // Calcular la luminosidad
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      
+      // Si la luminosidad es mayor a 200, consideramos que es demasiado claro
+      return brightness > 200;
+    };
+
     const updateColor = async () => {
       try {
+        if (isColorTooLight(selectedColor.value)) {
+          showAlert("2", "Este color es demasiado claro. Por favor, elige un color más oscuro.");
+          return;
+        }
         const encodedColor = encodeURIComponent(selectedColor.value);
         await axios.put(
           `/api/company/${loggedCompany.value}/baseColor/${encodedColor}`
@@ -187,12 +204,7 @@ export default {
 <template>
   <section class="session-cont">
     <div class="info-container">
-      <h3 style="color: black">{{ loggedCompany }}</h3>
-
-      <div class="info-cont">
-        <div>Total en boveda:</div>
-        <div>{{ totalInCash }}</div>
-      </div>
+      <h3>{{ loggedCompany }}</h3>
 
       <div class="info-cont">
         <div>Número de trabajadores:</div>
@@ -242,265 +254,139 @@ export default {
 .session-cont {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  gap: 20px;
+  gap: 1.5rem;
   align-items: center;
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 10px 5px;
-  width: 75%;
-  border-radius: 10px;
-  background: #363636;
-  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 2px solid var(--base);
-  overflow-y: scroll;
-}
-.session-cont::-webkit-scrollbar{
-  display: none;
+  width: 80%;
+  max-width: 500px;
+  padding: 2rem;
+  border-radius: 1rem;
+  background: var(--second);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 4px solid var(--base);
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .info-container {
-  width: 90%;
-  height: auto;
-  border-radius: 10px;
+  width: 100%;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: #ffffff;
-  box-shadow: inset -25px -25px 51px #a8a8a8, inset 25px 25px 51px #ffffff;
-  display: flex;
-  padding: 10px 0;
+  gap: 1rem;
 }
 
 .info-container h3 {
-  font-family: var(--baseFont);
+  color: var(--base);
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0;
+  font-weight: bolder;
   text-transform: uppercase;
-  font-size: clamp(15px, 20px, 25px);
+  letter-spacing: 1px;
 }
 
 .info-cont {
   display: flex;
-  width: 90%;
-  padding: 10px;
   justify-content: space-between;
-}
-
-.close-btn {
-  all: unset;
-  background-color: var(--base);
-  color: #ffffff;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: var(--baseFont);
-  font-size: 18px;
-  transition: all 0.3s ease;
-}
-
-.close-btn:active {
-  background-color: var(--second);
-  box-shadow: var(--secShadow);
-  scale: 0.9;
+  align-items: center;
+  color: white;
+  font-size: 1rem;
 }
 
 .color-picker {
-  margin-top: 10px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 80%;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .color-picker label {
-  font-size: 1.2rem;
-  margin-bottom: 5px;
   color: white;
+  font-size: 1rem;
 }
 
 .color-picker input {
   cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
-.apply-color-btn {
-  all: unset;
+.apply-color-btn, .close-btn, .download-btn {
+  background: var(--base);
   color: white;
-  padding: 8px 15px;
-  border-radius: 5px;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 16px;
   transition: all 0.3s ease;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.apply-color-btn{
+  background: none;
+  border: 2px solid var(--base);
 }
 
-.apply-color-btn:hover {
-  opacity: 0.8;
-}
-.withdraw-btns{
-  position: absolute;
-  display: flex;
-  gap: 10px;
-  flex-direction: row;
-  top: -50px;
-  right: 0;
+.apply-color-btn:hover, .close-btn:hover, .download-btn:hover {
+  background: var(--secondTwo);
+  transform: translateY(-2px);
 }
 
-.withdraw-btn, .withdraw-list-btn {
-  background-color: var(--base);
-  padding: 5px;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-  box-shadow: var(--secShadow);
-  font-size: 1.4rem;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.withdraw-btn:hover {
-  scale: 1.2;
-}
-.edit-phone-btn {
-  all: unset;
-  margin-left: 10px;
-  padding: 4px 8px;
-  background-color: var(--base);
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-.edit-phone-btn:hover {
-  background-color: var(--second);
+.apply-color-btn:active, .close-btn:active, .download-btn:active {
+  transform: scale(0.95);
 }
 
 .download-btn {
-  all: unset;
-  background-color: var(--base);
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: var(--baseFont);
-  font-size: 18px;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.download-btn:active {
-  background-color: var(--second);
-  box-shadow: var(--secShadow);
-  scale: 0.9;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .download-btn ion-icon {
-  font-size: 24px;
+  font-size: 1.25rem;
 }
 
-/* Tablets: 768px y mayores */
-@media (min-width: 768px) {
-  .session-cont {
-    gap: 30px;
-    height: auto;
-    max-height: 90%;
-  }
-
-  .info-container {
-    width: 80%;
-  }
-
-  .info-container ion-icon {
-    font-size: 300px;
-  }
-
-  .info-container h3 {
-    font-size: 35px;
-  }
-
-  .close-btn {
-    scale: 1.3;
-  }
-
-  .upload-btn:hover ion-icon {
-    animation: uploadAnimation 1.5s ease 1 forwards;
-  }
-
-  @keyframes uploadAnimation {
-    0% {
-      transform: translateY(0%);
-    }
-
-    25% {
-      transform: translateY(-150%);
-    }
-
-    26% {
-      transform: translateY(150%);
-    }
-
-    60% {
-      transform: translateY(-150%);
-    }
-
-    61% {
-      transform: translateY(150%);
-    }
-
-    100% {
-      transform: translateY(0%);
-    }
-  }
-
-  .download-btn {
-    scale: 1.3;
-  }
+.edit-phone-btn {
+  background: var(--base);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* Computadoras de escritorio: 1280px y mayores */
-@media (min-width: 1280px) {
-  .session-cont {
-    width: 30%;
-    height: 75%;
-    gap: 40px;
-  }
+.edit-phone-btn:hover {
+  background: var(--secondTwo);
+  transform: translateY(-2px);
+}
 
-  .info-container ion-icon {
-    font-size: 200px;
-  }
-
-  .info-container h3 {
-    font-size: 25px;
-  }
-
-  .close-btn {
-    scale: 0.9;
-  }
-  .withdraw-btns{
-    top: 0;
-    right: -50px;
-    flex-direction: column;
-  }
-
-  .download-btn {
-    scale: 0.9;
-  }
+.edit-phone-btn:active {
+  transform: scale(0.95);
 }
 
 /* Estilos para el modal */
 .modal-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -509,78 +395,114 @@ export default {
 
 .modal-content {
   background: var(--second);
-  padding: 20px;
-  border-radius: 10px;
+  padding: 2rem;
+  border-radius: 1rem;
   width: 90%;
   max-width: 400px;
-  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 2px solid var(--base);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 4px solid var(--base);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 1rem;
 }
 
 .modal-content h3 {
   color: white;
-  margin-bottom: 20px;
+  font-size: 1.5rem;
   text-align: center;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 1px;
 }
 
 .phone-input {
-  width: 90%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid var(--base);
-  border-radius: 5px;
-  background: #ffffff;
-  font-size: 16px;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.phone-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px var(--base);
+}
+
+.phone-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .modal-buttons {
   display: flex;
-  justify-content: space-between;
-  gap: 10px;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .cancel-btn, .save-btn {
   flex: 1;
-  padding: 10px;
+  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 5px;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  font-family: var(--baseFont);
-  font-size: 16px;
   transition: all 0.3s ease;
 }
 
 .cancel-btn {
-  background-color: #666;
+  background: rgba(255, 255, 255, 0.1);
   color: white;
 }
 
 .save-btn {
-  background-color: var(--base);
+  background: var(--base);
   color: white;
 }
 
 .cancel-btn:hover, .save-btn:hover {
-  opacity: 0.8;
-  transform: scale(1.05);
+  transform: translateY(-2px);
 }
 
-/* Ajustes responsive para el modal */
+.cancel-btn:active, .save-btn:active {
+  transform: scale(0.95);
+}
+
 @media (min-width: 768px) {
-  .modal-content {
-    width: 50%;
+  .session-cont {
+    width: 80%;
+    max-width: 600px;
+  }
+
+  .info-container h3 {
+    font-size: 1.75rem;
+  }
+
+  .info-cont {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .session-cont {
+    width: 70%;
     max-width: 500px;
+    max-height: 70vh;
   }
 }
 
 @media (min-width: 1280px) {
+  .session-cont {
+    width: 40%;
+    max-width: 450px;
+  }
+
   .modal-content {
-    width: 20%;
-    max-width: 600px;
+    width: 40%;
+    max-width: 450px;
   }
 }
 </style>

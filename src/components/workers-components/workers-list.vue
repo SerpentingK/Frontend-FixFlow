@@ -10,6 +10,8 @@ export default {
     const workerToReactive = ref(null);
     const showDeleteWindow = ref(false);
     const showReactive = ref(false);
+    const showDownloadWindow = ref(false);
+    const workerToDownload = ref(null);
 
 
     const switchSDW = (document) => {
@@ -20,6 +22,11 @@ export default {
     const switchSRW = (document) => {
       showReactive.value = !showReactive.value;
       workerToReactive.value = document;
+    };
+
+    const switchSDownload = (document) => {
+      showDownloadWindow.value = !showDownloadWindow.value;
+      workerToDownload.value = document;
     };
 
     const workers = ref([]);
@@ -68,6 +75,42 @@ export default {
       }
     };
 
+    const downloadWorkerData = async (document) => {
+      try {
+        // Obtener turnos del trabajador
+        const shiftsResponse = await axios.get(`/api/worker/${document}/${loggedCompany.value}/shifts`);
+        const shifts = shiftsResponse.data;
+        
+        // Obtener facturas del trabajador
+        const billsResponse = await axios.get(`/api/worker/${document}/${loggedCompany.value}/bills`);
+        const bills = billsResponse.data;
+        
+        // Crear un objeto con toda la información
+        const workerData = {
+          shifts,
+          bills
+        };
+        
+        // Convertir a JSON y crear un archivo para descargar
+        const dataStr = JSON.stringify(workerData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const url = window.URL.createObjectURL(dataBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `worker_${document}_data.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        showDownloadWindow.value = false;
+        workerToDownload.value = null;
+      } catch (error) {
+        console.error("Error descargando datos del trabajador:", error);
+        alert("Error al descargar los datos del trabajador.");
+      }
+    };
+
     return {
       workers,
       workerRole,
@@ -78,7 +121,11 @@ export default {
       switchSRW,
       reactiveWorker,
       workerToReactive,
-      showReactive
+      showReactive,
+      showDownloadWindow,
+      workerToDownload,
+      switchSDownload,
+      downloadWorkerData
     };
   },
 };
@@ -93,15 +140,22 @@ export default {
           <legend>{{ worker.wname }}</legend>
           <span>Rol: {{ worker.wrole }}</span>
           <span>Documento: {{ worker.document }}</span>
-          <!-- Si el trabajador está activo -->
-          <button v-if="worker.active" class="action-btn one" @click="switchSDW(worker.document)">
-            <ion-icon name="close-circle" title="Desactivar colaborador"></ion-icon>
-          </button>
+          <div class="buttons-container">
+            <!-- Si el trabajador está activo -->
+            <button v-if="worker.active" class="action-btn one" @click="switchSDW(worker.document)">
+              <ion-icon name="close-circle" title="Desactivar colaborador"></ion-icon>
+            </button>
 
-          <!-- Si el trabajador está inactivo -->
-          <button v-if="!worker.active" class="action-btn two" @click="switchSRW(worker.document)">
-            <ion-icon name="lock-open" title="Reactivar colaborador"></ion-icon>
-          </button>
+            <!-- Si el trabajador está inactivo -->
+            <button v-if="!worker.active" class="action-btn two" @click="switchSRW(worker.document)">
+              <ion-icon name="lock-open" title="Reactivar colaborador"></ion-icon>
+            </button>
+            
+            <!-- Botón para descargar datos del trabajador -->
+            <button class="action-btn three" @click="switchSDownload(worker.document)">
+              <ion-icon name="download" title="Descargar datos del colaborador"></ion-icon>
+            </button>
+          </div>
         </fieldset>
       </li>
     </ol>
@@ -122,6 +176,17 @@ export default {
         <span>
           <button @click="switchSRW()" class="cancel-btn">No</button>
           <button @click="reactiveWorker(workerToReactive)" class="confirm-btn">
+            Sí
+          </button>
+        </span>
+      </div>
+    </transition>
+    <transition name="fade">
+      <div class="window" v-if="showDownloadWindow" style="padding: 15px">
+        <h3>Descargar datos del colaborador?</h3>
+        <span>
+          <button @click="switchSDownload()" class="cancel-btn">No</button>
+          <button @click="downloadWorkerData(workerToDownload)" class="confirm-btn">
             Sí
           </button>
         </span>
@@ -207,6 +272,7 @@ button.cancel-btn {
   gap: 10px;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: center;
 }
 .worker-li.active {
   border-color: var(--successColor);
@@ -230,6 +296,12 @@ button.cancel-btn {
   font-size: 1rem;
 }
 
+.buttons-container {
+  display: flex;
+  gap: 5px;
+  margin-left: auto;
+}
+
 .action-btn {
   padding: 2px;
   border: none;
@@ -245,6 +317,9 @@ button.cancel-btn {
 }
 .action-btn.two{
   background-color: var(--successColor);
+}
+.action-btn.three{
+  background-color: var(--base);
 }
 
 .action-btn ion-icon {

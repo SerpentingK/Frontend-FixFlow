@@ -13,6 +13,21 @@ const outFlows = ref({
     price: 0
 });
 
+// Función para formatear moneda
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        minimumFractionDigits: 0,
+    }).format(value || 0);
+};
+
+// Función para formatear input numérico
+const formatNumberInput = (value) => {
+    const numericValue = value.toString().replace(/\D/g, '');
+    return numericValue ? parseInt(numericValue, 10) : 0;
+};
+
 watch(total_outs, (newVal) => {
     localStorage.setItem("total_outs", JSON.stringify(newVal))
 })
@@ -58,7 +73,13 @@ onMounted(() => {
             </div>
             <div class="info-cont">
                 <span>Salida:</span>
-                <input type="number" v-model="outFlows.price" required class="input-field"/>
+                <input 
+                    type="text" 
+                    :value="formatCurrency(outFlows.price)"
+                    @input="(e) => outFlows.price = formatNumberInput(e.target.value)"
+                    required 
+                    class="input-field"
+                />
             </div>
             <div class="btns">
                 <button type="button" @click="$emit('close')">Cancelar</button>
@@ -76,7 +97,7 @@ onMounted(() => {
                 </div>
                 <div class="info-cont">
                     <span>Monto:</span>
-                    <span class="value-display">{{outFlows.price}}</span>
+                    <span class="value-display">{{formatCurrency(outFlows.price)}}</span>
                 </div>
                 <div class="btns">
                     <button @click="showVerification = false">Cancelar</button>

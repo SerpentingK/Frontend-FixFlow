@@ -69,118 +69,129 @@ export default {
 </template>
 
 <style scoped>
-/* Usa exactamente el mismo estilo del componente anterior */
 .form-container {
-    position: fixed;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 20px 10px;
-    width: 75%;
-    border-radius: 10px;
-    background: #363636;
-    box-shadow: -25px -25px 51px #242424,
-        25px 25px 51px #484848;
-    border: 2px solid var(--base);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(1px, 5px, 10px);
+    width: 80%;
+    max-width: 500px;
+    padding: 2rem;
+    background: var(--second);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 4px solid var(--base);
+    overflow: scroll;
+    scrollbar-width: none;
 }
 
 .form-container h2 {
-    font-size: 25px;
-    font-family: var(--baseFont);
-    text-transform: uppercase;
+    color: white;
+    font-size: 1.5rem;
     text-align: center;
+    margin: 0;
+    font-weight: 500;
     letter-spacing: 1px;
-    color: transparent;
-    background: var(--base);
-    background: linear-gradient(117deg, var(--base) 0%, var(--base) 32%, var(--base) 72%, rgba(255, 255, 255, 1) 100%, var(--base) 100%);
-    -webkit-background-clip: text;
 }
 
 .form-container span {
-    color: var(--secondTwo);
+    color: rgba(255, 255, 255, 0.7);
     text-align: center;
+    font-size: 0.875rem;
 }
 
 .form-container form {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 .input-container {
-    padding: 10px;
-    border-radius: 10px;
-    background: #ffffff;
-    box-shadow: inset -25px -25px 51px #a8a8a8,
-        inset 25px 25px 51px #ffffff;
+    position: relative;
     display: flex;
     align-items: center;
-    width: 80%;
-    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
 }
-.input-container ion-icon{
-    margin-left: 10px;
-    scale: 1.3;
+
+.input-container:focus-within {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px var(--base);
+}
+
+.input-container ion-icon {
+    color: var(--base);
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
 }
 
 .input-container input {
-    all: unset;
-    width: 80%;
-    padding: 0 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    font-size: 1rem;
+    outline: none;
+}
+
+.input-container input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .go-btn {
-    background-color: var(--base);
-    border: 2px solid var(--base);
-    padding: 10px 20px;
-    border-radius: 15px;
+    background: var(--base);
     color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: bolder;
-    transition: .3s;
+    letter-spacing: 1px;
+}
+
+.go-btn:hover {
+    background: var(--secondTwo);
+    transform: translateY(-2px);
 }
 
 .go-btn:active {
-    scale: 0.9;
+    transform: scale(0.95);
 }
 
-/* Tablets: 768px y mayores */
 @media (min-width: 768px) {
     .form-container {
-        gap: clamp(5px, 10px, 15px);
+        width: 80%;
+        max-width: 600px;
     }
 
     .form-container h2 {
-        font-size: 30px;
+        font-size: 1.75rem;
     }
 
-    .form-container span {
-        font-size: 20px;
-    }
-
-    .form-container form {
-        gap: 20px;
-    }
-
-    .input-container {
-        padding: 15px;
+    .input-container input {
+        font-size: 1.1rem;
     }
 }
 
-/* Portátiles: 1024px y mayores */
 @media (min-width: 1024px) {
     .form-container {
+        width: 70%;
+        max-width: 500px;
+        max-height: 70vh;
+    }
+}
+
+@media (min-width: 1280px) {
+    .form-container {
         width: 40%;
-        padding: 10px 30px;
-        gap: clamp(5px, 10px, 15px);
+        max-width: 450px;
     }
 }
 </style>

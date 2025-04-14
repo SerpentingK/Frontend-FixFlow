@@ -28,6 +28,21 @@ const sales = ref({
     revenue_price: 0
 });
 
+// Función para formatear moneda
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        minimumFractionDigits: 0,
+    }).format(value || 0);
+};
+
+// Función para formatear input numérico
+const formatNumberInput = (value) => {
+    const numericValue = value.toString().replace(/\D/g, '');
+    return numericValue ? parseInt(numericValue, 10) : 0;
+};
+
 // Observadores para guardar en localStorage
 watch(total_sales, (newVal) => {
     localStorage.setItem("total_sales", JSON.stringify(newVal));
@@ -108,19 +123,40 @@ onMounted(() => {
             </div>
             <div class="info-cont">
                 <span>Venta efectivo:</span>
-                <input type="number" placeholder="100000" required v-model="cashSale" class="input-field"/>
+                <input 
+                    type="text" 
+                    :value="formatCurrency(cashSale)"
+                    @input="(e) => cashSale = formatNumberInput(e.target.value)"
+                    placeholder="100000" 
+                    required 
+                    class="input-field"
+                />
             </div>
             <div class="info-cont">
                 <span>Venta plataforma:</span>
-                <input type="number" placeholder="100000" required v-model="platformSale" class="input-field"/>
+                <input 
+                    type="text" 
+                    :value="formatCurrency(platformSale)"
+                    @input="(e) => platformSale = formatNumberInput(e.target.value)"
+                    placeholder="100000" 
+                    required 
+                    class="input-field"
+                />
             </div>
             <div class="info-cont">
                 <span>Codigo:</span>
-                <input type="number" placeholder="30000" required v-model="original_price" class="input-field"/>
+                <input 
+                    type="text" 
+                    :value="formatCurrency(original_price)"
+                    @input="(e) => original_price = formatNumberInput(e.target.value)"
+                    placeholder="30000" 
+                    required 
+                    class="input-field"
+                />
             </div>
             <div class="info-cont">
                 <span>Ganancia:</span>
-                <span class="value-display">{{revenue_price}}</span>
+                <span class="value-display">{{formatCurrency(revenue_price)}}</span>
             </div>
             <div class="btns">
                 <button type="button" @click="$emit('close')">Cancelar</button>
@@ -138,19 +174,19 @@ onMounted(() => {
                 </div>
                 <div class="info-cont">
                     <span>Venta Efectivo:</span>
-                    <span class="value-display">{{cashSale}}</span>
+                    <span class="value-display">{{formatCurrency(cashSale)}}</span>
                 </div>
                 <div class="info-cont">
                     <span>Venta Plataforma:</span>
-                    <span class="value-display">{{platformSale}}</span>
+                    <span class="value-display">{{formatCurrency(platformSale)}}</span>
                 </div>
                 <div class="info-cont">
                     <span>Código:</span>
-                    <span class="value-display">{{original_price}}</span>
+                    <span class="value-display">{{formatCurrency(original_price)}}</span>
                 </div>
                 <div class="info-cont">
                     <span>Ganancia:</span>
-                    <span class="value-display">{{revenue_price}}</span>
+                    <span class="value-display">{{formatCurrency(revenue_price)}}</span>
                 </div>
                 <div class="btns">
                     <button @click="showVerification = false">Cancelar</button>
@@ -164,7 +200,6 @@ onMounted(() => {
 <style scoped>
 .sales-container {
     width: 100%;
-    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -273,11 +308,6 @@ button.confirm-btn {
 }
 
 @media (min-width: 768px) {
-    .sales-container {
-        width: 90%;
-        max-width: 700px;
-    }
-
     .info-cont {
         font-size: 1.1rem;
     }
@@ -292,12 +322,6 @@ button.confirm-btn {
 }
 
 @media (min-width: 1024px) {
-    .sales-container {
-        width: 80%;
-        max-width: 800px;
-        padding: 25px;
-    }
-
     .btns button {
         padding: 12px;
     }

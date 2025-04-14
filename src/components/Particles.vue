@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, inject } from "vue";
 
-const selectedColor = inject("selectedColor")
 
 const initParticles = () => {
   particlesJS("particles-js", {

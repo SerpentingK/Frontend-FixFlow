@@ -134,7 +134,7 @@ export default {
     background: var(--second);
     border-radius: 1rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--base);
+    border: 4px solid var(--base);
 }
 
 .auth-content {

@@ -41,6 +41,11 @@ const isActive = (path) => route.path === path
     transition: all .4s ease;
     gap: 10px;
     z-index: 1;
+    overflow: scroll;
+    scrollbar-width: none;
+}
+.container::-webkit-scrollbar{
+    display: none;
 }
 .container h2{
     color: white;
