@@ -375,13 +375,9 @@ const handlePath = () => {
     router.push('/loginCompany');
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
     router.push('/companyShift');
-  } else if (route.path.startsWith('/premises') && premisesCount.value === 0) {
+  } else if (route.path.startsWith('/premises') && premisesCount.value < 1) {
     router.push('/premises/new-premise');
-  }
-  else if (route.path.startsWith('/premises') && premisesCount.value > 0) {
-    router.push('/premises/select-premise');
-  }
-  else if (route.path.startsWith('/workers') && workersCount.value < 1) {
+  } else if (route.path.startsWith('/workers') && workersCount.value < 1) {
     router.push('/workers/new-worker');
   } else if (route.path.startsWith('/workers') && loggedWorker.value === null && workersCount > 0) {
     router.push('/workers/login-worker');
@@ -407,9 +403,11 @@ const handlePath = () => {
 // SISTEMA DE ALERTAS
 // =============================================
 
+// Control de alertas
+const alerts = ref([]);
+const alertType = ref('4');
+const alertMessage = ref('');
 const alertShow = ref(false);
-const alertType = ref("4");
-const alertMessage = ref("Predeterminado");
 
 /**
  * Muestra una alerta en la interfaz
@@ -417,13 +415,18 @@ const alertMessage = ref("Predeterminado");
  * @param {string} message - Mensaje a mostrar
  */
 const showAlert = (type, message) => {
-  if (alertShow.value) {
-    alertShow.value = false;
+  if (type && message) {
+    // Añadir nueva alerta
+    alerts.value.push({
+      id: Date.now(),
+      type,
+      message
+    });
   } else {
-    alertType.value = type;
-    alertMessage.value = message;
-    alertShow.value = true;
+    // Remover la primera alerta
+    alerts.value.shift();
   }
+  alertShow.value = alerts.value.length > 0;
 };
 provide("showAlert", showAlert);
 
@@ -527,9 +530,8 @@ watch(
   () => route.path,
   (newPath) => {
     setTimeout(() => {
-        switchSRS();
+      switchSRS();
       handlePath();
-      premisesCount.value = parseInt(localStorage.getItem("premisesCount") || 0);
     }, 150);
   }
 );
@@ -578,9 +580,14 @@ watch(
     <transition name="opacity-in" mode="out-in">
       <renewedSuscription v-if="showRenewedSuscription"></renewedSuscription>
     </transition>
-    <transition name="opacity-in" mode="out-in">
-      <alert v-if="alertShow" :type="alertType" :message="alertMessage"></alert>
-    </transition>
+    <transition-group name="alert-list" tag="div" class="alerts-container">
+      <alert 
+        v-for="alert in alerts" 
+        :key="alert.id"
+        :type="alert.type" 
+        :message="alert.message"
+      ></alert>
+    </transition-group>
     <transition name="opacity-in" mode="out-in">
       <withdrawVault v-if="showWithdrawVault"></withdrawVault>
     </transition>
@@ -623,37 +630,35 @@ watch(
   transform-origin: center;
 }
 
-
-
-* {
-  font-family: var(--baseFont);
-  letter-spacing: .6px;
-}
-
-.body {
-  height: 100%;
-}
-
-.opacity-in-enter-active,
-.opacity-in-leave-active {
-  transition: all .5s ease;
-}
-
-.opacity-in-enter-from {
-  opacity: 0;
-  transform: scale(0.1);
-  transform-origin: center;
-}
-
 .opacity-in-leave-to {
   opacity: 0;
   transform: scale(0.1);
   transform-origin: center;
 }
 
-.opacity-in-leave-to {
+.alerts-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px;
+}
+
+.alert-list-enter-active,
+.alert-list-leave-active {
+  transition: all 0.3s ease;
+}
+
+.alert-list-enter-from {
   opacity: 0;
-  transform: scale(0.1);
-  transform-origin: center;
+  transform: translateX(-100%);
+}
+
+.alert-list-leave-to {
+  opacity: 0;
+  transform: translateX(-100%);
 }
 </style>

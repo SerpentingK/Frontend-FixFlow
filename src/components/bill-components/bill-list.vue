@@ -51,13 +51,19 @@ const searchBills = debounce(async () => {
     }
 
     const tempBills = await axios.get(url);
-    bills.value = Array.isArray(tempBills.data) ? tempBills.data : [tempBills.data];
+    // Si no hay resultados, establecer bills como un array vacío
+    if (!tempBills.data || (Array.isArray(tempBills.data) && tempBills.data.length === 0)) {
+      bills.value = [];
+    } else {
+      bills.value = Array.isArray(tempBills.data) ? tempBills.data : [tempBills.data];
+    }
   } catch (error) {
     console.error("Error al realizar la búsqueda:", error);
+    bills.value = []; // En caso de error, establecer bills como un array vacío
   } finally {
     isLoading.value = false; // Desactivar indicador de carga
   }
-}, 500); // Retardo de 900 ms
+}, 500); // Retardo de 500 ms
 
 // Observador para activar la búsqueda mientras el usuario escribe
 watch(search, searchBills);
@@ -78,7 +84,11 @@ onMounted(loadAllBills);
                 <option value="2">Fecha</option>
                 <option value="3">Cliente</option>
             </select>
-            <input type="text" placeholder="Buscar" v-model="search" />
+            <input 
+                :type="searchType === '2' ? 'date' : 'text'" 
+                :placeholder="searchType === '2' ? '' : 'Buscar'" 
+                v-model="search" 
+            />
         </form>
         <ol class="bill-list">
             <!-- Lista de facturas -->
@@ -95,9 +105,9 @@ onMounted(loadAllBills);
                     </fieldset>
                 </button>
             </transition-group>
-            <!-- Mensaje cuando no hay facturas -->
+            <!-- Mensaje cuando no hay facturas o no se encuentran resultados -->
             <div v-if="bills.length === 0" class="no-bills-message">
-                No se han creado facturas por el momento
+                No se han encontrado facturas
             </div>
         </ol>
     </section>

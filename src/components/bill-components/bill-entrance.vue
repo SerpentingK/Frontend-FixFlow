@@ -20,7 +20,7 @@ const phones = ref([
   },
 ]);
 const loggedWorker = inject("loggedWorker", ref(null));
-const showAlert = inject("showAlert");
+const showAlert = inject("showAlert", () => {});
 const loggedCompany = inject("loggedCompany", ref(null));
 const startShift = inject("startShift", ref(null));
 const billData = inject("billData");
@@ -225,6 +225,33 @@ onMounted(async () => {
 });
 
 const submitForm = () => {
+  // Validar información del cliente
+  if (!clientName.value || !clientPhone.value) {
+    showAlert("2", "Por favor complete la información del cliente");
+    return;
+  }
+
+  // Validar cada teléfono
+  for (let i = 0; i < phones.value.length; i++) {
+    const phone = phones.value[i];
+    if (!phone.brand_name) {
+      showAlert("2", `Por favor seleccione la marca del teléfono ${i + 1}`);
+      return;
+    }
+    if (!phone.device) {
+      showAlert("2", `Por favor seleccione el modelo del teléfono ${i + 1}`);
+      return;
+    }
+    if (!phone.individual_price || phone.individual_price <= 0) {
+      showAlert("2", `Por favor ingrese un precio válido para el teléfono ${i + 1}`);
+      return;
+    }
+    if (phone.payment < 0) {
+      showAlert("2", `El pago del teléfono ${i + 1} no puede ser negativo`);
+      return;
+    }
+  }
+
   billData.value = {
     ...billData.value,
     total_price: totalPrice.value,
@@ -387,7 +414,12 @@ const submitForm = () => {
     <!-- Botones -->
     <div class="btns">
       <button @click="switchSBC()">Cancelar</button>
-      <button @click="submitForm()" class="confirm-btn">Generar Factura</button>
+      <button 
+        @click="submitForm()" 
+        class="confirm-btn"
+      >
+        Generar Factura
+      </button>
     </div>
 
     <!-- Interruptor de impresión -->
@@ -660,5 +692,15 @@ input:checked+.slider:before {
   .phone-section {
     padding: 15px;
   }
+}
+
+.disabled-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #666 !important;
+}
+
+.disabled-btn:hover {
+  transform: none !important;
 }
 </style>

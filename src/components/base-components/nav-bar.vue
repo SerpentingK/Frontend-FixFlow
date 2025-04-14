@@ -21,13 +21,6 @@ const toggleHelpModal = () => {
   showHelpModal.value = !showHelpModal.value;
 };
 
-const handlePremisesClick = () => {
-  if (premisesCount.value === 0) {
-    router.push('/premises/new-premise');
-  } else {
-    router.push('/premises/select-premise');
-  }
-};
 
 const route = useRoute();
 const isActive = (path) => route.path.startsWith(path);
@@ -57,7 +50,7 @@ const handleKeyPress = (event) => {
       break;
     case 'x':
       if (loggedCompany.value) {
-        handlePremisesClick();
+        router.push('/premises/select-premise');
       }
       break;
     case 'c':
@@ -100,10 +93,10 @@ onBeforeUnmount(() => {
       Compañia
       <span class="keyboard-shortcut">Z</span>
     </router-link>
-    <a v-if="loggedCompany" @click="handlePremisesClick" class="nav-router" :class="{ active: isActive('/premises') }">
+    <router-link to="/premises/select-premise" v-if="loggedCompany" class="nav-router" :class="{ active: isActive('/premises') }">
       Locales
       <span class="keyboard-shortcut">X</span>
-    </a>
+    </router-link>
     <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">
       Colaboradores
       <span class="keyboard-shortcut">C</span>

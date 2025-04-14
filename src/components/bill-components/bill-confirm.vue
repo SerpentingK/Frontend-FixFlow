@@ -14,6 +14,7 @@ const total_platform = inject("total_platform");
 const bill_number = ref(null);
 const billData = inject("billData");
 const switchSBC = inject("switchSBC");
+const showAlert = inject("showAlert");
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("es-CO", {
@@ -65,6 +66,7 @@ const postbill = async () => {
       printInvoice(billData.value, loggedCompany.value, bill_number.value);
     }
 
+    showAlert("1", "Factura generada exitosamente");
     router.push("/bills/bill-list");
 
     billData.value = {
@@ -77,6 +79,7 @@ const postbill = async () => {
     };
   } catch (error) {
     console.error("Error al enviar la factura:", error.response?.data);
+    showAlert("2", "Error al generar la factura. Por favor, intente nuevamente.");
   }
 };
 
