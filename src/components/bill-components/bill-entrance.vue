@@ -214,12 +214,6 @@ const updatePayment = (index, type, value) => {
 };
 
 onMounted(async () => {
-  // Verificar si hay un local seleccionado
-  if (!selectedPremise.value) {
-    showAlert("2", "No hay un local seleccionado Por favor, seleccione un local");
-    router.push('/premises/select-premise');
-    return;
-  }
   
   await fetchBrands();
 });

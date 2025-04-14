@@ -29,11 +29,6 @@ const sessionPremise = ref({
 
 const postLogin = async () => {
   try {
-    if (sessionPremise.value.password.length < 4) {
-      showAlert?.("2", "La clave debe tener al menos 4 caracteres.");
-      return;
-    }
-
     const answer = await axios.post(`/api/loginPremises`, {
       premise_id: sessionPremise.value.premise_id,
       password: sessionPremise.value.password,

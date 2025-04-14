@@ -383,6 +383,9 @@ const handlePath = () => {
     router.push('/workers/login-worker');
   } else if (route.path === '/workers/login-worker' && loggedWorker.value) {
     router.push('/workers/worker-profile');
+  } else if (route.path.startsWith('/bills') && selectedPremise.value === null){
+    router.push('/workers/worker-profile');
+    showAlert("2", "Debes iniciar sesion en un local para acceder a facturacion");
   }
   // Control de estado en sección de facturas
   if (route.path.startsWith('/bills')) {

@@ -1,5 +1,5 @@
 <script>
-import { ref, inject } from 'vue';
+import { ref, inject, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import { toInteger } from 'lodash';
@@ -10,6 +10,8 @@ export default {
         const router = useRouter();
         const premisesCount = inject("premisesCount", ref(0));
         const loggedCompany = inject("loggedCompany", ref(null));
+        const loggedWorker = inject("loggedWorker", ref(null));
+        const workerRole = inject("workerRole", ref(null));
 
         const local = ref({
             name: "",
@@ -19,6 +21,16 @@ export default {
         });
 
         const registerLocal = async () => {
+            if (!loggedWorker.value) {
+                showAlert("2", "Tienes que iniciar sesión para registrar un local.");
+                return;
+            }
+            if (workerRole.value !== "Gerente") {
+                showAlert("2", "No tienes permisos para registrar locales.");
+                return;
+            }
+            
+
             if (local.value.password !== local.value.confirmPassword) {
                 showAlert("2", "Las contraseñas no coinciden.");
                 return;
@@ -33,6 +45,13 @@ export default {
             console.log(premisesCount.value);
             router.push('/premises/select-premise');
         };
+
+        onMounted(async () => {
+            if (workerRole.value !== "Gerente") {
+                showAlert("2", "No tienes permisos para registrar locales.\n Comuniquese con su Gerente");
+                router.push('/workers/login-worker');
+            }
+        });
 
         return {
             local,

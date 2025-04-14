@@ -24,7 +24,7 @@ export default {
 
         const loginWorker = async () => {
             try {
-                if (selectedPremise.value || workersCount.value === 1) {
+                if (workersCount.value !== 0) {
                     const answer = await axios.post(`/api/loginWorker/${loggedCompany.value}`, {
                         document: sessionworker.value.document,
                         password: sessionworker.value.password,
@@ -43,14 +43,16 @@ export default {
                 
                     // Si no hay locales, redirigir a crear local
                     if (premiseCount.value === 0) {
-                        router.push('/premises/new-premise');
-                        return;
+                        if(workerRole.value === "Gerente"){
+                            router.push('/premises/new-premise');
+                        }else{
+                            showAlert("2", "No tienes permisos para registrar locales.\n Comuniquese con su Gerente");
+                            router.push('/workers/worker-profile');
+                            return;
+                        }
                     }
-                    
-                    // Si no hay local seleccionado, redirigir a seleccionar local
-                    if (!selectedPremise.value) {
+                    if(premiseCount.value != 0){
                         router.push('/premises/select-premise');
-                        return;
                     }
                     
                     // Si hay local seleccionado, permitir acceso a facturas

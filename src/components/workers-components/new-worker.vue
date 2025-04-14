@@ -35,8 +35,7 @@ export default {
                 worker.value
                 );
                 msg.value = answer.data.msg;
-                workersCount.value++
-                router.push("/premises/new-premise");
+                workersCount.value++;
             }
         } catch (error) {
             if (error.response && error.response.data) {
