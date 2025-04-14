@@ -18,10 +18,12 @@ const emit = defineEmits(['access-granted']);
 
 const switchSLP = inject("switchSLP");
 const showAlert = inject("showAlert");
+const startShift = inject("startShift")
 const selectedPremise = inject("selectedPremise")
 const sessionPremise = ref({
     premise_id: props.premises_id,
     password: "",
+    startShift: startShift.value
 });
 
 
@@ -34,7 +36,8 @@ const postLogin = async () => {
 
     const answer = await axios.post(`/api/loginPremises`, {
       premise_id: sessionPremise.value.premise_id,
-      password: sessionPremise.value.password
+      password: sessionPremise.value.password,
+      startShift: sessionPremise.value.startShift
     });
 
     console.log(answer.data);

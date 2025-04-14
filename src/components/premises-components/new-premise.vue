@@ -31,21 +31,7 @@ export default {
             });
             premisesCount.value += 1;
             console.log(premisesCount.value);
-            
-            // Solo si es el primer local, limpiar sesión y redirigir al login
-            if (premisesCount.value === 1) {
-                // Limpiar datos de sesión para forzar un nuevo inicio de sesión
-                localStorage.removeItem("loggedWorker");
-                localStorage.removeItem("workerRole");
-                localStorage.removeItem("startShift");
-                localStorage.removeItem("loggedDocument");
-                
-                // Redirigir a la página de inicio de sesión
-                router.push('/workers/login-worker');
-            } else {
-                // Si no es el primer local, redirigir a la selección de locales
-                router.push('/premises/select-premise');
-            }
+            router.push('/premises/select-premise');
         };
 
         return {

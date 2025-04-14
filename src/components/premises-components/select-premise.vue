@@ -12,6 +12,7 @@ export default {
         const switchSVI = inject("switchSVI");
         const switchSAPM = inject("switchSAPM");
         const loggedCompany = inject("loggedCompany");
+        const showAlert = inject("showAlert");
         const premises = ref([]);
 
 
@@ -46,6 +47,13 @@ export default {
         };
 
         const deactivatePremise = (id) => {
+            // Verificar si el local está seleccionado (técnico con sesión activa)
+            if (selectedPremise.value && selectedPremiseId.value === id) {
+                showAlert("1", "Primero debes cerrar la sesión del técnico antes de desactivar el local");
+                showLogoutModal.value = true;
+                return;
+            }
+            
             currentPremiseId.value = id;
             showDeactivateModal.value = true;
         };
@@ -60,6 +68,8 @@ export default {
             switchSLP(selectedPremise.value, selectedPremiseId.value);
             localStorage.removeItem("activePremise");
             showLogoutModal.value = false;
+            // Después de cerrar la sesión, procedemos con la desactivación
+            showDeactivateModal.value = true;
         };
 
         
@@ -110,7 +120,8 @@ export default {
                     <span>Dirección: {{ premise.address }}</span>
                     <div class="premise-btns">
                         <button class="action-btn logout" @click="showLogoutModal = true" title="Cerrar Sesion"
-                                :class="{ selected: selectedPremise === premise.name }">
+                                :class="{ 'disabled': selectedPremise === premise.name }"
+                                :disabled="selectedPremise === premise.name">
                             <ion-icon name="close"></ion-icon>
                         </button>
                         <button class="action-btn login" @click="switchSLP(premise.name, premise.ref_premises)" title="Iniciar sesión"
@@ -122,7 +133,9 @@ export default {
                             <ion-icon name="create-outline"></ion-icon>
                         </button>
                         <button class="action-btn deactivate" @click="deactivatePremise(premise.ref_premises)" title="Desactivar local"
-                            v-if="workerRole === 'Gerente'">
+                            v-if="workerRole === 'Gerente'"
+                            :class="{ 'disabled': selectedPremise === premise.name }"
+                            :disabled="selectedPremise === premise.name">
                             <ion-icon name="lock-closed-outline"></ion-icon>
                         </button>
                         <button class="action-btn vault" @click="switchSVI" title="Vaul"
@@ -450,5 +463,10 @@ export default {
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     width: 90%;
+}
+
+.action-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 </style>

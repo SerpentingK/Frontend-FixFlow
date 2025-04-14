@@ -47,11 +47,24 @@ const fetchDevicesForBrand = async (brandId) => {
 };
 
 // Editar una marca
-const editBrand = (brand) => {
-    editingType.value = 'brand';
-    editName.value = brand.name;
-    currentEdit.value = brand;
-    isEditing.value = true;
+const editBrand = async (brand) => {
+    try {
+        // Obtener el ID de la marca antes de permitir la edición
+        const brandId = await brandNameId(brand.name);
+        if (!brandId) {
+            showAlert("2", "No se pudo obtener el ID de la marca");
+            return;
+        }
+        
+        editingType.value = 'brand';
+        editName.value = brand.name;
+        currentEdit.value = brand;
+        brand.id = brandId; // Asignar el ID directamente al objeto brand
+        isEditing.value = true;
+    } catch (error) {
+        console.error("Error al preparar la edición de la marca:", error);
+        showAlert("2", "Error al preparar la edición");
+    }
 };
 
 // Editar un modelo
@@ -67,14 +80,14 @@ const saveEdit = async () => {
     try {
         if (editingType.value === 'brand') {
             // Actualizar nombre de marca
-            await axios.put(`/api/Brands/${currentEdit.value.id}`, {
+            await axios.put(`/api/Brands/Edit/${currentEdit.value.id}`, {
                 name: editName.value
             });
             currentEdit.value.name = editName.value;
             showAlert("1", "Marca actualizada correctamente");
         } else {
             // Actualizar nombre de modelo
-            await axios.put(`/api/Devices/${currentEdit.value.model.id}`, {
+            await axios.put(`/api/Devices/Edit/${currentEdit.value.model.id}`, {
                 name: editName.value
             });
             currentEdit.value.model.name = editName.value;

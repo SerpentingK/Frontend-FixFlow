@@ -38,20 +38,23 @@ export default {
                     localStorage.setItem("loggedWorker", JSON.stringify(answer.data.wname));
                     workerRole.value = answer.data.role;
                     localStorage.setItem("workerRole", JSON.stringify(answer.data.role));
-                    
-                    // Solo guardar startShift si hay un local seleccionado
-                    if (selectedPremise.value) {
-                        startShift.value = answer.data.shift;
-                        localStorage.setItem("startShift", JSON.stringify(answer.data.shift));
-                    }
-
-                    // Si es el primer gerente y no hay local seleccionado, redirigir a crear local
-                    if (workersCount.value === 1 && !selectedPremise.value && premiseCount.value === 0) {
+                    startShift.value = answer.data.shift;
+                    localStorage.setItem("startShift", JSON.stringify(answer.data.shift));
+                
+                    // Si no hay locales, redirigir a crear local
+                    if (premiseCount.value === 0) {
                         router.push('/premises/new-premise');
                         return;
                     }
                     
-                    router.push('/bills')
+                    // Si no hay local seleccionado, redirigir a seleccionar local
+                    if (!selectedPremise.value) {
+                        router.push('/premises/select-premise');
+                        return;
+                    }
+                    
+                    // Si hay local seleccionado, permitir acceso a facturas
+                    router.push('/bills');
                 } else {
                     showAlert("2", "Necesitas iniciar en un local para empezar un turno")
                 }

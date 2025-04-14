@@ -1,8 +1,10 @@
 <script setup>
 import { inject, onMounted, ref, watch, computed } from "vue";
 import axios from "axios";
+import { useRouter } from 'vue-router';
 
 // Referencias y reactividad
+const router = useRouter();
 const phones = ref([
   {
     brand_name: null,
@@ -18,6 +20,7 @@ const phones = ref([
   },
 ]);
 const loggedWorker = inject("loggedWorker", ref(null));
+const showAlert = inject("showAlert");
 const loggedCompany = inject("loggedCompany", ref(null));
 const startShift = inject("startShift", ref(null));
 const billData = inject("billData");
@@ -29,6 +32,7 @@ const clientName = ref(null);
 const clientPhone = ref(null);
 const printEnabled = inject("printEnabled");
 const switchSBC = inject("switchSBC");
+const selectedPremise = inject("selectedPremise", ref(null));
 
 // Cálculos computados
 const totalPrice = computed(() =>
@@ -210,6 +214,13 @@ const updatePayment = (index, type, value) => {
 };
 
 onMounted(async () => {
+  // Verificar si hay un local seleccionado
+  if (!selectedPremise.value) {
+    showAlert("2", "No hay un local seleccionado Por favor, seleccione un local");
+    router.push('/premises/select-premise');
+    return;
+  }
+  
   await fetchBrands();
 });
 

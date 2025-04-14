@@ -117,7 +117,7 @@
         width: 40%;
     }
     .no-phones-message {
-        color: #f44336; /* Color rojo para el mensaje */
+        color:var(--base); /* Color rojo para el mensaje */
         font-size: 1.2rem;
         margin-top: 20px;
     }

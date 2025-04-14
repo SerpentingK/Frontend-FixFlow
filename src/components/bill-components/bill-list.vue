@@ -95,6 +95,10 @@ onMounted(loadAllBills);
                     </fieldset>
                 </button>
             </transition-group>
+            <!-- Mensaje cuando no hay facturas -->
+            <div v-if="bills.length === 0" class="no-bills-message">
+                No se han creado facturas por el momento
+            </div>
         </ol>
     </section>
 </template>
@@ -258,5 +262,15 @@ button.load-btn{
         max-height: 80%;
         width: 45%;
     }
+}
+
+.no-bills-message {
+    color: var(--base);
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    margin-top: 10px;
 }
 </style>
