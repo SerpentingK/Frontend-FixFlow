@@ -12,6 +12,7 @@ export default {
     const showReactive = ref(false);
     const showDownloadWindow = ref(false);
     const workerToDownload = ref(null);
+    const showAlert = inject("showAlert");
 
 
     const switchSDW = (document) => {
@@ -49,15 +50,15 @@ export default {
 
     const inactiveWorker = async (document) => {
       try {
-        await axios.put(
+        const response = await axios.put(
           `/api/inactiveCollaborators/${loggedCompany.value}/${document}`
         );
         await fetchWorkers();
         showDeleteWindow.value = false;
         workerToInactive.value = null;
       } catch (error) {
-        console.error("Error eliminando el trabajador:", error.data);
-        alert("Error al eliminar el trabajador.");
+        console.error(error.response && error.response.data);
+        showAlert("2", `Error al Desactivar el colaborador: ${error.response.data.detail}`);
       }
     };
 
