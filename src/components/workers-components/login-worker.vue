@@ -93,153 +93,183 @@ export default {
 
 </script>
 <template>
-    <section class="login-container">
-        <h2>INICIO DE TURNO</h2>
-        <span>Ingrese con su documento y contraseña</span>
-        <span>Si no se encuentra registrado comuniquese con un Administrador</span>
-        <form @submit.prevent="loginWorker()" class="login-form">
-            <label for="doc-inp" class="input-container">
-                <ion-icon name="finger-print"></ion-icon>
-                <input v-model="sessionworker.document" type="text" placeholder="Documento" required />
-            </label>
-            <label for="pasw-inp" class="input-container">
-                <ion-icon name="lock-closed"></ion-icon>
-                <input v-model="sessionworker.password" type="password" placeholder="Contraseña" required />
-            </label>
-            <button type="submit" class="go-btn">Iniciar Turno</button>
-        </form>
+    <section class="auth-container">
+        <div class="auth-content">
+            <h2 class="auth-title">INICIO DE TURNO</h2>
+            <div class="auth-messages">
+                <span class="auth-message">Ingrese con su documento y contraseña</span>
+                <span class="auth-message">Si no se encuentra registrado comuniquese con un Administrador</span>
+            </div>
+            <form @submit.prevent="loginWorker()" class="auth-form">
+                <div class="form-group">
+                    <label for="doc-inp" class="input-wrapper">
+                        <ion-icon name="finger-print"></ion-icon>
+                        <input v-model="sessionworker.document" type="text" placeholder="Documento" required />
+                    </label>
+                    <label for="pasw-inp" class="input-wrapper">
+                        <ion-icon name="lock-closed"></ion-icon>
+                        <input v-model="sessionworker.password" type="password" placeholder="Contraseña" required />
+                    </label>
+                </div>
+                <div class="button-group">
+                    <button type="submit" class="btn-primary">Iniciar Turno</button>
+                </div>
+            </form>
+        </div>
     </section>
 </template>
 <style scoped>
-.login-container {
+.auth-container {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 40px 10px;
-    width: 75%;
-    border-radius: 10px;
-    background: #363636;
-    box-shadow: -25px -25px 51px #242424,
-        25px 25px 51px #484848;
-    border: 2px solid var(--base);
+    width: 80%;
+    max-width: 500px;
+    padding: 2rem;
+    background: var(--second);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--base);
+}
+
+.auth-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: clamp(1px, 5px, 10px);
+    gap: 1.5rem;
 }
 
-.login-container h2 {
+.auth-title {
     color: white;
+    font-size: 1.75rem;
+    text-align: center;
+    margin: 0;
+    font-weight: 600;
     letter-spacing: 2px;
 }
 
-.login-container span {
-    color: var(--secondTwo);
-    text-align: center;
-}
-
-.login-form {
+.auth-messages {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 15px;
-    width: 100%;
+    gap: 0.5rem;
 }
 
-.input-container {
-    padding: 10px;
-    border-radius: 10px;
-    background: #ffffff;
-    box-shadow: inset -25px -25px 51px #a8a8a8,
-        inset 25px 25px 51px #ffffff;
+.auth-message {
+    color: var(--secondTwo);
+    text-align: center;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.auth-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.input-wrapper {
+    position: relative;
     display: flex;
     align-items: center;
-    width: 80%;
-    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
 }
 
-.input-container ion-icon {
-    margin-left: 10px;
-    scale: 1.3;
+.input-wrapper:focus-within {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px var(--base);
 }
 
-.input-container input {
-    all: unset;
-    width: 80%;
-    padding: 0 20px;
+.input-wrapper ion-icon {
+    color: var(--base);
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
 }
 
-.go-btn {
-    background-color: var(--base);
-    border: 2px solid var(--base);
-    padding: 10px 20px;
-    border-radius: 15px;
+.input-wrapper input {
+    background: transparent;
+    border: none;
     color: white;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: bolder;
+    width: 100%;
+    font-size: 1rem;
+    outline: none;
 }
 
-.go-btn:active {
-    scale: 0.9;
+.input-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.btn-primary {
+    background: var(--base);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary:hover {
+    background: var(--secondTwo);
+    transform: translateY(-2px);
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
 }
 
 @media (min-width: 768px) {
-    .login-container {
-        gap: 15px;
+    .auth-container {
+        width: 80%;
+        max-width: 600px;
     }
 
-    .login-container h2 {
+    .auth-title {
         font-size: 2rem;
     }
 
-    .login-container span {
+    .auth-message {
+        font-size: 1rem;
+    }
+
+    .input-wrapper input {
         font-size: 1.1rem;
-    }
-
-    .login-form {
-        width: 90%;
-    }
-
-    .input-container {
-        font-size: 1.2rem;
-    }
-
-    .input-container input {
-        padding: 0 25px;
-    }
-
-    .go-btn {
-        margin-top: 10px;
-        scale: 1.1;
     }
 }
 
-@media (min-width: 1020px) {
-    .login-container {
-        width: 40%;
-    }
-
-    .login-form {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 15px;
-        width: 60%;
-    }
-
-    .go-btn:hover {
-        background-color: var(--second);
-        color: white;
+@media (min-width: 1024px) {
+    .auth-container {
+        width: 70%;
+        max-width: 500px;
     }
 }
 
 @media (min-width: 1280px) {
-    .login-container {
-        width: 30%;
+    .auth-container {
+        width: 40%;
+        max-width: 450px;
     }
 }
 </style>

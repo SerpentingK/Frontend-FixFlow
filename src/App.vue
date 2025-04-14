@@ -374,6 +374,9 @@ const handlePath = () => {
   } else if (route.path === '/loginCompany' && loggedCompany.value) {
     router.push('/companyShift');
   } else if (route.path.startsWith('/premises') && premisesCount.value === 0) {
+    router.push('/premises/new-premise');
+  }
+  else if (route.path.startsWith('/premises') && premisesCount.value > 0) {
     router.push('/premises/select-premise');
   }
   else if (route.path.startsWith('/workers') && workersCount.value < 1) {
@@ -432,11 +435,8 @@ const showAddPremiseModal = ref(false)
 
 const switchSAPM = () => {
     showAddPremiseModal.value = !showAddPremiseModal.value;
-    // Asegurarse de que no se muestre el modal de renovación de suscripción
-    showRenewedSuscription.value = false;
 }
 
-provide("showAddPremiseModal", showAddPremiseModal)
 provide("switchSAPM", switchSAPM)
 
 const switchSLP = (premiseName) => {
