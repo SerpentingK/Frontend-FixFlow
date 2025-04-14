@@ -9,23 +9,15 @@ const switchWV = inject("switchWV")
 
 // Propiedades reactivas
 const withdrawals = ref([]);
-const premiseInfo = ref({
-  name: "",
-  vault: 0
-});
+const selectedPremiseId = inject("selectedPremiseId", ref(null));
+const selectedPremise = inject("selectedPremise", ref(null));
+const premiseVault = inject("premiseVault", ref(0));
 const isLoading = ref(false);
 const search = ref("");
 const overlayAlpha = ref(0);
+const loadPremisesVault = inject("loadPremisesVault");
 
-// Función para cargar información del local
-const loadPremiseInfo = async () => {
-  try {
-    const response = await axios.get(`/api/premises/${loggedCompany.value}`);
-    premiseInfo.value = response.data;
-  } catch (error) {
-    console.error("Error al cargar información del local:", error);
-  }
-};
+
 
 // Función para cargar todos los retiros
 const loadAllWithdrawals = async () => {
@@ -66,7 +58,7 @@ watch(search, searchWithdrawals);
 
 // Cargar datos al montar el componente
 onMounted(() => {
-  loadPremiseInfo();
+  loadPremisesVault(selectedPremiseId.value);
   loadAllWithdrawals();
   
   setTimeout(() => {
@@ -90,11 +82,11 @@ onMounted(() => {
             <div class="premise-info">
                 <div class="info-item">
                     <span class="label">Nombre:</span>
-                    <span class="value">{{ premiseInfo.name }}</span>
+                    <span class="value">{{ selectedPremise }}</span>
                 </div>
                 <div class="info-item">
                     <span class="label">Caja fuerte:</span>
-                    <span class="value">${{ premiseInfo.vault.toLocaleString() }}</span>
+                    <span class="value">${{ premiseVault }}</span>
                 </div>
                 <button class="new-withdrawal-btn" @click="switchWV">
                     Nuevo Retiro
@@ -107,7 +99,7 @@ onMounted(() => {
                 <span>Buscar Por Fecha</span>
                 <input type="date" v-model="search" />
             </form>
-            <ol class="withdraw-list">
+            <ol v-if="withdrawals.length > 0" class="withdraw-list">
                 <transition-group name="fade">
                     <button v-for="withdraw in withdrawals" :key="withdraw.id" @click="switch_sbf(withdraw.id)">
                         <fieldset>
