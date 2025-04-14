@@ -17,7 +17,7 @@ import withdrawVault from './components/companie-components/withdrawVault.vue';
 import mailPaswRestore from './components/companie-components/mailPaswRestore.vue';
 import mailTokenRestore from './components/companie-components/mailTokenRestore.vue';
 import Particles from './components/Particles.vue';
-import withdrawList from './components/companie-components/withdrawInfo.vue';
+import withdrawInfo from './components/companie-components/withdrawInfo.vue';
 import loginPremise from './components/premises-components/login-premise.vue';
 import addPremiseModal from './components/premises-components/add-premise-modal.vue';
 
@@ -601,7 +601,7 @@ watch(
       <mailTokenRestore v-if="showMailTokenRestore"></mailTokenRestore>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <withdrawList v-if="showVaultInfo"></withdrawList>
+      <withdrawInfo v-if="showVaultInfo"></withdrawInfo>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <loginPremise v-if="showLoginPremise" :premise-name="toSelectPremise" :premises_id="Number(toSelectPremiseId)"></loginPremise>

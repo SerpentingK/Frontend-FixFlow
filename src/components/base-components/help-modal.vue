@@ -15,16 +15,8 @@ const sections = [
     title: 'Gestión de Compañía',
     slides: [
       {
-        description: 'En la sección de Compañía podrás gestionar toda la información de tu empresa.',
-        image: '/src/assets/img/tuto.png'
-      },
-      {
-        description: 'Configura los datos básicos de tu empresa como nombre, dirección y contacto.',
-        image: '/src/assets/img/tuto2.png'
-      },
-      {
-        description: 'Visualiza el dashboard con las estadísticas más importantes de tu negocio.',
-        image: '/src/assets/img/tuto.png'
+        description: 'En la sección de Compañía podrás gestionar toda la información de tu empresa.\n Personalizar tu color y tu numero de telefono.',
+        image: '/src/assets/img/tuto/company/company-1.png'
       }
     ]
   },
@@ -33,15 +25,11 @@ const sections = [
     slides: [
       {
         description: 'Añade y administra todos tus locales desde un solo lugar.',
-        image: '/src/assets/img/tuto.png'
+        image: '/src/assets/img/tuto/premises/premises-1.png'
       },
       {
-        description: 'Configura los horarios de apertura y cierre para cada local.',
-        image: '/src/assets/img/tuto2.png'
-      },
-      {
-        description: 'Gestiona los servicios disponibles en cada local.',
-        image: '/src/assets/img/tuto.png'
+        description: 'Podras acceder a la contabilidad de cada local por aparte.',
+        image: '/src/assets/img/tuto/premises/premises-2.png'
       }
     ]
   },
@@ -49,16 +37,16 @@ const sections = [
     title: 'Gestión de Colaboradores',
     slides: [
       {
-        description: 'Administra tu equipo de trabajo y sus roles.',
-        image: '/src/assets/img/tuto.png'
+        description: 'Desde el perfil de colaborador podras ver tu informacion personal y tus datos laborales.',
+        image: '/src/assets/img/tuto/workers/workers-3.png'
       },
       {
-        description: 'Asigna turnos y horarios a cada colaborador.',
-        image: '/src/assets/img/tuto2.png'
+        description: 'Si eres Gerente podras registrar nuevos colaboradores y asignarles roles.',
+        image: '/src/assets/img/tuto/workers/workers-1.png'
       },
       {
-        description: 'Visualiza el rendimiento y la asistencia de tu equipo.',
-        image: '/src/assets/img/tuto.png'
+        description: 'Podras ver el rendimiento y la asistencia de tu equipo, descargar informes de rendimiento y asistencia.',
+        image: '/src/assets/img/tuto/workers/workers-2.png'
       }
     ]
   },

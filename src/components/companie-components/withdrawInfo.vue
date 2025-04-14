@@ -5,7 +5,7 @@ import debounce from "lodash/debounce";
 
 const switchSVI = inject("switchSVI");
 const loggedCompany = inject("loggedCompany");
-const switchWV = inject("switchWV")
+const switchWV = inject("switchWV");
 
 // Propiedades reactivas
 const withdrawals = ref([]);
@@ -13,8 +13,10 @@ const premiseInfo = ref({
   name: "",
   vault: 0
 });
+const workers = ref([]); // Lista de colaboradores
 const isLoading = ref(false);
 const search = ref("");
+const searchType = ref("worker"); // 'worker' o 'date'
 const overlayAlpha = ref(0);
 
 // Función para cargar información del local
@@ -24,6 +26,16 @@ const loadPremiseInfo = async () => {
     premiseInfo.value = response.data;
   } catch (error) {
     console.error("Error al cargar información del local:", error);
+  }
+};
+
+// Función para cargar todos los colaboradores
+const loadWorkers = async () => {
+  try {
+    const response = await axios.get(`/api/workers/${loggedCompany.value}`);
+    workers.value = response.data;
+  } catch (error) {
+    console.error("Error al cargar los colaboradores:", error);
   }
 };
 
@@ -42,7 +54,7 @@ const loadAllWithdrawals = async () => {
   }
 };
 
-// Función de búsqueda solo por nombre de trabajador
+// Función de búsqueda con tipo dinámico
 const searchWithdrawals = debounce(async () => {
   if (!search.value.trim()) {
     loadAllWithdrawals();
@@ -51,7 +63,14 @@ const searchWithdrawals = debounce(async () => {
 
   try {
     isLoading.value = true;
-    const url = `/api/searchWithdrawalsByWorker/${loggedCompany.value}/${search.value}`;
+    let url = '';
+    
+    if (searchType.value === 'worker') {
+      url = `/api/searchWithdrawalsByWorker/${loggedCompany.value}/${search.value}`;
+    } else if (searchType.value === 'date') {
+      url = `/api/searchWithdrawalsByDate/${loggedCompany.value}/${search.value}`;
+    }
+    
     const response = await axios.get(url);
     withdrawals.value = Array.isArray(response.data) ? response.data : [response.data];
   } catch (error) {
@@ -61,19 +80,26 @@ const searchWithdrawals = debounce(async () => {
   }
 }, 500);
 
+// Cambiar tipo de búsqueda
+const changeSearchType = (type) => {
+  searchType.value = type;
+  search.value = "";
+  loadAllWithdrawals();
+};
+
 // Observador para activar la búsqueda
 watch(search, searchWithdrawals);
 
 // Cargar datos al montar el componente
 onMounted(() => {
   loadPremiseInfo();
+  loadWorkers();
   loadAllWithdrawals();
   
   setTimeout(() => {
     overlayAlpha.value = 0.5;
   }, 100);
 });
-
 </script>
 
 <template>
@@ -90,7 +116,7 @@ onMounted(() => {
             <div class="premise-info">
                 <div class="info-item">
                     <span class="label">Nombre:</span>
-                    <span class="value">{{ premiseInfo.name }}</span>
+                    <span class="value">Portal</span>
                 </div>
                 <div class="info-item">
                     <span class="label">Caja fuerte:</span>
@@ -103,10 +129,53 @@ onMounted(() => {
             </div>
             
             <h3>LISTA DE RETIROS</h3>
+            
+            <!-- Selector de tipo de búsqueda -->
+            <div class="search-options">
+                <button 
+                    @click="changeSearchType('worker')" 
+                    :class="{ active: searchType === 'worker' }"
+                >
+                    Buscar por Colaborador
+                </button>
+                <button 
+                    @click="changeSearchType('date')" 
+                    :class="{ active: searchType === 'date' }"
+                >
+                    Buscar por Fecha
+                </button>
+            </div>
+            
+            <!-- Formulario de búsqueda dinámico -->
             <form @submit.prevent="searchWithdrawals" class="search-form">
-                <span>Buscar Por Fecha</span>
-                <input type="date" v-model="search" />
+                <select 
+                    v-if="searchType === 'worker'" 
+                    v-model="search"
+                    class="worker-select"
+                >
+                    <option value="">Seleccione un colaborador</option>
+                    <option 
+                        v-for="worker in workers" 
+                        :key="worker.id" 
+                        :value="worker.id"
+                    >
+                        {{ worker.name }} ({{ worker.document }})
+                    </option>
+                </select>
+                
+                <input 
+                    v-else-if="searchType === 'date'" 
+                    type="date" 
+                    v-model="search"
+                    placeholder="Seleccione una fecha"
+                />
+                
+                <button type="submit" class="search-button">
+                    Buscar
+                </button>
             </form>
+            
+            <!-- Lista de retiros -->
             <ol class="withdraw-list">
                 <transition-group name="fade">
                     <button v-for="withdraw in withdrawals" :key="withdraw.id" @click="switch_sbf(withdraw.id)">
@@ -207,6 +276,36 @@ onMounted(() => {
     transform: scale(1.05);
 }
 
+/* Estilos para el selector de tipo de búsqueda */
+.search-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+    justify-content: center;
+}
+
+.search-options button {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--secondThree);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.search-options button.active {
+    background-color: var(--base);
+    font-weight: bold;
+}
+
+.search-options button:hover {
+    background-color: var(--secondTwo);
+}
+
+/* Estilos para el formulario de búsqueda */
 .search-form {
     display: flex;
     flex-wrap: wrap;
@@ -218,13 +317,29 @@ onMounted(() => {
     margin: 10px 0;
 }
 
+.search-form select,
 .search-form input {
     background-color: white;
     color: black;
     border-radius: 10px;
-    padding: 5px 10px;
+    padding: 8px 12px;
     width: 80%;
     max-width: 400px;
+    border: 1px solid var(--secondTwo);
+}
+
+.search-button {
+    background: var(--base);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.search-button:hover {
+    background: var(--base-dark);
 }
 
 .withdraw-list {
@@ -352,6 +467,11 @@ onMounted(() => {
     .value {
         font-size: 1.3rem;
     }
+    
+    .search-options button {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
 }
 
 @media (min-width: 1024px) {
@@ -366,6 +486,15 @@ onMounted(() => {
     
     .withdraw-list {
         max-height: 500px;
+    }
+    
+    .search-form {
+        flex-wrap: nowrap;
+    }
+    
+    .search-form select,
+    .search-form input {
+        width: 60%;
     }
 }
 </style>
