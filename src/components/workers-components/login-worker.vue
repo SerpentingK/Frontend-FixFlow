@@ -13,6 +13,7 @@ export default {
         const loggedCompany = inject("loggedCompany", ref(null));
         const startShift = inject("startShift", ref(null));
         const selectedPremise = inject("selectedPremise", ref(null))
+        const premiseCount = inject("premiseCount", ref(0))
         const sessionworker = ref({
             document: "",
             password: "",
@@ -45,7 +46,7 @@ export default {
                     }
 
                     // Si es el primer gerente y no hay local seleccionado, redirigir a crear local
-                    if (workersCount.value === 1 && !selectedPremise.value) {
+                    if (workersCount.value === 1 && !selectedPremise.value && premiseCount.value === 0) {
                         router.push('/premises/new-premise');
                         return;
                     }

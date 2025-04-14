@@ -35,6 +35,7 @@ const loggedCompany = ref(null);          // Empresa logueada
 const loggedWorker = ref(null);           // Trabajador logueado
 const numbercompany = ref(null);          // Número de la empresa
 const selectedPremise = ref(null);        // Local seleccionado 
+const selectedPremiseId = ref(0);      // ID del local seleccionado
 const premisesCount = ref(0);          // Numero de locales
 const loggedDocument = ref(null);         // Documento del trabajador
 const workersCount = ref(0);              // Cantidad de trabajadores
@@ -83,6 +84,7 @@ provide('phonesRepaired', phonesRepaired);
 provide('phonesReceived', phonesReceived);
 provide('phonesDelivered', phonesDelivered);
 provide('selectedPremise', selectedPremise);
+provide('selectedPremiseId', selectedPremiseId);
 provide('premisesCount', premisesCount);
 
 // Datos de la factura
@@ -428,30 +430,47 @@ provide("showAlert", showAlert);
 
 const showLoginPremise = ref(false)
 const toSelectPremise = ref(null)
+const toSelectPremiseId = ref(null)
 const showAddPremiseModal = ref(false)
 
 const switchSAPM = () => {
     showAddPremiseModal.value = !showAddPremiseModal.value;
     // Asegurarse de que no se muestre el modal de renovación de suscripción
     showRenewedSuscription.value = false;
+    // Asegurarse de que no se muestre el modal de login
+    showLoginPremise.value = false;
 }
 
 provide("showAddPremiseModal", showAddPremiseModal)
 provide("switchSAPM", switchSAPM)
 
-const switchSLP = (premiseName) => {
+const switchSLP = (premiseName, premiseId) => {
     if (showLoginPremise.value) {
         showLoginPremise.value = false;
-        if(premiseName) {
+        if(premiseName && !isNaN(premiseId)) {
             selectedPremise.value = premiseName
+            selectedPremiseId.value = premiseId
         } else {
             selectedPremise.value = null
-            // Asegurarse de que no se muestre el modal de inicio de sesión al cerrar sesión
+            selectedPremiseId.value = null
+            // Asegurarse de que no se muestre ningún modal al cerrar sesión
             showLoginPremise.value = false;
+            showAddPremiseModal.value = false;
         }
     } else {
-        toSelectPremise.value = premiseName
-        showLoginPremise.value = true
+        // Solo mostrar el modal de login si se está intentando iniciar sesión (no al cerrar)
+        if (premiseName && !isNaN(premiseId)) {
+            toSelectPremise.value = premiseName
+            toSelectPremiseId.value = premiseId
+            showLoginPremise.value = true
+        } else {
+            // Si no hay nombre de local o ID, solo actualizar los valores
+            selectedPremise.value = null
+            selectedPremiseId.value = null
+            // Asegurarse de que no se muestre ningún modal al cerrar sesión
+            showLoginPremise.value = false;
+            showAddPremiseModal.value = false;
+        }
     }
 }
 
@@ -577,7 +596,7 @@ watch(
       <withdrawList v-if="showVaultInfo"></withdrawList>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <loginPremise v-if="showLoginPremise" :premise-name="toSelectPremise"></loginPremise>
+      <loginPremise v-if="showLoginPremise" :premise-name="toSelectPremise" :premises_id="Number(toSelectPremiseId)"></loginPremise>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <addPremiseModal v-if="showAddPremiseModal"></addPremiseModal>

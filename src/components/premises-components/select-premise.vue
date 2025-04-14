@@ -1,5 +1,6 @@
 <script>
-import { inject, ref } from 'vue';
+import { inject, ref, onMounted } from 'vue';
+import axios from 'axios';  
 
 export default {
     setup() {
@@ -7,8 +8,12 @@ export default {
         const premisesCount = inject("premisesCount");
         const workerRole = inject("workerRole")
         const selectedPremise = inject("selectedPremise");
+        const selectedPremiseId = inject("selectedPremiseId");
         const switchSVI = inject("switchSVI");
         const switchSAPM = inject("switchSAPM");
+        const loggedCompany = inject("loggedCompany");
+        const premises = ref([]);
+
 
         // Estados para los modales
         const showLogoutModal = ref(false);
@@ -20,6 +25,11 @@ export default {
             address: ''
         });
 
+        const loadPremises = async () => {
+            const answer = await axios.get(`/api/someDataOfPremises/${loggedCompany.value}`);
+            premises.value = answer.data;
+        }
+    
         const editPremise = (id) => {
             currentPremiseId.value = id;
             editForm.value = {
@@ -47,9 +57,24 @@ export default {
         };
 
         const confirmLogout = () => {
-            switchSLP(null);
+            switchSLP(selectedPremise.value, selectedPremiseId.value);
+            localStorage.removeItem("activePremise");
             showLogoutModal.value = false;
         };
+
+        
+
+        onMounted(async () => {
+            await loadPremises();
+            
+            // Cargar el estado del local activo
+            const storedPremise = localStorage.getItem("activePremise");
+            if (storedPremise) {
+                const premise = JSON.parse(storedPremise);
+                selectedPremise.value = premise.name;
+                selectedPremiseId.value = premise.id;
+            }
+        });
 
         return {
             premisesCount,
@@ -58,6 +83,7 @@ export default {
             deactivatePremise,
             workerRole,
             selectedPremise,
+            selectedPremiseId,
             switchSVI,
             showLogoutModal,
             showEditModal,
@@ -66,7 +92,8 @@ export default {
             saveEditPremise,
             confirmDeactivate,
             confirmLogout,
-            switchSAPM
+            switchSAPM,
+            premises
         };
     }
 };
@@ -75,26 +102,26 @@ export default {
 <template>
     <section class="container">
         <h2>Selecciona un local</h2>
-        <ol class="premises-list">
-            <li v-for="i in premisesCount" :key="i">
-                <fieldset class="premise-card" :class="{ selected: selectedPremise === `Local ${i}` }">
-                    <legend>Local {{ i }}</legend>
+        <ol v-if="premises.length > 0" class="premises-list">
+            <li v-for="premise in premises" :key="premise.ref_premises">
+                <fieldset class="premise-card" :class="{ selected: selectedPremise === premise.name }">
+                    <legend>{{ premise.name }}</legend>
                     <ion-icon name="storefront"></ion-icon>
-                    <span>Dirección: Calle 12 #25-40</span>
+                    <span>Dirección: {{ premise.address }}</span>
                     <div class="premise-btns">
                         <button class="action-btn logout" @click="showLogoutModal = true" title="Cerrar Sesion"
-                            :class="{ selected: selectedPremise === `Local ${i}` }">
+                                :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="close"></ion-icon>
                         </button>
-                        <button class="action-btn login" @click="switchSLP(`Local ${i}`)" title="Iniciar sesión"
-                            :class="{ selected: selectedPremise === `Local ${i}` }">
+                        <button class="action-btn login" @click="switchSLP(premise.name, premise.ref_premises)" title="Iniciar sesión"
+                            :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="log-in-outline"></ion-icon>
                         </button>
-                        <button class="action-btn edit" @click="editPremise(i)" title="Editar local"
+                        <button class="action-btn edit" @click="editPremise(premise.ref_premises)" title="Editar local"
                             v-if="workerRole === 'Gerente'">
                             <ion-icon name="create-outline"></ion-icon>
                         </button>
-                        <button class="action-btn deactivate" @click="deactivatePremise(i)" title="Desactivar local"
+                        <button class="action-btn deactivate" @click="deactivatePremise(premise.ref_premises)" title="Desactivar local"
                             v-if="workerRole === 'Gerente'">
                             <ion-icon name="lock-closed-outline"></ion-icon>
                         </button>
@@ -106,6 +133,7 @@ export default {
                 </fieldset>
             </li>
         </ol>
+        <p v-else class="no-premises-message">No hay locales registrados en el sistema.</p>
     </section>
     <button @click="switchSAPM" class="new-premise-btn">
         <ion-icon name="add-circle-outline"></ion-icon>
@@ -411,5 +439,16 @@ export default {
     .container {
         width: 50%;
     }
+}
+
+.no-premises-message {
+    color: var(--base);
+    font-size: 1.2rem;
+    margin-top: 20px;
+    text-align: center;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    width: 90%;
 }
 </style>

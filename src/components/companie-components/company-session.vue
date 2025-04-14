@@ -16,6 +16,7 @@ export default {
     const selectedColor = inject("selectedColor");
     const getCompanyColor = inject("getCompanyColor");    
     const numberCompany = inject("numberCompany", ref(0));
+    const premisesCount = inject("premisesCount", ref(0));
     const showPhoneModal = ref(false);
     const newPhoneNumber = ref("");
 
@@ -29,6 +30,19 @@ export default {
         }
       } catch (error) {
         console.error("Error al obtener el conteo de trabajadores", error);
+      }
+    };
+
+    const getPremisesCount = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `/api/premises/${loggedCompany.value}/count`
+          );
+          premisesCount.value = answer.data.count;
+        }
+      } catch (error) {
+        console.error("Error al obtener el conteo de locales", error);
       }
     };
 
@@ -69,6 +83,7 @@ export default {
       getWorkersCount();
       getCompanyColor();
       getWorkerNumber();
+      getPremisesCount();
 
       const storedColor = localStorage.getItem("baseOrange");
       if (storedColor) {
