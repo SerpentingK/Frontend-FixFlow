@@ -145,72 +145,86 @@ export default {
     <p>Procesando registro...</p>
   </div>
   <transition name="slide-fade">
-    <section v-if="isLogin" key="login" class="login-cont">
-      <form class="form" @submit.prevent="loginCompany()">
-        <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0">
-          <span style="color: var(--secondTwo)">FIX</span><span style="color: white">-</span><span
-            style="color: var(--base)">FLOW</span>
-        </h1>
-        <h2>Inicio de Sesión</h2>
-        <label for="company-input" class="input-cont">
-          <ion-icon name="cube"></ion-icon>
-          <input type="text" id="company-input" class="text-input" placeholder="Correo" v-model="sesion.identifier" />
-        </label>
-        <label for="pasw-input" class="input-cont">
-          <ion-icon name="lock-closed"></ion-icon>
-          <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
-            v-model="sesion.password" />
-        </label>
-        <button class="go-btn">Iniciar Sesión</button>
-        <button type="button" @click="toggleForm" class="opt-btn">
-          Registrarse
-        </button>
-        <button type="button" @click="switchSMPR" class="opt-btn">
-          ¿Olvidaste tu contraseña?
-        </button>
-        <button type="button" @click="switchSMTR" class="opt-btn">
-          Verifica Tu Correo
-        </button>
+    <section v-if="isLogin" key="login" class="auth-container">
+      <form class="auth-form" @submit.prevent="loginCompany()">
+        <div class="logo-container">
+          <h1>
+            <span class="logo-text logo-fix">FIX</span>
+            <span class="logo-text logo-separator">-</span>
+            <span class="logo-text logo-flow">FLOW</span>
+          </h1>
+        </div>
+        <h2 class="auth-title">Inicio de Sesión</h2>
+        <div class="form-group">
+          <label for="company-input" class="input-wrapper">
+            <ion-icon name="cube"></ion-icon>
+            <input type="text" id="company-input" class="form-input" placeholder="Correo" v-model="sesion.identifier" />
+          </label>
+          <label for="pasw-input" class="input-wrapper">
+            <ion-icon name="lock-closed"></ion-icon>
+            <input type="password" id="pasw-input" class="form-input" placeholder="Contraseña"
+              v-model="sesion.password" />
+          </label>
+        </div>
+        <div class="button-group">
+          <button class="btn-primary">Iniciar Sesión</button>
+          <button type="button" @click="toggleForm" class="btn-secondary">
+            Registrarse
+          </button>
+          <button type="button" @click="switchSMPR" class="btn-link">
+            ¿Olvidaste tu contraseña?
+          </button>
+          <button type="button" @click="switchSMTR" class="btn-link">
+            Verifica Tu Correo
+          </button>
+        </div>
       </form>
     </section>
 
-    <section v-else key="signup" class="signup-cont">
-      <form class="form" @submit.prevent="signupCompany">
-        <h1 style="display: flex; gap: 5px; font-size: 30px; margin: 0">
-          <span style="color: var(--secondTwo)">FIX</span><span style="color: white">-</span><span
-            style="color: var(--base)">FLOW</span>
-        </h1>
-        <h2>Registro</h2>
-        <label for="email-input" class="input-cont">
-          <ion-icon name="mail"></ion-icon>
-          <input type="mail" id="email-input" class="text-input" placeholder="Correo" v-model="company.mail" />
-        </label>
-        <label for="company-input" class="input-cont">
-          <ion-icon name="cube"></ion-icon>
-          <input type="text" id="company-input" class="text-input" placeholder="Nombre Compañía"
-            v-model="company.company_user" />
-        </label>
-        <label for="company-input" class="input-cont">
-          <ion-icon name="cube"></ion-icon>
-          <input type="text" id="tel-input" class="text-input" placeholder="Numero de Telefono"
-          v-model="company.number"/>
-        </label>
-        <label for="pasw-input" class="input-cont">
-          <ion-icon name="lock-closed"></ion-icon>
-          <input type="password" id="pasw-input" class="text-input" placeholder="Contraseña"
-            v-model="company.password" />
-        </label>
-        <label for="confirm-pasw-input" class="input-cont">
-          <ion-icon name="lock-closed"></ion-icon>
-          <input type="password" id="confirm-pasw-input" class="text-input" v-model="confirmPassword"
-            placeholder="Confirmar Contraseña" />
-        </label>
-        <button class="go-btn" type="submit">
-          Registrarse
-        </button>
-        <button type="button" @click="toggleForm" class="opt-btn">
-          Iniciar Sesión
-        </button>
+    <section v-else key="signup" class="auth-container">
+      <form class="auth-form" @submit.prevent="signupCompany">
+        <div class="logo-container">
+          <h1>
+            <span class="logo-text logo-fix">FIX</span>
+            <span class="logo-text logo-separator">-</span>
+            <span class="logo-text logo-flow">FLOW</span>
+          </h1>
+        </div>
+        <h2 class="auth-title">Registro</h2>
+        <div class="form-group">
+          <label for="email-input" class="input-wrapper">
+            <ion-icon name="mail"></ion-icon>
+            <input type="mail" id="email-input" class="form-input" placeholder="Correo" v-model="company.mail" />
+          </label>
+          <label for="company-input" class="input-wrapper">
+            <ion-icon name="cube"></ion-icon>
+            <input type="text" id="company-input" class="form-input" placeholder="Nombre Compañía"
+              v-model="company.company_user" />
+          </label>
+          <label for="tel-input" class="input-wrapper">
+            <ion-icon name="call"></ion-icon>
+            <input type="text" id="tel-input" class="form-input" placeholder="Número de Teléfono"
+              v-model="company.number"/>
+          </label>
+          <label for="pasw-input" class="input-wrapper">
+            <ion-icon name="lock-closed"></ion-icon>
+            <input type="password" id="pasw-input" class="form-input" placeholder="Contraseña"
+              v-model="company.password" />
+          </label>
+          <label for="confirm-pasw-input" class="input-wrapper">
+            <ion-icon name="lock-closed"></ion-icon>
+            <input type="password" id="confirm-pasw-input" class="form-input" v-model="confirmPassword"
+              placeholder="Confirmar Contraseña" />
+          </label>
+        </div>
+        <div class="button-group">
+          <button class="btn-primary" type="submit">
+            Registrarse
+          </button>
+          <button type="button" @click="toggleForm" class="btn-secondary">
+            Iniciar Sesión
+          </button>
+        </div>
       </form>
     </section>
   </transition>
@@ -221,198 +235,155 @@ export default {
 </template>
 
 <style scoped>
-.login-cont,
-.signup-cont {
+.auth-container {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 20px 10px;
   width: 80%;
-  border-radius: 10px;
+  max-width: 500px;
+  padding: 2rem;
   background: var(--second);
-  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 2px solid var(--base);
-  overflow-y: auto;
-  scrollbar-width: none;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--base);
 }
 
-/* Transición personalizada */
-.slide-fade-enter-active {
-  transition: transform 1s ease, opacity 2s ease;
-} 
-
-.slide-fade-leave-active {
-  transition: transform 0.8s ease, opacity 2s ease;
-}
-
-.slide-fade-enter-from {
-  transform: scale(0.1);
-  opacity: 0;
-}
-
-.slide-fade-leave-to {
-  transform: scale(0.1);
-  opacity: 0;
-}
-
-.form {
+.auth-form {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  flex-wrap: wrap;
+  gap: 1.5rem;
 }
 
-.form h2 {
-  font-family: var(--baseFont);
-  font-size: 22px;
+.logo-container {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.logo-container h1 {
+  font-size: 2.5rem;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.logo-text {
+  font-weight: bold;
+}
+
+.logo-fix {
+  color: var(--secondTwo);
+}
+
+.logo-separator {
   color: white;
-  letter-spacing: 2px;
-  text-transform: uppercase;
 }
 
-.input-cont {
-  padding: 10px;
-  border-radius: 10px;
-  background: #ffffff;
-  box-shadow: inset -25px -25px 51px #a8a8a8, inset 25px 25px 51px #ffffff;
+.logo-flow {
+  color: var(--base);
+}
+
+.auth-title {
+  color: white;
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-wrapper {
+  position: relative;
   display: flex;
   align-items: center;
-  width: 80%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  transition: all 0.3s ease;
 }
 
-.text-input {
-  all: unset;
-  padding: 0 10px;
-  width: 80%;
+.input-wrapper:focus-within {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px var(--base);
 }
 
-.go-btn {
-  all: unset;
-  padding: 10px 20px;
+.input-wrapper ion-icon {
+  color: var(--base);
+  font-size: 1.25rem;
+  margin-right: 0.75rem;
+}
+
+.form-input {
+  background: transparent;
+  border: none;
+  color: white;
+  width: 100%;
+  font-size: 1rem;
+  outline: none;
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-primary {
   background: var(--base);
   color: white;
   border: none;
-  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  font-family: var(--baseFont);
-  transition: all 0.05s ease;
-  border: 2px solid transparent;
+  transition: all 0.3s ease;
 }
 
-.opt-btn {
-  all: unset;
-  color: rgba(255, 255, 255, 0.418);
-  font-size: 12px;
+.btn-primary:hover {
+  background: var(--secondTwo);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: white;
+  border: 1px solid var(--base);
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.opt-btn:hover {
-  opacity: 0.8;
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.go-btn:active {
-  scale: 0.9;
-  background-color: var(--second);
-  border-color: var(--base);
+.btn-link {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-/* Tablets: 768px y mayores */
-@media (min-width: 768px) {
-  .form {
-    gap: 30px;
-  }
-
-  .form h2 {
-    font-size: 35px;
-    letter-spacing: 3px;
-  }
-
-  .input-cont {
-    font-size: 25px;
-  }
-
-  .go-btn {
-    font-size: 20px;
-  }
-
-  .opt-btn {
-    font-size: 16px;
-  }
-}
-
-/* Portátiles: 1024px y mayores */
-@media (min-width: 1024px) {
-
-  .login-cont,
-  .signup-cont {
-    width: 80%;
-  }
-
-  .form {
-    gap: 20px;
-  }
-
-  .form h2 {
-    font-size: 25px;
-  }
-
-  .input-cont {
-    font-size: 20px;
-    padding-left: 20px;
-  }
-
-  .go-btn {
-    font-size: 15px;
-  }
-
-  .opt-btn {
-    font-size: 12px;
-  }
-}
-
-/* Computadoras de escritorio: 1280px y mayores */
-@media (min-width: 1280px) {
-
-  .login-cont,
-  .signup-cont {
-    width: 28%;
-    height: 65%;
-  }
-
-  .input-cont {
-    font-size: 18px;
-    width: 60%;
-  }
-
-  .go-btn {
-    font-size: 13px;
-    scale: 1.2;
-  }
-
-  .go-btn:hover {
-    scale: 1.3;
-  }
-
-  .go-btn:hover:active {
-    scale: 1.2;
-  }
-
-  .opt-btn {
-    font-size: 11px;
-  }
-}
-
-.main-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
+.btn-link:hover {
+  color: white;
 }
 
 .loading-overlay {
@@ -421,7 +392,7 @@ export default {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -430,32 +401,26 @@ export default {
 }
 
 .loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid var(--base);
-  border-top: 5px solid transparent;
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid var(--base);
+  border-top: 3px solid transparent;
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 1rem;
 }
 
 .loading-overlay p {
   color: white;
-  font-size: 18px;
-  font-family: var(--baseFont);
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  font-size: 1rem;
 }
 
 .help-button {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
+  bottom: 2rem;
+  right: 2rem;
+  width: 3rem;
+  height: 3rem;
   border-radius: 50%;
   background: var(--base);
   border: none;
@@ -463,13 +428,13 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   z-index: 100;
 }
 
 .help-button ion-icon {
-  font-size: 24px;
+  font-size: 1.5rem;
   color: white;
 }
 
@@ -480,5 +445,50 @@ export default {
 
 .help-button:active {
   transform: scale(0.95);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.5s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@media (min-width: 768px) {
+  .auth-container {
+    width: 80%;
+    max-width: 600px;
+  }
+
+  .auth-title {
+    font-size: 1.75rem;
+  }
+
+  .form-input {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .auth-container {
+    width: 70%;
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .auth-container {
+    width: 40%;
+    max-width: 450px;
+  }
 }
 </style>
