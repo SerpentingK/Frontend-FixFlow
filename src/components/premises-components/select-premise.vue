@@ -27,6 +27,10 @@ export default {
             address: ''
         });
 
+        const switchSLM = () => {
+            showLogoutModal.value = !showLogoutModal.value;
+        }
+
         const loadPremises = async () => {
             const answer = await axios.get(`/api/someDataOfPremises/${loggedCompany.value}`);
             premises.value = answer.data;
@@ -60,18 +64,13 @@ export default {
         };
 
         const confirmDeactivate = () => {
-            // Aquí iría la lógica para desactivar el local
-            console.log("Desactivando local", currentPremiseId.value);
             showDeactivateModal.value = false;
         };
 
         const confirmLogout = () => {
-            switchSLP(selectedPremise.value, selectedPremiseId.value);
             if(!loggedWorker.value){ 
                 localStorage.removeItem("activePremise");
-                showLogoutModal.value = false;
-                // Después de cerrar la sesión, procedemos con la desactivación
-                showDeactivateModal.value = true;
+                switchSLM();
             } else {
                 showAlert("2", "Primero debes cerrar el turno iniciado en el local");
                 showLogoutModal.value = false;
@@ -110,7 +109,8 @@ export default {
             confirmDeactivate,
             confirmLogout,
             switchSAPM,
-            premises
+            premises,
+            switchSLM
         };
     }
 };
@@ -126,7 +126,7 @@ export default {
                     <ion-icon name="storefront"></ion-icon>
                     <span>Dirección: {{ premise.address }}</span>
                     <div class="premise-btns">
-                        <button class="action-btn logout" @click="showLogoutModal = true" title="Cerrar Sesion"
+                        <button class="action-btn logout" @click="switchSLM" title="Cerrar Sesion"
                                 :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="close"></ion-icon>
                         </button>

@@ -6,7 +6,6 @@ import axios from "axios";
 
 const router = useRouter();
 const paymentStatus = ref(null); // 'pending', 'completed', 'failed'
-const transactionDetails = ref(null);
 const isLoading = ref(false);
 const isProcessing = ref(false);
 

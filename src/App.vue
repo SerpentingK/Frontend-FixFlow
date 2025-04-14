@@ -464,16 +464,6 @@ provide("switchSAPM", switchSAPM)
 const switchSLP = (premiseName, premiseId) => {
     if (showLoginPremise.value) {
         showLoginPremise.value = false;
-        if(premiseName && !isNaN(premiseId)) {
-            selectedPremise.value = premiseName
-            selectedPremiseId.value = premiseId
-        } else {
-            selectedPremise.value = null
-            selectedPremiseId.value = null
-            // Asegurarse de que no se muestre ningún modal al cerrar sesión
-            showLoginPremise.value = false;
-            showAddPremiseModal.value = false;
-        }
     } else {
         // Solo mostrar el modal de login si se está intentando iniciar sesión (no al cerrar)
         if (premiseName && !isNaN(premiseId)) {

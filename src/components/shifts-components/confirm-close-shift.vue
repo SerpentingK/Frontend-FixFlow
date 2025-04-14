@@ -17,18 +17,17 @@ const total_cash = inject('total_cash', ref(0));
 const total_platform = inject('total_platform');
 const totalInvestment = inject("totalInvestment");
 const total_outs = inject('total_outs');
-const loggedCompany = inject("loggedCompany");
 const total_user = inject('total_user', ref(0));
 const loggedDocument = ref(null)
 const selectedPremiseId = inject("selectedPremiseId", ref(null))
 
 // Función para formatear valores como moneda
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2
-  }).format(value || 0);
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        minimumFractionDigits: 2
+    }).format(value || 0);
 };
 
 // Modifica totalMoney para que sea solo de lectura
@@ -52,7 +51,7 @@ const showAlert = inject("showAlert")
 const putShift = async () => {
     try {
         const response = await axios.put(
-            `/api/closeshift/${startShift.value}/${selectedPremiseId.value}`, 
+            `/api/closeshift/${startShift.value}/${selectedPremiseId.value}`,
             {
                 total_gain: total_revenue.value,
                 total_received: adjustedTotalSales.value,
@@ -63,9 +62,9 @@ const putShift = async () => {
 
         if (response.status === 200) {
             ["total_sales", "total_outs", "total_revenue", "loggedDocument", "loggedWorker",
-             "workerRole", "startShift", "phonesDelivered", "phonesReceived", "phonesRepaired",
-             "total_cash", "total_platform", "totalInvestment"]
-            .forEach(item => localStorage.removeItem(item));
+                "workerRole", "startShift", "phonesDelivered", "phonesReceived", "phonesRepaired",
+                "total_cash", "total_platform", "totalInvestment"]
+                .forEach(item => localStorage.removeItem(item));
 
             // Reiniciar valores reactivos
             total_sales.value = 0;
@@ -100,51 +99,74 @@ onMounted(() => {
     total_cash.value = JSON.parse(localStorage.getItem("total_cash")) || 0;
     totalInvestment.value = JSON.parse(localStorage.getItem("totalInvestment")) || 0;
 });
+
+const overlayAlpha = ref(0);
+
+onMounted(() => {
+  setTimeout(() => {
+    overlayAlpha.value = 0.5;
+  }, 100); // Pequeño retraso antes de iniciar la animación
+});
 </script>
 
 <template>
-    <section class="c-container">
-        <h3>TERMINAR TURNO</h3>
-        <div class="info-cont">
-            <span>Cantidad Reportada en Físico: </span>
-            <span>{{ formatCurrency(total_user) }}</span>
-        </div>
-        <div class="info-cont">
-            <span>Cantidad Real en Físico: </span>
-            <span>{{ formatCurrency(total_cash) }}</span>
-        </div>
-        <div class="info-cont">
-            <span>Cantidad a Entregar en Físico: </span>
-            <span>{{ formatCurrency(totalMoney) }}</span>
-        </div>
-        <div class="info-cont">
-            <span>Cantidad en Plataforma: </span>
-            <span>{{ formatCurrency(total_platform) }}</span>
-        </div>
-        <div class="info-cont">
-            <span>Cantidad Total: </span>
-            <span>{{ formatCurrency(adjustedTotalSales) }}</span>
-            <span v-if="calculatedExcess > 0" class="excess-amount">
-                (Incluye {{ formatCurrency(calculatedExcess) }} de ajuste)
-            </span>
-        </div>
-        <div class="info-cont">
-            <span>Inversión: </span>
-            <span>{{ formatCurrency(totalInvestment) }}</span>
-        </div>
-        <div class="info-cont">
-            <span>Ganancia: </span>
-            <span>{{ formatCurrency(total_revenue) }}</span>
-        </div>
-        
-        <div class="btns">
-            <button @click="switchCCS()">Cancelar</button>
-            <button @click="putShift()" class="confirm-btn">Confirmar</button>
-        </div>
-    </section>
+    <div class="overlay" :style="{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }">
+        <section class="c-container">
+            <h3>TERMINAR TURNO</h3>
+            <div class="info-cont">
+                <span>Cantidad Reportada en Físico: </span>
+                <span>{{ formatCurrency(total_user) }}</span>
+            </div>
+            <div class="info-cont">
+                <span>Cantidad Real en Físico: </span>
+                <span>{{ formatCurrency(total_cash) }}</span>
+            </div>
+            <div class="info-cont">
+                <span>Cantidad a Entregar en Físico: </span>
+                <span>{{ formatCurrency(totalMoney) }}</span>
+            </div>
+            <div class="info-cont">
+                <span>Cantidad en Plataforma: </span>
+                <span>{{ formatCurrency(total_platform) }}</span>
+            </div>
+            <div class="info-cont">
+                <span>Cantidad Total: </span>
+                <span>{{ formatCurrency(adjustedTotalSales) }}</span>
+                <span v-if="calculatedExcess > 0" class="excess-amount">
+                    (Incluye {{ formatCurrency(calculatedExcess) }} de ajuste)
+                </span>
+            </div>
+            <div class="info-cont">
+                <span>Inversión: </span>
+                <span>{{ formatCurrency(totalInvestment) }}</span>
+            </div>
+            <div class="info-cont">
+                <span>Ganancia: </span>
+                <span>{{ formatCurrency(total_revenue) }}</span>
+            </div>
+
+            <div class="btns">
+                <button @click="putShift()" class="confirm-btn">Confirmar</button>
+            </div>
+        </section>
+    </div>
 </template>
 
 <style scoped>
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    /* Empieza completamente transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1100;
+    transition: background-color .5s ease-in-out;
+}
 .c-container {
     position: fixed;
     left: 50%;
@@ -236,11 +258,11 @@ button.confirm-btn {
         width: 60%;
         max-width: 500px;
     }
-    
+
     .info-cont {
         font-size: 1.1rem;
     }
-    
+
     h3 {
         font-size: 1.5rem;
     }
@@ -252,7 +274,7 @@ button.confirm-btn {
         max-width: 450px;
         padding: 25px;
     }
-    
+
     .btns button {
         padding: 12px;
     }
