@@ -269,7 +269,7 @@ onMounted(() => {
     overflow-y: scroll;
     scrollbar-width: none;
     transition: all .4s ease;
-    z-index: 13;
+    z-index: 11;
 }
 
 h3 {

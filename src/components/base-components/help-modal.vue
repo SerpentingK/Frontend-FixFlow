@@ -54,16 +54,24 @@ const sections = [
     title: 'Facturación',
     slides: [
       {
-        description: 'Gestiona todas tus facturas y pagos en un solo lugar.',
-        image: '/src/assets/img/tuto.png'
+        description: 'Podras registrar los celulares que entran y salen de tu local.',
+        image: '/src/assets/img/tuto/billing/billing-1.png'
       },
       {
-        description: 'Genera informes detallados de ingresos y gastos.',
-        image: '/src/assets/img/tuto2.png'
+        description: 'Manejaras una lista de todas tus facturas para mantenerte organizado.',
+        image: '/src/assets/img/tuto/billing/billing-2.png'
       },
       {
-        description: 'Configura métodos de pago y gestiona transacciones.',
-        image: '/src/assets/img/tuto.png'
+        description: 'Podras registrar todas tus vetas de mercancia.',
+        image: '/src/assets/img/tuto/billing/billing-3.png'
+      },
+      {
+        description: 'Y tus salidad de dinero tambien.',
+        image: '/src/assets/img/tuto/billing/billing-4.png'
+      },
+      {
+        description: 'Maneja que celulares has entregado y cuales has reparado.',
+        image: '/src/assets/img/tuto/billing/billing-5.png'
       }
     ]
   }
