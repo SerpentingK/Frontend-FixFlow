@@ -20,6 +20,7 @@ const total_outs = inject('total_outs');
 const loggedCompany = inject("loggedCompany");
 const total_user = inject('total_user', ref(0));
 const loggedDocument = ref(null)
+const selectedPremiseId = inject("selectedPremiseId", ref(null))
 
 // Función para formatear valores como moneda
 const formatCurrency = (value) => {
@@ -51,7 +52,7 @@ const showAlert = inject("showAlert")
 const putShift = async () => {
     try {
         const response = await axios.put(
-            `/api/closeshift/${startShift.value}/${loggedCompany.value}`, 
+            `/api/closeshift/${startShift.value}/${selectedPremiseId.value}`, 
             {
                 total_gain: total_revenue.value,
                 total_received: adjustedTotalSales.value,
