@@ -1,12 +1,17 @@
 <script setup>
 import { ref, inject, onMounted } from 'vue';
+import axios from 'axios';
 
 const props = defineProps({
   premiseName: {
     type: String,
     required: true,
     default: "Local"
-  }
+  },
+  premises_id: {
+    type: Number,
+    required: true
+  }   
 });
 
 const emit = defineEmits(['access-granted']);
@@ -14,36 +19,66 @@ const emit = defineEmits(['access-granted']);
 const switchSLP = inject("switchSLP");
 const showAlert = inject("showAlert");
 const selectedPremise = inject("selectedPremise")
+const sessionPremise = ref({
+    premise_id: props.premises_id,
+    password: "",
+});
 
-const keyInput = ref('');
-const fakeCorrectPassword = '1234';
 
-const verifyKey = () => {
-  if (keyInput.value.length < 4) {
-    showAlert?.("2", "La clave debe tener al menos 4 caracteres.");
-    return;
+const postLogin = async () => {
+  try {
+    if (sessionPremise.value.password.length < 4) {
+      showAlert?.("2", "La clave debe tener al menos 4 caracteres.");
+      return;
+    }
+
+    const answer = await axios.post(`/api/loginPremises`, {
+      premise_id: sessionPremise.value.premise_id,
+      password: sessionPremise.value.password
+    });
+
+    console.log(answer.data);
+    if (answer.data.status === "Login exitoso") {
+      localStorage.setItem("activePremise", JSON.stringify({
+        name: props.premiseName,
+        id: props.premises_id
+      }));
+      
+      switchSLP(props.premiseName, props.premises_id);
+      selectedPremise.value = props.premiseName;
+      sessionPremise.value.password = '';
+    }
+  } catch (error) {
+    if (error.response && error.response.data) {
+      showAlert("2", `Error al iniciar sesión: ${error.response.data.detail}`);
+      console.error("Error al iniciar sesión", error.response.data);
+    } else {
+      showAlert("2", "Ha ocurrido un error inesperado. Inténtalo de nuevo.");
+      console.error(error);
+    }
   }
-
-  if (keyInput.value !== fakeCorrectPassword) {
-    showAlert?.("2", "Clave incorrecta para el local.");
-    return;
-  }
-  switchSLP(props.premiseName);
-  selectedPremise.value = props.premiseName;
 };
 
 const cancelAccess = () => {
-  keyInput.value = '';
+  sessionPremise.value.password = '';
   switchSLP(null);
 };
 
 const overlayAlpha = ref(0);
 
 onMounted(() => {
+  const storedPremise = localStorage.getItem("activePremise");
+  if (storedPremise) {
+    const premise = JSON.parse(storedPremise);
+    selectedPremise.value = premise.name;
+    switchSLP(premise.name, premise.id);
+  }
+
   setTimeout(() => {
     overlayAlpha.value = 0.5;
   }, 100); // Pequeño retraso antes de iniciar la animación
 });
+
 </script>
 
 <template>
@@ -51,10 +86,10 @@ onMounted(() => {
     <section class="login-premise-cont">
       <h2>Acceso a {{ premiseName }}</h2>
 
-      <form @submit.prevent="verifyKey">
+      <form @submit.prevent="postLogin">
         <label class="input-container">
           <span class="info-label">Ingrese clave:</span>
-          <input type="password" placeholder="Clave local" required v-model="keyInput" />
+          <input type="password" placeholder="Clave local" required v-model="sessionPremise.password" />
         </label>
 
         <div class="btn-group">
