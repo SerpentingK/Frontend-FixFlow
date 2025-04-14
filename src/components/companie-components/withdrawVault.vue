@@ -1,25 +1,29 @@
 <script setup>
 import axios from 'axios';
-import { computed, inject, ref } from 'vue';
+import { computed, inject, ref, onMounted } from 'vue';
 
 // Variables
 const quantity = ref(0);
-const loggedCompany = inject("loggedCompany")
 const startShift = inject("startShift");
 const showAlert = inject("showAlert")
+const selectedPremiseId = inject("selectedPremiseId")
+const loadPremisesVault = inject("loadPremisesVault")
 const vault = computed(() => ({
     ref_shift: startShift.value,
-    quantity: quantity.value
+    quantity: quantity.value,
+    ref_premises: selectedPremiseId.value
 }));
 
 const switchWV = inject("switchWV")
-const getCompanyVault = inject("getCompanyVault")
 
 // Función para registrar el retiro
 const postWithdrawal = async () => {
     try {
-        const response = await axios.put(`/api/OutFlowVault/${loggedCompany.value}`, vault.value);
-        await getCompanyVault();
+        const response = await axios.put(`/api/OutFlowVault`, vault.value);
+        
+        // Actualizar la información de la caja antes de cerrar
+        await loadPremisesVault(selectedPremiseId.value);
+        
         switchWV();
     } catch (error) {
         if (error.response && error.response.data) {
@@ -67,7 +71,7 @@ onMounted(() => {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 1100;
     transition: background-color .5s ease-in-out;
 }
 

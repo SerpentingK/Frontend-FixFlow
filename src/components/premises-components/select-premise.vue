@@ -14,6 +14,7 @@ export default {
         const loggedCompany = inject("loggedCompany");
         const showAlert = inject("showAlert");
         const premises = ref([]);
+        const loggedWorker = inject("loggedWorker");
 
 
         // Estados para los modales
@@ -66,10 +67,16 @@ export default {
 
         const confirmLogout = () => {
             switchSLP(selectedPremise.value, selectedPremiseId.value);
-            localStorage.removeItem("activePremise");
-            showLogoutModal.value = false;
-            // Después de cerrar la sesión, procedemos con la desactivación
-            showDeactivateModal.value = true;
+            if(!loggedWorker.value){ 
+                localStorage.removeItem("activePremise");
+                showLogoutModal.value = false;
+                // Después de cerrar la sesión, procedemos con la desactivación
+                showDeactivateModal.value = true;
+            } else {
+                showAlert("2", "Primero debes cerrar el turno iniciado en el local");
+                showLogoutModal.value = false;
+            }
+
         };
 
         
@@ -120,8 +127,7 @@ export default {
                     <span>Dirección: {{ premise.address }}</span>
                     <div class="premise-btns">
                         <button class="action-btn logout" @click="showLogoutModal = true" title="Cerrar Sesion"
-                                :class="{ 'disabled': selectedPremise === premise.name }"
-                                :disabled="selectedPremise === premise.name">
+                                :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="close"></ion-icon>
                         </button>
                         <button class="action-btn login" @click="switchSLP(premise.name, premise.ref_premises)" title="Iniciar sesión"
@@ -134,8 +140,7 @@ export default {
                         </button>
                         <button class="action-btn deactivate" @click="deactivatePremise(premise.ref_premises)" title="Desactivar local"
                             v-if="workerRole === 'Gerente'"
-                            :class="{ 'disabled': selectedPremise === premise.name }"
-                            :disabled="selectedPremise === premise.name">
+                            :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="lock-closed-outline"></ion-icon>
                         </button>
                         <button class="action-btn vault" @click="switchSVI" title="Vaul"

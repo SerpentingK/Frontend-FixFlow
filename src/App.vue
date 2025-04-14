@@ -40,6 +40,7 @@ const premisesCount = ref(0);          // Numero de locales
 const loggedDocument = ref(null);         // Documento del trabajador
 const workersCount = ref(0);              // Cantidad de trabajadores
 const workerRole = ref(null);             // Rol del trabajador
+const premiseVault = ref(0);              // Caja del local seleccionado
 
 // Estadísticas de teléfonos
 const phonesRepaired = ref(0);            // Teléfonos reparados
@@ -86,6 +87,18 @@ provide('phonesDelivered', phonesDelivered);
 provide('selectedPremise', selectedPremise);
 provide('selectedPremiseId', selectedPremiseId);
 provide('premisesCount', premisesCount);
+provide('premiseVault', premiseVault);
+
+// Función para cargar información del local
+const loadPremisesVault = async (selectedPremiseId) => {
+  try {
+    const response = await axios.get(`/api/premises/${selectedPremiseId}`);
+    premiseVault.value = response.data.Vault;
+  } catch (error) {
+    console.error("Error al cargar información del local:", error);
+  }
+};
+provide('loadPremisesVault', loadPremisesVault);
 
 // Datos de la factura
 const billData = ref({
