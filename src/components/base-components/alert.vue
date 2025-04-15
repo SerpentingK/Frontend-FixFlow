@@ -88,7 +88,7 @@ const alertStyles = computed(() => {
     border-radius: 8px;
     color: white;
     font-family: Arial, sans-serif;
-    background: var(--second);
+    background: red;
     border: 2px solid var(--base);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     min-width: 200px;
