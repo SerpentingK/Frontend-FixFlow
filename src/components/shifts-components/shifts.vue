@@ -5,31 +5,37 @@ import { inject, onMounted, ref, watch } from 'vue';
 
 const switchSI = inject("switchSI")
 const loggedCompany = inject('loggedCompany')
+const selectedPremiseId = inject("selectedPremiseId", ref(null));
 
 const shifts = ref([]);
 const premises = ref([]); // Para almacenar la lista de locales
 const searchType = ref('date'); // 'date' o 'local' - tipo de búsqueda
 const search = ref(""); // Puede ser fecha o ID de local según searchType
 
+// Función auxiliar para formatear la hora
+const formatTime = (dateString) => {
+    if (!dateString) return "Sesion En turno";
+    const dateObj = new Date(dateString);
+    let hours = dateObj.getHours();
+    const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+    const period = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // Convierte 0 (medianoche) a 12
+    return `${hours}:${minutes} ${period}`;
+};
+
 // Cargar todos los locales disponibles
 const loadPremises = async () => {
-    //Haga que aqui se carguen los locales de la empresa
+    try {
+        const response = await axios.get(`/api/someDataOfPremises/${loggedCompany.value}`);
+        premises.value = response.data;
+    } catch (error) {
+        console.error("Error al cargar los locales:", error);
+    }
 };
 
 const loadAllShifts = async () => {
     try {
-        const answer = await axios.get(`/api/allShiftCompany/${loggedCompany.value}`);
-
-        // Función auxiliar para formatear la hora
-        const formatTime = (dateString) => {
-            if (!dateString) return "Sesion En turno";
-            const dateObj = new Date(dateString);
-            let hours = dateObj.getHours();
-            const minutes = dateObj.getMinutes().toString().padStart(2, '0');
-            const period = hours >= 12 ? "PM" : "AM";
-            hours = hours % 12 || 12; // Convierte 0 (medianoche) a 12
-            return `${hours}:${minutes} ${period}`;
-        };
+        const answer = await axios.get(`/api/allShiftCompanyPremises/${loggedCompany.value}/${selectedPremiseId.value}`);
 
         // Obtener los nombres de los técnicos para cada turno
         const shiftsWithNames = await Promise.all(
@@ -77,22 +83,60 @@ const loadAllShifts = async () => {
 };
 
 const searchsShifts = debounce(async () => {
-    if (!search.value.trim()) {
+    if (!search.value || !search.value.toString().trim()) {
         loadAllShifts(); // Mostrar todos los turnos si el campo está vacío
         return;
     }
     
     try {
+        let response;
         if (searchType.value === 'date') {
-            // Búsqueda por fecha (como antes)
-            const answer = await axios.get(`/api/searchDateShift/${loggedCompany.value}/${search.value}`);
-            shifts.value = answer.data;
+            // Búsqueda por fecha
+            response = await axios.get(`/api/searchDateShift/${loggedCompany.value}/${selectedPremiseId.value}`);
         } else if (searchType.value === 'local') {
-            // Búsqueda por local - aquí puedes implementar la lógica que necesites
-            // Por ejemplo:
-            const answer = await axios.get(`/api/searchpremiseshift/${loggedCompany.value}/${search.value}`);
-            shifts.value = answer.data;
+            response = await axios.get(`/api/searchpremiseshift/${loggedCompany.value}/${selectedPremiseId.value}`);
         }
+
+        // Procesar los resultados para incluir los nombres de los trabajadores
+        const shiftsWithNames = await Promise.all(
+            response.data.map(async (shift) => {
+                try {
+                    // Extraer el documento del ID del turno
+                    const workerDocument = shift.id.split('_').slice(1).join('_');
+                    
+                    // Consultar el nombre del técnico
+                    const workerResponse = await axios.get(`/api/worker/${workerDocument}/${loggedCompany.value}`);
+                    
+                    // Verificar si la respuesta tiene el formato esperado
+                    if (workerResponse.data && workerResponse.data.wname) {
+                        return {
+                            ...shift,
+                            start_time: formatTime(shift.start_time),
+                            finish_time: formatTime(shift.finish_time),
+                            worker_name: workerResponse.data.wname
+                        };
+                    } else {
+                        console.warn(`Respuesta inesperada para el trabajador ${workerDocument}:`, workerResponse.data);
+                        return {
+                            ...shift,
+                            start_time: formatTime(shift.start_time),
+                            finish_time: formatTime(shift.finish_time),
+                            worker_name: "Técnico desconocido"
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error al obtener el nombre del técnico para el turno ${shift.id}:`, error);
+                    return {
+                        ...shift,
+                        start_time: formatTime(shift.start_time),
+                        finish_time: formatTime(shift.finish_time),
+                        worker_name: "Técnico desconocido"
+                    };
+                }
+            })
+        );
+
+        shifts.value = shiftsWithNames;
     } catch (error) {
         console.error("Error al cargar las búsquedas del turno", error);
     }
@@ -144,12 +188,13 @@ onMounted(() => {
                 v-else-if="searchType === 'local'" 
                 v-model="search"
                 class="local-select"
+                @change="searchsShifts"
             >
                 <option value="">Seleccione un local</option>
                 <option 
                     v-for="local in premises" 
-                    :key="local.id" 
-                    :value="local.id"
+                    :key="local.ref_premises" 
+                    :value="local.ref_premises"
                 >
                     {{ local.name }} ({{ local.address }})
                 </option>

@@ -544,6 +544,12 @@ provide("switchSMTR", switchSMTR);
 // =============================================
 
 onMounted(() => {
+  // Recuperar loggedId del localStorage
+  const storedLoggedId = localStorage.getItem("loggedId");
+  if (storedLoggedId) {
+    loggedId.value = JSON.parse(storedLoggedId);
+  }
+  
   handlePath();
 });
 

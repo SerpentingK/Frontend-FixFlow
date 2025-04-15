@@ -5,6 +5,9 @@ import axios from 'axios';
 const loggedWorker = inject("loggedWorker", null);
 const workerRole = inject("workerRole", null);
 const loggedDocument = inject("loggedDocument", null);
+const loggedId = inject("loggedId", ref(null));
+const selectedPremiseId = inject("selectedPremiseId", ref(null));
+const selectedPremise = ref(null);
 
 const workerStats = ref({
     totalShifts: 0,
@@ -23,14 +26,22 @@ const formatDate = (dateString) => {
 
 const getWorkerStats = async () => {
     try {
-        const response = await axios.get(`/api/workerStats/${loggedDocument.value}`);
-        workerStats.value = response.data;
+        console.log(loggedId.value);
+        const response = await axios.get(`/api/workerStats/${loggedId.value}/${selectedPremiseId.value}`);
+        workerStats.value = response.data.count;
     } catch (error) {
         console.error("Error al obtener estadísticas del trabajador:", error);
     }
 };
 
 onMounted(() => {
+    // Cargar el estado del local activo
+    const storedPremise = localStorage.getItem("activePremise");
+    if (storedPremise) {
+        const premise = JSON.parse(storedPremise);
+        selectedPremise.value = premise.name;
+        selectedPremiseId.value = premise.id;
+    }
     getWorkerStats();
 });
 </script>
@@ -66,7 +77,7 @@ onMounted(() => {
                 <ion-icon name="time-outline"></ion-icon>
                 <div class="info-content">
                     <h3>Turnos Realizados</h3>
-                    <p>{{ workerStats.totalShifts }}</p>
+                    <p>{{ workerStats }}</p>
                 </div>
             </div>
 
