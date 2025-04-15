@@ -150,7 +150,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   top: 50%;
   transform: translate(-50%, -50%);
   padding: 20px;
-  width: 90%;
+  width: 80%;
   border-radius: 10px;
   background: var(--second);
   box-shadow: -10px -10px 30px #242424, 10px 10px 30px #484848;
@@ -162,7 +162,7 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   overflow-y: auto;
   scrollbar-width: none;
   gap: 20px;
-  z-index: 10;
+  z-index: 11;
 }
 
 .inf-cont h2 {

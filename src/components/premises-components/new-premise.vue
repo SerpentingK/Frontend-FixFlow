@@ -35,7 +35,7 @@ export default {
                 showAlert("2", "Las contraseñas no coinciden.");
                 return;
             }
-            const answer = await axios.post(`/api/newPremises/${loggedCompany.value}/${premisesCount.value}`, {
+            const answer = await axios.post(`${import.meta.env.VITE_API_URL}/newPremises/${loggedCompany.value}/${premisesCount.value}`, {
                 name: local.value.name,
                 address: local.value.address,
                 password: local.value.password,

@@ -72,7 +72,7 @@ const decreasePhonesAmount = () => {
 const fetchBrands = async () => {
   try {
     const response = await axios.get(
-      `/api/allBrands/${loggedCompany.value}`
+      `${import.meta.env.VITE_API_URL}/allBrands/${loggedCompany.value}`
     );
     brands.value = response.data;
   } catch (error) {
@@ -85,7 +85,7 @@ const id_brands = ref(null);
 const brandNameId = async (name) => {
   try {
     const response = await axios.get(
-      `/api/Brands/${name}/${loggedCompany.value}`
+      `${import.meta.env.VITE_API_URL}/Brands/${name}/${loggedCompany.value}`
     );
     id_brands.value = response.data[0].id;
   } catch (error) {
@@ -101,7 +101,7 @@ const fetchDevicesForPhone = async (index, brandName) => {
       return;
     }
 
-    const response = await axios.get(`/api/${id_brands.value}/Devices`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/${id_brands.value}/Devices`);
     phones.value[index].availableDevices = response.data;
   } catch (error) {
     console.error("Error cargando dispositivos para la marca:", error);
@@ -115,7 +115,7 @@ const addNewBrand = async (index) => {
     !brands.value.some((b) => b.name === newBrand.value)
   ) {
     try {
-      await axios.post(`/api/newBrand/${loggedCompany.value}`, {
+      await axios.post(`${import.meta.env.VITE_API_URL}/newBrand/${loggedCompany.value}`, {
         name: newBrand.value,
       });
       brands.value.push({ name: newBrand.value });
@@ -142,7 +142,7 @@ const addNewDevice = async (index) => {
     )
   ) {
     try {
-      await axios.post("/api/newDevice", {
+      await axios.post("${import.meta.env.VITE_API_URL}/newDevice", {
         id_brands: id_brands.value,
         name: newDevice.value,
       });

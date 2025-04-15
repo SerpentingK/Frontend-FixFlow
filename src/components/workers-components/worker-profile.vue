@@ -27,7 +27,7 @@ const formatDate = (dateString) => {
 const getWorkerStats = async () => {
     try {
         console.log(loggedId.value);
-        const response = await axios.get(`/api/workerStats/${loggedId.value}/${selectedPremiseId.value}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/workerStats/${loggedId.value}/${selectedPremiseId.value}`);
         workerStats.value = response.data.count;
     } catch (error) {
         console.error("Error al obtener estadísticas del trabajador:", error);

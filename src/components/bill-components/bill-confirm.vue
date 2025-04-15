@@ -29,7 +29,7 @@ const postbill = async () => {
     // Verifica los datos antes de enviar
     console.log("Datos a enviar:", JSON.stringify(billData.value, null, 2));
     const answer = await axios.post(
-      `/api/createBillwithPhones/${loggedCompany.value}`,
+      `${import.meta.env.VITE_API_URL}/createBillwithPhones/${loggedCompany.value}`,
       billData.value
     );
 
@@ -53,13 +53,13 @@ const postbill = async () => {
     const previousPlatform =
       JSON.parse(localStorage.getItem("total_platform")) || 0;
 
-      total_sales.value = previousSales + totalPayment;
-      total_cash.value = previousCash + totalCash;
-      total_platform.value = previousPlatform + totalPlatform;
+    total_sales.value = previousSales + totalPayment;
+    total_cash.value = previousCash + totalCash;
+    total_platform.value = previousPlatform + totalPlatform;
 
-      localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
-      localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
-      localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
+    localStorage.setItem("total_sales", JSON.stringify(total_sales.value));
+    localStorage.setItem("total_cash", JSON.stringify(total_cash.value));
+    localStorage.setItem("total_platform", JSON.stringify(total_platform.value));
 
     switchSBC();
     if (printEnabled.value) {
@@ -96,46 +96,70 @@ const updateReceived = () => {
   localStorage.setItem("phonesReceived", JSON.stringify(phonesReceived.value));
 };
 
+const overlayAlpha = ref(0);
+
 onMounted(() => {
   const storedSales = localStorage.getItem("total_sales");
   if (storedSales) total_sales.value = JSON.parse(storedSales);
+  setTimeout(() => {
+    overlayAlpha.value = 0.5;
+  }, 100); // Pequeño retraso antes de iniciar la animación
 });
+
+
+
 </script>
 
 <template>
-  <section class="inf-cont">
-    <div class="section">
-      <div class="info-row"><span class="info-label">Cliente:</span> {{ billData.client_name }}</div>
-      <div class="info-row"><span class="info-label">Teléfono:</span> {{ billData.client_phone }}</div>
-      <div class="info-row"><span class="info-label">Total:</span> {{ formatCurrency(billData.total_price) }}</div>
-      <div class="info-row"><span class="info-label">Técnico:</span> {{ billData.wname }}</div>
-    </div>
-
-    <hr class="divider" />
-
-    <article class="phones-container">
-      <div
-        class="phone-inf-cont"
-        v-for="phone in billData.phones"
-        :key="phone.phone_ref"
-      >
-        <div class="info-row"><span class="info-label">Dispositivo:</span> {{ phone.brand_name }} {{ phone.device }}</div>
-        <div class="info-row"><span class="info-label">Descripción:</span> {{ phone.details }}</div>
-        <div class="info-row"><span class="info-label">Precio:</span> {{ formatCurrency(phone.individual_price) }}</div>
-        <div class="info-row"><span class="info-label">Pendiente:</span> {{ formatCurrency(phone.due) }}</div>
-        <div class="info-row"><span class="info-label">Abono:</span> {{ formatCurrency(phone.payment) }}</div>
-        <hr class="divider" />
+  <div class="overlay" :style="{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }">
+    <section class="inf-cont">
+      <div class="section">
+        <div class="info-row"><span class="info-label">Cliente:</span> {{ billData.client_name }}</div>
+        <div class="info-row"><span class="info-label">Teléfono:</span> {{ billData.client_phone }}</div>
+        <div class="info-row"><span class="info-label">Total:</span> {{ formatCurrency(billData.total_price) }}</div>
+        <div class="info-row"><span class="info-label">Técnico:</span> {{ billData.wname }}</div>
       </div>
-    </article>
 
-    <div class="btn-container">
-      <button @click="switchSBC" class="cancel-btn">Cancelar</button>
-      <button @click="postbill(); updateReceived()" class="confirm-btn">Confirmar</button>
-    </div>
-  </section>
+      <hr class="divider" />
+
+      <article class="phones-container">
+        <div class="phone-inf-cont" v-for="phone in billData.phones" :key="phone.phone_ref">
+          <div class="info-row"><span class="info-label">Dispositivo:</span> {{ phone.brand_name }} {{ phone.device }}
+          </div>
+          <div class="info-row"><span class="info-label">Descripción:</span> {{ phone.details }}</div>
+          <div class="info-row"><span class="info-label">Precio:</span> {{ formatCurrency(phone.individual_price) }}
+          </div>
+          <div class="info-row"><span class="info-label">Pendiente:</span> {{ formatCurrency(phone.due) }}</div>
+          <div class="info-row"><span class="info-label">Abono:</span> {{ formatCurrency(phone.payment) }}</div>
+          <hr class="divider" />
+        </div>
+      </article>
+
+      <div class="btn-container">
+        <button @click="switchSBC" class="cancel-btn">Cancelar</button>
+        <button @click="postbill(); updateReceived()" class="confirm-btn">Confirmar</button>
+      </div>
+    </section>
+  </div>
+
 </template>
 
 <style scoped>
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0);
+    /* Empieza completamente transparente */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 11;
+    transition: background-color .5s ease-in-out;
+}
+
 .inf-cont {
   position: fixed;
   left: 50%;
@@ -187,7 +211,7 @@ onMounted(() => {
   background-color: #fff;
   border-radius: 10px;
   padding: 10px 15px;
-  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .divider {

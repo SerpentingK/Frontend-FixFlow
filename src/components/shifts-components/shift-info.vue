@@ -40,7 +40,7 @@ const getWorkerName = async () => {
   try {
     const workerDocument = props.shift.id.split('_').slice(1).join('_');
     
-    const response = await axios.get(`/api/worker/${workerDocument}/${loggedCompany.value}`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
     
     if (response.data && response.data.wname) {
       workerName.value = response.data.wname;
@@ -57,15 +57,15 @@ const getList = async () => {
     let url = "";
     try {
         if (listOption.value === "entrance") {
-            url = `/api/shiftReceived/${props.shift.ref_shift}`;
+            url = `${import.meta.env.VITE_API_URL}/shiftReceived/${props.shift.ref_shift}`;
         } else if (listOption.value === "repaired") {
-            url = `/api/shiftRepaired/${props.shift.ref_shift}`;
+            url = `${import.meta.env.VITE_API_URL}/shiftRepaired/${props.shift.ref_shift}`;
         } else if (listOption.value === "delivery") {
-            url = `/api/shiftDelivery/${props.shift.ref_shift}`;
+            url = `${import.meta.env.VITE_API_URL}/shiftDelivery/${props.shift.ref_shift}`;
         } else if (listOption.value === "sales") {
-            url = `/api/shiftSales/${props.shift.ref_shift}`;
+            url = `${import.meta.env.VITE_API_URL}/shiftSales/${props.shift.ref_shift}`;
         } else if (listOption.value === "outs") {
-            url = `/api/shiftOuts/${props.shift.ref_shift}`;
+            url = `${import.meta.env.VITE_API_URL}/shiftOuts/${props.shift.ref_shift}`;
         }
         const response = await axios.get(url);
 

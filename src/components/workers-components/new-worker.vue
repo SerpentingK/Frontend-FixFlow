@@ -23,7 +23,7 @@ export default {
         try {
             if(workersCount.value == 0){
                 const answer = await axios.post(
-                `/api/insertWorker/${loggedCompany.value}`,
+                `${import.meta.env.VITE_API_URL}/insertWorker/${loggedCompany.value}`,
                 worker.value
                 );
                 msg.value = answer.data.msg;
@@ -31,7 +31,7 @@ export default {
                 router.push("/workers/login-worker");
             }else{
                 const answer = await axios.post(
-                `/api/insertWorker/${loggedCompany.value}`,
+                `${import.meta.env.VITE_API_URL}/insertWorker/${loggedCompany.value}`,
                 worker.value
                 );
                 msg.value = answer.data.msg;

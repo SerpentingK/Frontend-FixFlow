@@ -34,12 +34,12 @@ const updateRepaired = () => {
 };
 
 const getbillnumber = async () => {
-    const ansawer = await axios.get(`/api/getBillNumber/${repairRef.value}`);
+    const ansawer = await axios.get(`${import.meta.env.VITE_API_URL}/getBillNumber/${repairRef.value}`);
     bill_number.value = ansawer.data[0].bill_number;
 };
 
 const repairPhone = async () => {
-    const ansawer = await axios.put(`/api/repairphone/${repairRef.value}/${startShift.value}/${bill_number.value}`);
+    const ansawer = await axios.put(`${import.meta.env.VITE_API_URL}/repairphone/${repairRef.value}/${startShift.value}/${bill_number.value}`);
     // Actualizar el estado del teléfono en infoBill
     const phone = infoBill.value.phones.find(p => p.phone_ref === repairRef.value);
     if (phone) {

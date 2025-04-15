@@ -38,7 +38,7 @@ export default {
     const loginCompany = async () => {
       try {
         const response = await axios.post(
-          "/api/loginCompany",
+          "${import.meta.env.VITE_API_URL}/loginCompany",
           {
             identifier: sesion.value.identifier,
             password: sesion.value.password,
@@ -72,7 +72,7 @@ export default {
         }
         isLoading.value = true; // Activar pantalla de carga
         const answer = await axios.post(
-          "/api/insertCompany",
+          "${import.meta.env.VITE_API_URL}/insertCompany",
           company.value
         );
         showAlert("1", 'Registro exitoso. Por favor revisa tu correo para verificar tu cuenta.\nPodria estar en "Spam" o en "No deseados".\nTienes 24 horas de otra manera tendras que hacer la verificacion nuevamente en el apartado "Verifica tu correo".');

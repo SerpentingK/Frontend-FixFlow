@@ -95,7 +95,7 @@ provide('premiseVault', premiseVault);
 // Función para cargar información del local
 const loadPremisesVault = async (selectedPremiseId) => {
   try {
-    const response = await axios.get(`/api/premises/${selectedPremiseId}`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/premises/${selectedPremiseId}`);
     premiseVault.value = response.data.Vault;
   } catch (error) {
     console.error("Error al cargar información del local:", error);
@@ -106,7 +106,7 @@ provide('loadPremisesVault', loadPremisesVault);
 // Función para cargar todos los retiros
 const loadAllWithdrawals = async () => {
   try {
-    const response = await axios.get(`/api/someDataOfOutVault/${selectedPremiseId.value}`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfOutVault/${selectedPremiseId.value}`);
     withdrawals.value = response.data;
     return response.data;
   } catch (error) {
@@ -209,7 +209,7 @@ const getCompanyColor = async () => {
   try {
     if (loggedCompany.value) {
       const answer = await axios.get(
-        `/api/company/${loggedCompany.value}/baseColor`
+        `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/baseColor`
       );
       selectedColor.value = answer.data.baseColor;
       document.documentElement.style.setProperty(
@@ -230,7 +230,7 @@ const phonesRepair = ref([]);
  */
 const getPhonesR = async () => {
   try {
-    const ansawer = await axios.get(`/api/someDataPhone/${loggedCompany.value}`);
+    const ansawer = await axios.get(`${import.meta.env.VITE_API_URL}/someDataPhone/${loggedCompany.value}`);
     phonesRepair.value = ansawer.data;
   } catch (error) {
     console.error("📌 Error al obtener teléfonos reparados:", error);
@@ -277,7 +277,7 @@ const deliveredPhone = ref([]);
  */
 const getPhonesD = async () => {
   try {
-    const response = await axios.get(`/api/someDataPhoneDelivered/${loggedCompany.value}`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/someDataPhoneDelivered/${loggedCompany.value}`);
     deliveredPhone.value = response.data;
   } catch (error) {
     console.error("📌 Error al obtener teléfonos entregados:", error);
@@ -321,7 +321,7 @@ const infoBill = ref({
  */
 const infoData = async () => {
   try {
-    const response = await axios.get(`/api/bill/details/${bill_number.value}`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/bill/details/${bill_number.value}`);
     infoBill.value = {
       bill_number: response.data.bill.bill_number,
       due: response.data.bill.due,
@@ -415,7 +415,7 @@ const handlePath = () => {
   } else if (route.path === '/workers/login-worker' && loggedWorker.value) {
     router.push('/workers/worker-profile');
   } else if (route.path.startsWith('/bills') && selectedPremise.value === null){
-    router.push('/workers/worker-profile');
+    router.push('/premises');
     showAlert("2", "Debes iniciar sesion en un local para acceder a facturacion");
   } else if (route.path.startsWith('/premises') && workersCount.value === 0){
     router.push('/workers/new-worker');

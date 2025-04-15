@@ -26,7 +26,7 @@ const formatCurrency = (value) => {
 const postbill = async () => {
   try {
     const answer = await axios.post(
-      `/api/createBillwithPhones/${loggedCompany.value}`,
+      `${import.meta.env.VITE_API_URL}/createBillwithPhones/${loggedCompany.value}`,
       billData.value
     );
     bill_number.value = answer.data.bill_number;

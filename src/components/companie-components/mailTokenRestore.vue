@@ -13,7 +13,7 @@ const handleToken = async () => {
     if (isLoading.value) return; // Evitar múltiples envíos
     isLoading.value = true;
     try {
-        const response = await axios.post(`/api/resend-confirmation-code`, {
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/resend-confirmation-code`, {
             Email: email.value,
         });
         

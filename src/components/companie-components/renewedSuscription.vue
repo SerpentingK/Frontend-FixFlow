@@ -73,7 +73,7 @@ function initiatePayment() {
 // Verificar el pago con tu backend
 async function verifyPaymentWithBackend(paymentData) {
   try {
-    const response = await axios.post('/api/verify-payment', {
+    const response = await axios.post('${import.meta.env.VITE_API_URL}/verify-payment', {
       orderId,
       amount,
       currency,

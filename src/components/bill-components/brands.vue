@@ -15,7 +15,7 @@ const isEditing = ref(false);
 // Obtener todas las marcas
 const fetchBrands = async () => {
     try {
-        const response = await axios.get(`/api/allBrands/${loggedCompany.value}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/allBrands/${loggedCompany.value}`);
         brands.value = response.data;
     } catch (error) {
         console.error("Error cargando marcas desde la API:", error);
@@ -26,7 +26,7 @@ const fetchBrands = async () => {
 // Obtener el ID de una marca por nombre
 const brandNameId = async (name) => {
     try {
-        const response = await axios.get(`/api/Brands/${name}/${loggedCompany.value}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/Brands/${name}/${loggedCompany.value}`);
         id_brands.value = response.data[0].id;
         return id_brands.value;
     } catch (error) {
@@ -38,7 +38,7 @@ const brandNameId = async (name) => {
 // Obtener los dispositivos de una marca
 const fetchDevicesForBrand = async (brandId) => {
     try {
-        const response = await axios.get(`/api/${brandId}/Devices`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/${brandId}/Devices`);
         return response.data;
     } catch (error) {
         console.error("Error cargando dispositivos para la marca:", error);
@@ -80,14 +80,14 @@ const saveEdit = async () => {
     try {
         if (editingType.value === 'brand') {
             // Actualizar nombre de marca
-            await axios.put(`/api/Brands/Edit/${currentEdit.value.id}`, {
+            await axios.put(`${import.meta.env.VITE_API_URL}/Brands/Edit/${currentEdit.value.id}`, {
                 name: editName.value
             });
             currentEdit.value.name = editName.value;
             showAlert("1", "Marca actualizada correctamente");
         } else {
             // Actualizar nombre de modelo
-            await axios.put(`/api/Devices/Edit/${currentEdit.value.model.id}`, {
+            await axios.put(`${import.meta.env.VITE_API_URL}/Devices/Edit/${currentEdit.value.model.id}`, {
                 name: editName.value
             });
             currentEdit.value.model.name = editName.value;

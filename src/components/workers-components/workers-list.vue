@@ -39,7 +39,7 @@ export default {
     const fetchWorkers = async () => {
       try {
         const answer = await axios.get(
-          `/api/collaborators/${loggedCompany.value}/workers`
+          `${import.meta.env.VITE_API_URL}/collaborators/${loggedCompany.value}/workers`
         );
         workers.value = answer.data;
         console.log(workers.value);
@@ -51,7 +51,7 @@ export default {
     const inactiveWorker = async (document) => {
       try {
         const response = await axios.put(
-          `/api/inactiveCollaborators/${loggedCompany.value}/${document}`
+          `${import.meta.env.VITE_API_URL}/inactiveCollaborators/${loggedCompany.value}/${document}`
         );
         await fetchWorkers();
         showDeleteWindow.value = false;
@@ -65,7 +65,7 @@ export default {
     const reactiveWorker = async (document) => {
       try {
         await axios.put(
-          `/api/reactiveCollaborators/${loggedCompany.value}/${document}`
+          `${import.meta.env.VITE_API_URL}/reactiveCollaborators/${loggedCompany.value}/${document}`
         );
         await fetchWorkers();
         showReactive.value = false;
@@ -79,11 +79,11 @@ export default {
     const downloadWorkerData = async (document) => {
       try {
         // Obtener turnos del trabajador
-        const shiftsResponse = await axios.get(`/api/worker/${document}/${loggedCompany.value}/shifts`);
+        const shiftsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${document}/${loggedCompany.value}/shifts`);
         const shifts = shiftsResponse.data;
         
         // Obtener facturas del trabajador
-        const billsResponse = await axios.get(`/api/worker/${document}/${loggedCompany.value}/bills`);
+        const billsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${document}/${loggedCompany.value}/bills`);
         const bills = billsResponse.data;
         
         // Crear un objeto con toda la información

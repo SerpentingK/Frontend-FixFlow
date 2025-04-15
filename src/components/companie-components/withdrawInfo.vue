@@ -46,9 +46,9 @@ const searchWithdrawals = debounce(async () => {
     let url = '';
     
     if (searchType.value === 'worker') {
-      url = `/api/searchWithdrawalsByWorker/${loggedCompany.value}/${search.value}`;
+      url = `${import.meta.env.VITE_API_URL}/searchWithdrawalsByWorker/${loggedCompany.value}/${search.value}`;
     } else if (searchType.value === 'date') {
-      url = `/api/searchWithdrawalsByDate/${loggedCompany.value}/${search.value}`;
+      url = `${import.meta.env.VITE_API_URL}/searchWithdrawalsByDate/${loggedCompany.value}/${search.value}`;
     }
     
     const response = await axios.get(url);

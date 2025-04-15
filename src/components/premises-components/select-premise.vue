@@ -33,7 +33,7 @@ export default {
         }
 
         const loadPremises = async () => {
-            const answer = await axios.get(`/api/someDataOfPremises/${loggedCompany.value}`);
+            const answer = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfPremises/${loggedCompany.value}`);
             premises.value = answer.data;
         }
     
@@ -48,7 +48,7 @@ export default {
 
         const saveEditPremise = async () => {
             try {
-                const answer = await axios.put(`/api/editPremises`, {
+                const answer = await axios.put(`${import.meta.env.VITE_API_URL}/editPremises`, {
                     ref_premises: currentPremiseId.value,
                     name: editForm.value.name,
                     address: editForm.value.address
@@ -91,7 +91,7 @@ export default {
 
         const confirmDeactivate = async () => {
             try {
-                const answer = await axios.put(`/api/incativePremises/${currentPremiseId.value}`);
+                const answer = await axios.put(`${import.meta.env.VITE_API_URL}/incativePremises/${currentPremiseId.value}`);
                 if (answer.data.status === "Local desactivado correctamente") {
                     showAlert("1", "Local desactivado correctamente");
                     showDeactivateModal.value = false;
@@ -109,7 +109,7 @@ export default {
 
         const confirmActivate = async () => {
             try {
-                const answer = await axios.put(`/api/activePremises/${currentPremiseId.value}`);
+                const answer = await axios.put(`${import.meta.env.VITE_API_URL}/activePremises/${currentPremiseId.value}`);
                 if (answer.data.status === "Local activado correctamente") {
                     showAlert("1", "Local activado correctamente");
                     showActivateModal.value = false;
@@ -189,11 +189,11 @@ export default {
                     <ion-icon name="storefront"></ion-icon>
                     <span>Dirección: {{ premise.address }}</span>
                     <div class="premise-btns">
-                        <button class="action-btn logout" @click="confirmLogout" title="Cerrar Sesion"
+                        <button v-if="premise.name === selectedPremise" class="action-btn logout" @click="confirmLogout" title="Cerrar Sesion"
                                 :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="close"></ion-icon>
                         </button>
-                        <button class="action-btn login" @click="switchSLP(premise.name, premise.ref_premises)" title="Iniciar sesión"
+                        <button v-if="!selectedPremise" class="action-btn login" @click="switchSLP(premise.name, premise.ref_premises)" title="Iniciar sesión"
                             :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="log-in-outline"></ion-icon>
                         </button>

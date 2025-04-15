@@ -75,7 +75,7 @@ onBeforeUnmount(() => {
     backdrop-filter: blur(5px);
     display: flex;
     gap: 40px;
-    z-index: 11;
+    z-index: 10;
 }
 .router{
     color: var(--second);

@@ -16,7 +16,7 @@ const searchs = debounce(async () => {
         return
     }
     try {
-        const ansawer = await axios.get(`/api/phoneBySearch/${loggedCompany.value}/${search.value}`)
+        const ansawer = await axios.get(`${import.meta.env.VITE_API_URL}/phoneBySearch/${loggedCompany.value}/${search.value}`)
         phonesRepair.value = ansawer.data
         isEmpty.value = phonesRepair.value.length === 0;
     } catch (error) {

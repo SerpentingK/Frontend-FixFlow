@@ -23,7 +23,7 @@ const formatCurrency = (value) => {
 
 onMounted(async () => {
     try {
-        const response = await axios.get(`/api/shift/${startShift.value}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/shift/${startShift.value}`);
         const fullDateTime = response.data.start_time; 
         const dateObj = new Date(fullDateTime); // Convierte a objeto Date
         

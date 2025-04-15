@@ -24,7 +24,7 @@ export default {
       try {
         if (loggedCompany.value) {
           const answer = await axios.get(
-            `/api/company/${loggedCompany.value}/count`
+            `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/count`
           );
           workersCount.value = answer.data.count;
         }
@@ -37,7 +37,7 @@ export default {
       try {
         if (loggedCompany.value) {
           const answer = await axios.get(
-            `/api/premises/${loggedCompany.value}/count`
+            `${import.meta.env.VITE_API_URL}/premises/${loggedCompany.value}/count`
           );
           premisesCount.value = answer.data.count;
         }
@@ -50,7 +50,7 @@ export default {
       try {
         if (loggedCompany.value) {
           const answer = await axios.get(
-            `/api/company/${loggedCompany.value}/number`
+            `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/number`
           );
           numberCompany.value = answer.data.number;
         }
@@ -80,7 +80,7 @@ export default {
         }
         const encodedColor = encodeURIComponent(selectedColor.value);
         await axios.put(
-          `/api/company/${loggedCompany.value}/baseColor/${encodedColor}`
+          `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/baseColor/${encodedColor}`
         );
         resetColor(selectedColor.value);
       } catch (error) {
@@ -125,11 +125,11 @@ export default {
     const downloadExcel = async () => {
       try {
         // Obtener facturas
-        const billsResponse = await axios.get(`/api/someDataOfBill/${loggedCompany.value}`);
+        const billsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfBill/${loggedCompany.value}`);
         const bills = billsResponse.data;
 
         // Obtener turnos
-        const shiftsResponse = await axios.get(`/api/allShiftCompany/${loggedCompany.value}`);
+        const shiftsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompany/${loggedCompany.value}`);
         const shifts = shiftsResponse.data;
 
         // Crear workbook
@@ -173,7 +173,7 @@ export default {
 
     const updatePhoneNumber = async () => {
       try {
-        await axios.put(`/api/company/${loggedCompany.value}/number/${newPhoneNumber.value}`);
+        await axios.put(`${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/number/${newPhoneNumber.value}`);
         numberCompany.value = newPhoneNumber.value;
         showPhoneModal.value = false;
         showAlert("1", "Número de teléfono actualizado exitosamente");

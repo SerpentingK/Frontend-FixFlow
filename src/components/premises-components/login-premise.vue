@@ -45,7 +45,7 @@ const postPremises = async () => {
       loginData.startShift = sessionPremise.value.startShift;
     }
     
-    const answer = await axios.post(`/api/loginPremises`, loginData);
+    const answer = await axios.post(`${import.meta.env.VITE_API_URL}/loginPremises`, loginData);
 
     console.log(answer.data);
     if (answer.data.status === "Login exitoso") {

@@ -22,7 +22,7 @@ const switchWV = inject("switchWV")
 // Función para registrar el retiro
 const postWithdrawal = async () => {
     try {
-        const response = await axios.put(`/api/OutFlowVault`, vault.value);
+        const response = await axios.put(`${import.meta.env.VITE_API_URL}/OutFlowVault`, vault.value);
         
         // Actualizar la información de la caja antes de cerrar
         await loadPremisesVault(selectedPremiseId.value);
@@ -43,6 +43,22 @@ const postWithdrawal = async () => {
         }
     }
 };
+
+// Función para formatear moneda
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        minimumFractionDigits: 0,
+    }).format(value || 0);
+};
+
+// Función para formatear input numérico
+const formatNumberInput = (value) => {
+    const numericValue = value.toString().replace(/\D/g, '');
+    return numericValue ? parseInt(numericValue, 10) : 0;
+};
+
 const overlayAlpha = ref(0);
 
 onMounted(() => {
@@ -60,7 +76,13 @@ onMounted(() => {
             <form @submit.prevent="postWithdrawal">
                 <label class="input-container" to="amount">
                     <span class="info-label">Cantidad a retirar:</span>
-                    <input type="number" placeholder="Ingrese monto" required v-model="quantity" id="amount" />
+                    <input 
+                    type="text" 
+                    placeholder="Ingrese monto" 
+                    required 
+                    id="amount" 
+                    :value="formatCurrency(quantity)"
+                    @input="(e) => quantity = formatNumberInput(e.target.value)" />
                 </label>
                 <button class="state-btn">Confirmar</button>
             </form>

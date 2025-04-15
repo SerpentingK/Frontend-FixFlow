@@ -34,7 +34,7 @@ watch(total_outs, (newVal) => {
 
 const postOutFlows = async () => {
     try {
-        const ansawer = await axios.post('/api/insertOutflow', outFlows.value)
+        const ansawer = await axios.post('${import.meta.env.VITE_API_URL}/insertOutflow', outFlows.value)
         msg.value = ansawer.data.msg;
 
         const previousOuts = JSON.parse(localStorage.getItem("total_outs")) || 0;

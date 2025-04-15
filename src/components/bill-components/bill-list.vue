@@ -17,7 +17,7 @@ const loadAllBills = async () => {
   try {
     isLoading.value = true; // Activar indicador de carga
     const answer = await axios.get(
-      `/api/someDataOfBill/${loggedCompany.value}`
+      `${import.meta.env.VITE_API_URL}/someDataOfBill/${loggedCompany.value}`
     );
     bills.value = answer.data;
   } catch (error) {
@@ -41,13 +41,13 @@ const searchBills = debounce(async () => {
     // Determinar la URL según el tipo de búsqueda
     if (searchType.value === "1") {
       // Filtrar por número de factura
-      url = `/api/searchBillsByNumber/${loggedCompany.value}/${search.value}`;
+      url = `${import.meta.env.VITE_API_URL}/searchBillsByNumber/${loggedCompany.value}/${search.value}`;
     } else if (searchType.value === "2") {  
       // Filtrar por fecha
-      url = `/api/searchBillsByDate/${loggedCompany.value}/${search.value}`;
+      url = `${import.meta.env.VITE_API_URL}/searchBillsByDate/${loggedCompany.value}/${search.value}`;
     } else if (searchType.value === "3") {
       // Filtrar por cliente
-      url = `/api/searchBillsByName/${loggedCompany.value}/${search.value}`;
+      url = `${import.meta.env.VITE_API_URL}/searchBillsByName/${loggedCompany.value}/${search.value}`;
     }
 
     const tempBills = await axios.get(url);

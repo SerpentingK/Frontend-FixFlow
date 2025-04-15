@@ -57,7 +57,7 @@ const payment = ref(null)
 
 const getBillRepair = async () =>{
     try{
-        const response = await axios.get(`/api/billRepairPhone/${deliveryRef.value}`)
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/billRepairPhone/${deliveryRef.value}`)
         due.value = response.data[0].due
         client_name.value = response.data[0].client_name
         payment.value = response.data[0].payment
@@ -95,7 +95,7 @@ watch(total_revenue, (newVal) => {
 
 const deliveryPhone = async () => {
     try {
-        const ansawer = await axios.put(`/api/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
+        const ansawer = await axios.put(`${import.meta.env.VITE_API_URL}/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();  
 
         // Obtener valores previos del localStorage y sumarlos

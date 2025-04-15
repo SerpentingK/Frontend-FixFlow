@@ -30,7 +30,7 @@ const handleRecovery = async () => {
     msg.value = "";
     try {
         if (step.value === 1) {
-            const response = await axios.post(`/api/passwordRecovery`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/passwordRecovery`, {
                 Email: email.value
             });
             
@@ -41,7 +41,7 @@ const handleRecovery = async () => {
                 msg.value = "Error al enviar el correo.";
             }
         } else if (step.value === 2) {
-            const response = await axios.post(`/api/verify-pin`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/verify-pin`, {
                 Email: email.value,
                 code: code.value
             });
@@ -56,7 +56,7 @@ const handleRecovery = async () => {
                 msg.value = "Las contraseñas no coinciden.";
                 return;
             }
-            const response = await axios.put(`/api/confirmPassword`, {
+            const response = await axios.put(`${import.meta.env.VITE_API_URL}/confirmPassword`, {
                 Email: email.value,
                 password: newPassword.value
             });

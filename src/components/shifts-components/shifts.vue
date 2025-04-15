@@ -26,7 +26,7 @@ const formatTime = (dateString) => {
 // Cargar todos los locales disponibles
 const loadPremises = async () => {
     try {
-        const response = await axios.get(`/api/someDataOfPremises/${loggedCompany.value}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfPremises/${loggedCompany.value}`);
         premises.value = response.data;
     } catch (error) {
         console.error("Error al cargar los locales:", error);
@@ -35,7 +35,7 @@ const loadPremises = async () => {
 
 const loadAllShifts = async () => {
     try {
-        const answer = await axios.get(`/api/allShiftCompanyPremises/${loggedCompany.value}/${selectedPremiseId.value}`);
+        const answer = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompanyPremises/${loggedCompany.value}/${selectedPremiseId.value}`);
 
         // Obtener los nombres de los técnicos para cada turno
         const shiftsWithNames = await Promise.all(
@@ -45,7 +45,7 @@ const loadAllShifts = async () => {
                     const workerDocument = shift.id.split('_').slice(1).join('_');
                     
                     // Consultar el nombre del técnico
-                    const workerResponse = await axios.get(`/api/worker/${workerDocument}/${loggedCompany.value}`);
+                    const workerResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
                     
                     // Verificar si la respuesta tiene el formato esperado
                     if (workerResponse.data && workerResponse.data.wname) {
@@ -92,9 +92,9 @@ const searchsShifts = debounce(async () => {
         let response;
         if (searchType.value === 'date') {
             // Búsqueda por fecha
-            response = await axios.get(`/api/searchDateShift/${loggedCompany.value}/${selectedPremiseId.value}`);
+            response = await axios.get(`${import.meta.env.VITE_API_URL}/searchDateShift/${loggedCompany.value}/${selectedPremiseId.value}`);
         } else if (searchType.value === 'local') {
-            response = await axios.get(`/api/searchpremiseshift/${loggedCompany.value}/${selectedPremiseId.value}`);
+            response = await axios.get(`${import.meta.env.VITE_API_URL}/searchpremiseshift/${loggedCompany.value}/${selectedPremiseId.value}`);
         }
 
         // Procesar los resultados para incluir los nombres de los trabajadores
@@ -105,7 +105,7 @@ const searchsShifts = debounce(async () => {
                     const workerDocument = shift.id.split('_').slice(1).join('_');
                     
                     // Consultar el nombre del técnico
-                    const workerResponse = await axios.get(`/api/worker/${workerDocument}/${loggedCompany.value}`);
+                    const workerResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
                     
                     // Verificar si la respuesta tiene el formato esperado
                     if (workerResponse.data && workerResponse.data.wname) {
@@ -320,13 +320,15 @@ onMounted(() => {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 10px 0;
     gap: 10px;
 }
 
 .shift {
-    width: 90%;
+    width: 100%;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .shift:hover fieldset {
@@ -343,7 +345,7 @@ onMounted(() => {
     display: flex;
     justify-content: space-between;
     transition: all .3s ease;
-    width: 100%;
+    width: 90%;
     padding: 10px;
 }
 

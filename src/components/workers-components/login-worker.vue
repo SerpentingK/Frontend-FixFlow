@@ -36,7 +36,7 @@ export default {
                     loginData.premise_id = sessionworker.value.premise_id;
                 }
                 if (workersCount.value !== 0) {
-                    const answer = await axios.post(`/api/loginWorker/${loggedCompany.value}`, loginData);
+                    const answer = await axios.post(`${import.meta.env.VITE_API_URL}/loginWorker/${loggedCompany.value}`, loginData);
                     
                     // Guardar datos del trabajador
                     loggedDocument.value = answer.data.id;

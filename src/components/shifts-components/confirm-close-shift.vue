@@ -51,7 +51,7 @@ const showAlert = inject("showAlert")
 const putShift = async () => {
     try {
         const response = await axios.put(
-            `/api/closeshift/${startShift.value}/${selectedPremiseId.value}`,
+            `${import.meta.env.VITE_API_URL}/closeshift/${startShift.value}/${selectedPremiseId.value}`,
             {
                 total_gain: total_revenue.value,
                 total_received: adjustedTotalSales.value,
