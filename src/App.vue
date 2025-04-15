@@ -393,7 +393,6 @@ const route = useRoute();
  * Maneja la navegación y control de acceso según la ruta
  */
 const handlePath = () => {
-  localStorage.clear()
   // Resetear todos los modales
   showBillInfo.value = false;
   showBillConfirm.value = false;
