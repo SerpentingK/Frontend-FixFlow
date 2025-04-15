@@ -38,6 +38,10 @@ export default {
         }
     
         const editPremise = (id, name, address) => {
+            if(name === selectedPremise.value){
+                showAlert("2", "No puedes editar el local activo");
+                return;
+            }
             currentPremiseId.value = id;
             editForm.value = {
                 name: name,
