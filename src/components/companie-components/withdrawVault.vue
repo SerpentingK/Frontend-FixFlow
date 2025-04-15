@@ -7,11 +7,14 @@ const quantity = ref(0);
 const startShift = inject("startShift");
 const showAlert = inject("showAlert")
 const selectedPremiseId = inject("selectedPremiseId")
-const loadPremisesVault = inject("loadPremisesVault")
+const loggedWorker = inject("loggedWorker")
+const loadPremisesVault = inject("loadPremisesVault");
+const loadAllWithdrawals = inject("loadAllWithdrawals")
 const vault = computed(() => ({
     ref_shift: startShift.value,
     quantity: quantity.value,
-    ref_premises: selectedPremiseId.value
+    ref_premises: selectedPremiseId.value,
+    wname: loggedWorker.value
 }));
 
 const switchWV = inject("switchWV")
@@ -24,6 +27,13 @@ const postWithdrawal = async () => {
         // Actualizar la información de la caja antes de cerrar
         await loadPremisesVault(selectedPremiseId.value);
         
+        // Actualizar la lista de retiros
+        await loadAllWithdrawals();
+        
+        // Mostrar mensaje de éxito
+        showAlert("1", "Retiro registrado correctamente");
+        
+        // Cerrar el modal
         switchWV();
     } catch (error) {
         if (error.response && error.response.data) {

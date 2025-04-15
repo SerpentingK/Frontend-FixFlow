@@ -37,10 +37,12 @@ const numbercompany = ref(null);          // Número de la empresa
 const selectedPremise = ref(null);        // Local seleccionado 
 const selectedPremiseId = ref(0);      // ID del local seleccionado
 const premisesCount = ref(0);          // Numero de locales
-const loggedDocument = ref(null);         // Documento del trabajador
+const loggedDocument = ref(null);  
+const loggedId = ref(null);       // Documento del trabajador
 const workersCount = ref(0);              // Cantidad de trabajadores
 const workerRole = ref(null);             // Rol del trabajador
 const premiseVault = ref(0);              // Caja del local seleccionado
+const withdrawals = ref([]);              // Lista de retiros
 
 // Estadísticas de teléfonos
 const phonesRepaired = ref(0);            // Teléfonos reparados
@@ -66,6 +68,7 @@ const totalInCash = ref(0);               // Efectivo en caja
 
 // Proveer estados a componentes hijos
 
+provide('loggedId', loggedId);
 provide('numbercompany', numbercompany);
 provide('totalInvestment', totalInvestment)
 provide('totalInCash', totalInCash);
@@ -99,6 +102,21 @@ const loadPremisesVault = async (selectedPremiseId) => {
   }
 };
 provide('loadPremisesVault', loadPremisesVault);
+
+// Función para cargar todos los retiros
+const loadAllWithdrawals = async () => {
+  try {
+    const response = await axios.get(`/api/someDataOfOutVault/${selectedPremiseId.value}`);
+    withdrawals.value = response.data;
+    return response.data;
+  } catch (error) {
+    console.error("Error al cargar los retiros:", error);
+    withdrawals.value = [];
+    return [];
+  }
+};
+provide('loadAllWithdrawals', loadAllWithdrawals);
+provide('withdrawals', withdrawals);
 
 // Datos de la factura
 const billData = ref({
@@ -399,7 +417,11 @@ const handlePath = () => {
   } else if (route.path.startsWith('/bills') && selectedPremise.value === null){
     router.push('/workers/worker-profile');
     showAlert("2", "Debes iniciar sesion en un local para acceder a facturacion");
+  } else if (route.path.startsWith('/premises') && workersCount.value === 0){
+    router.push('/workers/new-worker');
+    showAlert("2", "Debes crear un usuario para acceder al módulo de locales");
   }
+
   // Control de estado en sección de facturas
   if (route.path.startsWith('/bills')) {
     inBills.value = true;
@@ -463,20 +485,14 @@ provide("switchSAPM", switchSAPM)
 
 const switchSLP = (premiseName, premiseId) => {
     if (showLoginPremise.value) {
+        // Si el modal está abierto, lo cerramos
         showLoginPremise.value = false;
     } else {
-        // Solo mostrar el modal de login si se está intentando iniciar sesión (no al cerrar)
+        // Si el modal está cerrado y tenemos datos válidos, lo abrimos
         if (premiseName && !isNaN(premiseId)) {
-            toSelectPremise.value = premiseName
-            toSelectPremiseId.value = premiseId
-            showLoginPremise.value = true
-        } else {
-            // Si no hay nombre de local o ID, solo actualizar los valores
-            selectedPremise.value = null
-            selectedPremiseId.value = null
-            // Asegurarse de que no se muestre ningún modal al cerrar sesión
-            showLoginPremise.value = false;
-            showAddPremiseModal.value = false;
+            toSelectPremise.value = premiseName;
+            toSelectPremiseId.value = premiseId;
+            showLoginPremise.value = true;
         }
     }
 }

@@ -20,6 +20,7 @@ const switchSLP = inject("switchSLP");
 const showAlert = inject("showAlert");
 const startShift = inject("startShift")
 const selectedPremise = inject("selectedPremise")
+const selectedPremiseId = inject("selectedPremiseId")
 const sessionPremise = ref({
     premise_id: props.premises_id,
     password: "",
@@ -27,23 +28,39 @@ const sessionPremise = ref({
 });
 
 
-const postLogin = async () => {
+const postPremises = async () => {
   try {
-    const answer = await axios.post(`/api/loginPremises`, {
-      premise_id: sessionPremise.value.premise_id,
-      password: sessionPremise.value.password,
-      startShift: sessionPremise.value.startShift
-    });
+    // Crear un objeto con los datos básicos
+    const loginData = {
+      password: sessionPremise.value.password
+    };
+    
+    // Añadir premise_id solo si existe
+    if (sessionPremise.value.premise_id) {
+      loginData.premise_id = sessionPremise.value.premise_id;
+    }
+    
+    // Añadir startShift solo si existe
+    if (sessionPremise.value.startShift) {
+      loginData.startShift = sessionPremise.value.startShift;
+    }
+    
+    const answer = await axios.post(`/api/loginPremises`, loginData);
 
     console.log(answer.data);
     if (answer.data.status === "Login exitoso") {
+      // Guardar los datos del local en localStorage
       localStorage.setItem("activePremise", JSON.stringify({
         name: props.premiseName,
         id: props.premises_id
       }));
       
-      switchSLP(props.premiseName, props.premises_id);
+      // Actualizar los valores de selectedPremise y selectedPremiseId
       selectedPremise.value = props.premiseName;
+      selectedPremiseId.value = props.premises_id;
+      
+      // Cerrar el modal y limpiar el formulario
+      switchSLP();
       sessionPremise.value.password = '';
     }
   } catch (error) {
@@ -84,7 +101,7 @@ onMounted(() => {
     <section class="login-premise-cont">
       <h2>Acceso a {{ premiseName }}</h2>
 
-      <form @submit.prevent="postLogin">
+      <form @submit.prevent="postPremises">
         <label class="input-container">
           <span class="info-label">Ingrese clave:</span>
           <input type="password" placeholder="Clave local" required v-model="sessionPremise.password" />

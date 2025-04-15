@@ -9,14 +9,16 @@ export default {
         const workersCount = inject("workersCount", ref(0));
         const loggedWorker = inject("loggedWorker", ref(null))
         const loggedDocument = inject("loggedDocument", ref(null))
+        const loggedId = inject("loggedId", ref(null))
         const workerRole = inject("workerRole", ref(null))
         const loggedCompany = inject("loggedCompany", ref(null));
         const startShift = inject("startShift", ref(null));
-        const selectedPremise = inject("selectedPremise", ref(null))
+        const selectedPremiseId = inject("selectedPremiseId", ref(null))
         const premiseCount = inject("premiseCount", ref(0))
         const sessionworker = ref({
             document: "",
             password: "",
+            premise_id: selectedPremiseId.value
         });
         const msg = ref("");
 
@@ -24,16 +26,24 @@ export default {
 
         const loginWorker = async () => {
             try {
+                // Crear un objeto con los datos básicos
+                const loginData = {
+                    document: sessionworker.value.document,
+                    password: sessionworker.value.password
+                };    
+                // Añadir ref_premise solo si existe
+                if (sessionworker.value.premise_id) {
+                    loginData.premise_id = sessionworker.value.premise_id;
+                }
                 if (workersCount.value !== 0) {
-                    const answer = await axios.post(`/api/loginWorker/${loggedCompany.value}`, {
-                        document: sessionworker.value.document,
-                        password: sessionworker.value.password,
-                    });
+                    const answer = await axios.post(`/api/loginWorker/${loggedCompany.value}`, loginData);
                     
                     // Guardar datos del trabajador
                     loggedDocument.value = answer.data.id;
-                    localStorage.setItem("loggedDocument", JSON.stringify(answer.data.id));
+                    localStorage.setItem("loggedDocument", JSON.stringify(answer.data.document));
                     msg.value = answer.data.status;
+                    loggedId.value = answer.data.id;
+                    localStorage.setItem("loggedId", JSON.stringify(answer.data.id));
                     loggedWorker.value = answer.data.wname;
                     localStorage.setItem("loggedWorker", JSON.stringify(answer.data.wname));
                     workerRole.value = answer.data.role;

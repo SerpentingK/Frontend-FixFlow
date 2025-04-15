@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { inject, onMounted, ref, watch } from "vue";
+import { inject, onMounted, ref, watch, provide } from "vue";
 import debounce from "lodash/debounce";
 
 const switchSVI = inject("switchSVI");
@@ -8,7 +8,7 @@ const loggedCompany = inject("loggedCompany");
 const switchWV = inject("switchWV");
 
 // Propiedades reactivas
-const withdrawals = ref([]);
+const withdrawals = inject("withdrawals", ref([]));
 const selectedPremiseId = inject("selectedPremiseId", ref(null));
 const selectedPremise = inject("selectedPremise", ref(null));
 const premiseVault = inject("premiseVault", ref(0));
@@ -17,17 +17,13 @@ const search = ref("");
 const searchType = ref("worker"); // 'worker' o 'date'
 const overlayAlpha = ref(0);
 const loadPremisesVault = inject("loadPremisesVault");
-
-
+const loadAllWithdrawals = inject("loadAllWithdrawals");
 
 // Función para cargar todos los retiros
-const loadAllWithdrawals = async () => {
+const fetchWithdrawals = async () => {
   try {
     isLoading.value = true;
-    const response = await axios.get(
-      `/api/withdrawals/${loggedCompany.value}`
-    );
-    withdrawals.value = response.data;
+    await loadAllWithdrawals();
   } catch (error) {
     console.error("Error al cargar los retiros:", error);
   } finally {
@@ -35,10 +31,13 @@ const loadAllWithdrawals = async () => {
   }
 };
 
+// Exponer la función para que pueda ser inyectada
+provide('loadAllWithdrawals', fetchWithdrawals);
+
 // Función de búsqueda con tipo dinámico
 const searchWithdrawals = debounce(async () => {
   if (!search.value.trim()) {
-    loadAllWithdrawals();
+    fetchWithdrawals();
     return;
   }
 
@@ -65,7 +64,7 @@ const searchWithdrawals = debounce(async () => {
 const changeSearchType = (type) => {
   searchType.value = type;
   search.value = "";
-  loadAllWithdrawals();
+  fetchWithdrawals();
 };
 
 // Observador para activar la búsqueda
@@ -74,12 +73,32 @@ watch(search, searchWithdrawals);
 // Cargar datos al montar el componente
 onMounted(() => {
   loadPremisesVault(selectedPremiseId.value);
-  loadAllWithdrawals();
+  fetchWithdrawals();
   
   setTimeout(() => {
     overlayAlpha.value = 0.5;
   }, 100);
 });
+
+// Función para formatear la fecha
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+};
+
+// Función para formatear la hora en formato AM/PM
+const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('es-ES', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    });
+};
 </script>
 
 <template>
@@ -154,16 +173,20 @@ onMounted(() => {
                     Buscar
                 </button>
             </form>
-            <ol v-if="withdrawals.length > 0" class="withdraw-list">
+            <ol class="withdraw-list">
                 <transition-group name="fade">
                     <button v-for="withdraw in withdrawals" :key="withdraw.id" @click="switch_sbf(withdraw.id)">
                         <fieldset>
-                            <legend>{{ withdraw.worker_name }}</legend>
-                            <span>{{ withdraw.date }}</span>
-                            <span>${{ withdraw.amount.toLocaleString() }}</span>
+                            <legend>{{ withdraw.wname }}</legend>
+                            <div class="withdraw-details">
+                                <span class="date">{{ formatDate(withdraw.date) }}</span>
+                                <span class="time">{{ formatTime(withdraw.date) }}</span>
+                            </div>
+                            <span class="amount">Cantidad retirada: ${{ withdraw.quantity }}</span>
                         </fieldset>
                     </button>
                 </transition-group>
+                <p v-if="!withdrawals.length" class="no-withdrawals-message">No se han encontrado retiros</p>
             </ol>
         </section>
     </div>
@@ -349,6 +372,7 @@ onMounted(() => {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     border: 2px solid var(--secondTwo);
     border-radius: 10px;
     padding: 8px 12px;
@@ -415,6 +439,12 @@ onMounted(() => {
     position: absolute;
 }
 
+.no-withdrawals-message {
+    color: var(--base);
+    font-size: 1.2rem;
+    text-align: center;
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);
@@ -474,5 +504,36 @@ onMounted(() => {
     .search-form input {
         width: 60%;
     }
+}
+
+.withdraw-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.date {
+    font-size: 0.9rem;
+    color: var(--secondTwo);
+}
+
+.time {
+    font-size: 0.8rem;
+    color: var(--base);
+    font-weight: bold;
+}
+
+.amount {
+    font-weight: bold;
+    color: var(--successColor);
+}
+
+.withdraw-list button fieldset legend {
+    background-color: var(--secondThree);
+    padding: 2px 8px;
+    border-radius: 5px;
+    color: white;
+    font-size: 0.9rem;
 }
 </style>

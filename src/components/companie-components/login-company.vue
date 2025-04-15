@@ -75,7 +75,7 @@ export default {
           "/api/insertCompany",
           company.value
         );
-        showAlert("1", 'Registro exitoso. Por favor revisa tu correo para verificar tu cuenta.\nPodria estar en "Spam" o en "No deseados".\nTienes 15 minutos de otra manera tendras que hacer la verificacion nuevamente en el apartado "Verifica tu correo".');
+        showAlert("1", 'Registro exitoso. Por favor revisa tu correo para verificar tu cuenta.\nPodria estar en "Spam" o en "No deseados".\nTienes 24 horas de otra manera tendras que hacer la verificacion nuevamente en el apartado "Verifica tu correo".');
         msg.value = answer.data.msg;
         company.value = {
           company_user: "",

@@ -36,19 +36,39 @@ export default {
             premises.value = answer.data;
         }
     
-        const editPremise = (id) => {
+        const editPremise = (id, name, address) => {
             currentPremiseId.value = id;
             editForm.value = {
-                name: `Local ${id}`,
-                address: 'Calle 12 #25-40' // Aquí deberías obtener la dirección real
+                name: name,
+                address: address
             };
             showEditModal.value = true;
         };
 
-        const saveEditPremise = () => {
-            // Aquí iría la lógica para guardar los cambios
-            console.log("Guardando cambios para local", currentPremiseId.value, editForm.value);
-            showEditModal.value = false;
+        const saveEditPremise = async () => {
+            try {
+                const answer = await axios.put(`/api/editPremises`, {
+                    ref_premises: currentPremiseId.value,
+                    name: editForm.value.name,
+                    address: editForm.value.address
+                });
+                
+                if (answer.data.status === "Local editado correctamente") {
+                    showAlert("1", "Local actualizado correctamente");
+                    showEditModal.value = false;
+                    // Recargar la lista de locales
+                    await loadPremises();
+                }
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    // Si el error viene del backend con un mensaje específico
+                    showAlert("2", `Error al actualizar el local: ${error.response.data.detail || error.response.data.message || 'Error desconocido'}`);
+                } else {
+                    // Si es un error de red u otro tipo
+                    showAlert("2", "Error al conectar con el servidor. Por favor, inténtalo de nuevo.");
+                }
+                console.error("Error al editar local:", error);
+            }
         };
 
         const deactivatePremise = (id) => {
@@ -70,12 +90,14 @@ export default {
         const confirmLogout = () => {
             if(!loggedWorker.value){ 
                 localStorage.removeItem("activePremise");
+                // Actualizar las variables reactivas
+                selectedPremise.value = null;
+                selectedPremiseId.value = 0;
                 switchSLM();
             } else {
                 showAlert("2", "Primero debes cerrar el turno iniciado en el local");
                 showLogoutModal.value = false;
             }
-
         };
 
         
@@ -126,7 +148,7 @@ export default {
                     <ion-icon name="storefront"></ion-icon>
                     <span>Dirección: {{ premise.address }}</span>
                     <div class="premise-btns">
-                        <button class="action-btn logout" @click="switchSLM" title="Cerrar Sesion"
+                        <button class="action-btn logout" @click="confirmLogout" title="Cerrar Sesion"
                                 :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="close"></ion-icon>
                         </button>
@@ -134,7 +156,7 @@ export default {
                             :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="log-in-outline"></ion-icon>
                         </button>
-                        <button class="action-btn edit" @click="editPremise(premise.ref_premises)" title="Editar local"
+                        <button class="action-btn edit" @click="editPremise(premise.ref_premises, premise.name, premise.address)" title="Editar local"
                             v-if="workerRole === 'Gerente'">
                             <ion-icon name="create-outline"></ion-icon>
                         </button>
