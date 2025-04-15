@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, inject } from 'vue';
+import { ref, onMounted, computed, inject, nextTick } from 'vue';
 
 const props = defineProps({
     type: {
@@ -22,17 +22,18 @@ const showAlert = inject("showAlert");
 const isVisible = ref(false);
 const isExiting = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick();
+  setTimeout(() => {
+    isVisible.value = true;
+  }, 100);
+  
+  setTimeout(() => {
+    isExiting.value = true;
     setTimeout(() => {
-        isVisible.value = true;
-    }, 100);
-
-    setTimeout(() => {
-        isExiting.value = true;
-        setTimeout(() => {
-            showAlert();
-        }, 300);
-    }, props.duration);
+      showAlert();
+    }, 300);
+  }, props.duration);
 });
 
 const alertStyles = computed(() => {
@@ -88,7 +89,7 @@ const alertStyles = computed(() => {
     border-radius: 8px;
     color: white;
     font-family: Arial, sans-serif;
-    background: red;
+    background: var(--second);
     border: 2px solid var(--base);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     min-width: 200px;
