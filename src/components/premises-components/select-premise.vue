@@ -21,6 +21,7 @@ export default {
         const showLogoutModal = ref(false);
         const showEditModal = ref(false);
         const showDeactivateModal = ref(false);
+        const showActivateModal = ref(false);
         const currentPremiseId = ref(null);
         const editForm = ref({
             name: '',
@@ -83,8 +84,45 @@ export default {
             showDeactivateModal.value = true;
         };
 
-        const confirmDeactivate = () => {
-            showDeactivateModal.value = false;
+        const activatePremise = (id) => {
+            currentPremiseId.value = id;
+            showActivateModal.value = true;
+        };
+
+        const confirmDeactivate = async () => {
+            try {
+                const answer = await axios.put(`/api/incativePremises/${currentPremiseId.value}`);
+                if (answer.data.status === "Local desactivado correctamente") {
+                    showAlert("1", "Local desactivado correctamente");
+                    showDeactivateModal.value = false;
+                    await loadPremises();
+                }
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    showAlert("2", `Error al desactivar el local: ${error.response.data.detail || error.response.data.message || 'Error desconocido'}`);
+                } else {
+                    showAlert("2", "Error al conectar con el servidor. Por favor, inténtalo de nuevo.");
+                }
+                console.error("Error al desactivar local:", error);
+            }
+        };
+
+        const confirmActivate = async () => {
+            try {
+                const answer = await axios.put(`/api/activePremises/${currentPremiseId.value}`);
+                if (answer.data.status === "Local activado correctamente") {
+                    showAlert("1", "Local activado correctamente");
+                    showActivateModal.value = false;
+                    await loadPremises();
+                }
+            } catch (error) {
+                if (error.response && error.response.data) {
+                    showAlert("2", `Error al activar el local: ${error.response.data.detail || error.response.data.message || 'Error desconocido'}`);
+                } else {
+                    showAlert("2", "Error al conectar con el servidor. Por favor, inténtalo de nuevo.");
+                }
+                console.error("Error al activar local:", error);
+            }
         };
 
         const confirmLogout = () => {
@@ -126,13 +164,16 @@ export default {
             showLogoutModal,
             showEditModal,
             showDeactivateModal,
+            showActivateModal,
             editForm,
             saveEditPremise,
             confirmDeactivate,
+            confirmActivate,
             confirmLogout,
             switchSAPM,
             premises,
-            switchSLM
+            switchSLM,
+            activatePremise
         };
     }
 };
@@ -143,7 +184,7 @@ export default {
         <h2>Selecciona un local</h2>
         <ol v-if="premises.length > 0" class="premises-list">
             <li v-for="premise in premises" :key="premise.ref_premises">
-                <fieldset class="premise-card" :class="{ selected: selectedPremise === premise.name }">
+                <fieldset class="premise-card" :class="{ selected: selectedPremise === premise.name, inactive: !premise.active }">
                     <legend>{{ premise.name }}</legend>
                     <ion-icon name="storefront"></ion-icon>
                     <span>Dirección: {{ premise.address }}</span>
@@ -161,9 +202,13 @@ export default {
                             <ion-icon name="create-outline"></ion-icon>
                         </button>
                         <button class="action-btn deactivate" @click="deactivatePremise(premise.ref_premises)" title="Desactivar local"
-                            v-if="workerRole === 'Gerente'"
+                            v-if="workerRole === 'Gerente' && premise.active"
                             :class="{ selected: selectedPremise === premise.name }">
                             <ion-icon name="lock-closed-outline"></ion-icon>
+                        </button>
+                        <button class="action-btn activate" @click="activatePremise(premise.ref_premises)" title="Activar local"
+                            v-if="workerRole === 'Gerente' && !premise.active">
+                            <ion-icon name="lock-open-outline"></ion-icon>
                         </button>
                         <button class="action-btn vault" @click="switchSVI" title="Vaul"
                             v-if="workerRole === 'Gerente'">
@@ -220,6 +265,18 @@ export default {
             <div class="modal-buttons">
                 <button @click="confirmDeactivate" class="confirm-btn">Confirmar</button>
                 <button @click="showDeactivateModal = false" class="cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Activación -->
+    <div class="modal" v-if="showActivateModal">
+        <div class="modal-content">
+            <h3>Confirmar Activación</h3>
+            <p>¿Estás seguro que deseas activar este local?</p>
+            <div class="modal-buttons">
+                <button @click="confirmActivate" class="confirm-btn">Confirmar</button>
+                <button @click="showActivateModal = false" class="cancel-btn">Cancelar</button>
             </div>
         </div>
     </div>
@@ -280,13 +337,19 @@ export default {
     background-color: var(--successColor);
 }
 
+.premise-card.inactive {
+    background-color: var(--secondThree);
+    border-color: var(--errorColor);
+    opacity: 0.8;
+}
+
+.premise-card.inactive span {
+    color: var(--errorColor);
+}
+
 .premise-card.selected span,
 .premise-card.selected ion-icon {
     color: white;
-}
-
-.premise-card.selected legend {
-    background-color: var(--successColor);
 }
 
 .premise-card legend {
@@ -378,6 +441,10 @@ export default {
 
 .action-btn.deactivate {
     background-color: var(--errorColor);
+}
+
+.action-btn.activate {
+    background-color: var(--successColor);
 }
 
 .action-btn.vault {
