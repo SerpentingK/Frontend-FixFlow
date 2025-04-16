@@ -471,7 +471,6 @@ const showAlert = (type, message) => {
     // Remover la primera alerta
     alerts.value.shift();
   }
-  alertShow.value = alerts.value.length > 0;
 };
 provide("showAlert", showAlert);
 
