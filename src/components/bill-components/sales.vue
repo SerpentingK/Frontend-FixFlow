@@ -9,6 +9,7 @@ const platformSale = ref(0);
 const original_price = ref(0);
 const revenue_price = computed(() => (cashSale.value + platformSale.value) - original_price.value);
 const showVerification = ref(false);
+const showAlert = inject("showAlert");
 
 // Inyecta las variables globales
 const startShift = inject("startShift");
@@ -93,6 +94,7 @@ const postSales = async () => {
         original_price.value = 0;
         sales.value.product = "";
         showVerification.value = false;
+        showAlert("1", "Venta registrada correctamente");
 
     } catch (error) {
         console.error('Error en ventas: ', error);

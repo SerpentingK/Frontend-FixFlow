@@ -6,6 +6,7 @@ const startShift = inject("startShift");
 const msg = ref("");
 const total_outs = inject("total_outs");
 const showVerification = ref(false);
+const showAlert = inject("showAlert");
 
 const outFlows = ref({
     ref_shift: startShift.value,
@@ -49,6 +50,7 @@ const postOutFlows = async () => {
             price: 0
         };
         showVerification.value = false;
+        showAlert("1", "Salida registrada correctamente");
     } catch (error) {
         console.error('Error en ventas: ', error);
     }
