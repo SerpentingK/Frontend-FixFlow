@@ -66,7 +66,7 @@ export default {
                     }
                     
                     // Si hay local seleccionado, permitir acceso a facturas
-                    router.push('/bills');
+                    router.push('/workers/worker-profile');
                 } else {
                     showAlert("2", "Necesitas iniciar en un local para empezar un turno")
                 }

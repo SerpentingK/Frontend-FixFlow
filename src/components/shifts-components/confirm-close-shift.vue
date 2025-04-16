@@ -5,11 +5,6 @@ import { useRouter } from 'vue-router';
 
 const switchCCS = inject("switchCCS")
 
-const phonesRepaired = inject('phonesRepaired');
-const phonesReceived = inject('phonesReceived');
-const phonesDelivered = inject('phonesDelivered');
-const loggedWorker = inject("loggedWorker", ref(null));
-const workerRole = inject("workerRole", ref(null));
 const startShift = inject("startShift", ref(null));
 const total_sales = inject("total_sales")
 const total_revenue = inject("total_revenue")
@@ -18,8 +13,8 @@ const total_platform = inject('total_platform');
 const totalInvestment = inject("totalInvestment");
 const total_outs = inject('total_outs');
 const total_user = inject('total_user', ref(0));
-const loggedDocument = ref(null)
 const selectedPremiseId = inject("selectedPremiseId", ref(null))
+const clearData = inject("clearData")
 
 // Función para formatear valores como moneda
 const formatCurrency = (value) => {
@@ -65,31 +60,14 @@ const putShift = async () => {
                 "workerRole", "startShift", "phonesDelivered", "phonesReceived", "phonesRepaired",
                 "total_cash", "total_platform", "totalInvestment"]
                 .forEach(item => localStorage.removeItem(item));
-
-            // Reiniciar valores reactivos
-            total_sales.value = 0;
-            total_outs.value = 0;
-            total_revenue.value = 0;
-            loggedDocument.value = null;
-            loggedWorker.value = null;
-            workerRole.value = null;
-            startShift.value = null;
-            phonesDelivered.value = 0;
-            phonesReceived.value = 0;
-            phonesRepaired.value = 0;
-            total_cash.value = 0;
-            total_platform.value = 0;
-            totalInvestment.value = 0;
-            total_user.value = 0;
-
-            router.push("/workers/login-worker");
-            switchCCS();
         }
     } catch (error) {
         console.error("Error al cerrar el turno:", error);
         showAlert("2", `No se ha podido cerrar sesión, intente nuevamente${error}`);
     }
 };
+
+
 
 onMounted(() => {
     total_sales.value = JSON.parse(localStorage.getItem("total_sales")) || 0;
@@ -98,6 +76,7 @@ onMounted(() => {
     total_platform.value = JSON.parse(localStorage.getItem("total_platform")) || 0;
     total_cash.value = JSON.parse(localStorage.getItem("total_cash")) || 0;
     totalInvestment.value = JSON.parse(localStorage.getItem("totalInvestment")) || 0;
+    putShift();
 });
 
 const overlayAlpha = ref(0);
@@ -107,6 +86,8 @@ onMounted(() => {
     overlayAlpha.value = 0.5;
   }, 100); // Pequeño retraso antes de iniciar la animación
 });
+
+
 </script>
 
 <template>
@@ -146,7 +127,7 @@ onMounted(() => {
             </div>
 
             <div class="btns">
-                <button @click="putShift()" class="confirm-btn">Confirmar</button>
+                <button @click="switchCCS(), clearData()" class="confirm-btn">Confirmar</button>
             </div>
         </section>
     </div>
@@ -238,6 +219,7 @@ h3 {
     letter-spacing: 1.5px;
     border-radius: 5px;
     transition: all 0.3s;
+    cursor: pointer;
 }
 
 .btns button:hover {

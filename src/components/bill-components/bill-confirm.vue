@@ -15,6 +15,9 @@ const bill_number = ref(null);
 const billData = inject("billData");
 const switchSBC = inject("switchSBC");
 const showAlert = inject("showAlert");
+const numberCompany = inject("numberCompany", "No disponible");
+const nitCompany = inject("nitCompany");
+const selectedPremiseAddress = inject("selectedPremiseAddress");
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat("es-CO", {
@@ -63,7 +66,7 @@ const postbill = async () => {
 
     switchSBC();
     if (printEnabled.value) {
-      printInvoice(billData.value, loggedCompany.value, bill_number.value);
+      printInvoice(billData.value, loggedCompany.value, bill_number.value, numberCompany.value, nitCompany.value, selectedPremiseAddress.value);
     }
 
     showAlert("1", "Factura generada exitosamente");

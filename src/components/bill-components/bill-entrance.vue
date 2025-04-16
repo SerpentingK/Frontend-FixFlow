@@ -595,6 +595,7 @@ button.confirm-btn {
 }
 
 .print-toggle {
+  opacity: 0;
   position: absolute;
   right: 20px;
   bottom: 20px;
@@ -606,7 +607,7 @@ button.confirm-btn {
   padding: 10px 15px;
   border-radius: 20px;
   border: 2px solid var(--base);
-  z-index: 100;
+  z-index: -10;
 }
 
 .toggle-switch {
@@ -687,6 +688,10 @@ input:checked+.slider:before {
 
   .phone-section {
     padding: 15px;
+  }
+  .print-toggle {
+    opacity: 1;
+    z-index: 10;
   }
 }
 

@@ -15,6 +15,7 @@ export default {
         const showAlert = inject("showAlert");
         const premises = ref([]);
         const loggedWorker = inject("loggedWorker");
+        const selectedPremiseAddress = inject("selectedPremiseAddress");
 
 
         // Estados para los modales
@@ -214,9 +215,13 @@ export default {
                             v-if="workerRole === 'Gerente' && !premise.active">
                             <ion-icon name="lock-open-outline"></ion-icon>
                         </button>
-                        <button class="action-btn vault" @click="switchSVI" title="Vaul"
-                            v-if="workerRole === 'Gerente'">
-                            <ion-icon name="cash-outline"></ion-icon>
+                        <button class="action-btn info" @click="switchSVI" title="Info"
+                            v-if="workerRole === 'Gerente' || workerRole === 'Administrador'">
+                            <ion-icon name="alert-circle"></ion-icon>
+                        </button>
+                        <button class="action-btn info" @click="switchSVI" title="Descargar Reporte"
+                            v-if="workerRole === 'Gerente' || workerRole === 'Administrador'">
+                            <ion-icon name="download-outline"></ion-icon>
                         </button>
                     </div>
                 </fieldset>
@@ -451,7 +456,7 @@ export default {
     background-color: var(--successColor);
 }
 
-.action-btn.vault {
+.action-btn.info {
     background-color: var(--base);
 }
 

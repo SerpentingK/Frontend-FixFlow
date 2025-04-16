@@ -10,6 +10,7 @@ const selectedPremiseId = inject("selectedPremiseId")
 const loggedWorker = inject("loggedWorker")
 const loadPremisesVault = inject("loadPremisesVault");
 const loadAllWithdrawals = inject("loadAllWithdrawals")
+const isLoading = ref(false);
 const vault = computed(() => ({
     ref_shift: startShift.value,
     quantity: quantity.value,
@@ -22,12 +23,7 @@ const switchWV = inject("switchWV")
 // Función para registrar el retiro
 const postWithdrawal = async () => {
     try {
-        // Validar que la cantidad sea mayor que 0
-        if (quantity.value <= 0) {
-            showAlert("2", "La cantidad a retirar debe ser mayor que 0");
-            return; // Detener la ejecución si la validación falla
-        }
-        
+        isLoading.value = true;
         const response = await axios.put(`${import.meta.env.VITE_API_URL}/OutFlowVault`, vault.value);
         
         // Actualizar la información de la caja antes de cerrar
@@ -40,6 +36,7 @@ const postWithdrawal = async () => {
         showAlert("1", "Retiro registrado correctamente");
         
         // Cerrar el modal
+        isLoading.value = false;
         switchWV();
     } catch (error) {
         if (error.response && error.response.data) {
@@ -75,6 +72,10 @@ onMounted(() => {
 </script>
 
 <template>
+    <div v-if="isLoading" class="loading-overlay">
+    <div class="loading-spinner"></div>
+    <p>Procesando registro...</p>
+  </div>
     <div class="overlay" :style="{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }">
         <section class="withdraw-container">
             <ion-icon name="close-circle-outline" class="close-btn" @click="switchWV"></ion-icon>
@@ -90,7 +91,7 @@ onMounted(() => {
                     :value="formatCurrency(quantity)"
                     @input="(e) => quantity = formatNumberInput(e.target.value)" />
                 </label>
-                <button class="state-btn" :disabled="quantity <= 0">Confirmar</button>
+                <button class="state-btn" :disabled="quantity <= 0 || isLoading">Confirmar</button>
             </form>
         </section>
     </div>
@@ -211,6 +212,41 @@ onMounted(() => {
 
 .close-btn * {
     position: absolute;
+}
+
+.state-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    scale: 1 !important;
+}
+
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 3px solid var(--base);
+  border-top: 3px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+.loading-overlay p {
+  color: white;
+  font-size: 1rem;
 }
 
 @media (min-width: 768px) {

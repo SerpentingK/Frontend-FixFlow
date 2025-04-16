@@ -154,6 +154,7 @@ onMounted(() => {
     letter-spacing: 1px;
     font-weight: bold;
     transition: all 0.3s;
+    cursor: pointer;
 }
 .btns button:hover {
     transform: translateY(-2px);

@@ -16,9 +16,12 @@ export default {
     const selectedColor = inject("selectedColor");
     const getCompanyColor = inject("getCompanyColor");    
     const numberCompany = inject("numberCompany", ref(0));
+    const nitCompany = ref(""); // Nuevo ref para el NIT
     const premisesCount = inject("premisesCount", ref(0));
     const showPhoneModal = ref(false);
+    const showNitModal = ref(false); // Nuevo modal para NIT
     const newPhoneNumber = ref("");
+    const newNitNumber = ref(""); // Nuevo ref para editar NIT
 
     const getWorkersCount = async () => {
       try {
@@ -59,16 +62,25 @@ export default {
       }
     };
 
+    // Nueva función para obtener el NIT de la empresa
+    const getCompanyNit = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/nit`
+          );
+          nitCompany.value = answer.data.nit;
+        }
+      } catch (error) {
+        console.error("Error al obtener el NIT de la empresa", error);
+      }
+    };
+
     const isColorTooLight = (color) => {
-      // Convertir el color hexadecimal a RGB
       const r = parseInt(color.slice(1, 3), 16);
       const g = parseInt(color.slice(3, 5), 16);
       const b = parseInt(color.slice(5, 7), 16);
-      
-      // Calcular la luminosidad
       const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-      
-      // Si la luminosidad es mayor a 200, consideramos que es demasiado claro
       return brightness > 200;
     };
 
@@ -100,6 +112,7 @@ export default {
       getWorkersCount();
       getCompanyColor();
       getWorkerNumber();
+      getCompanyNit(); // Llamar a la nueva función al montar
       getPremisesCount();
 
       const storedColor = localStorage.getItem("baseOrange");
@@ -121,21 +134,16 @@ export default {
       }
     };
 
-
     const downloadExcel = async () => {
       try {
-        // Obtener facturas
         const billsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfBill/${loggedCompany.value}`);
         const bills = billsResponse.data;
 
-        // Obtener turnos
         const shiftsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompany/${loggedCompany.value}`);
         const shifts = shiftsResponse.data;
 
-        // Crear workbook
         const wb = XLSX.utils.book_new();
 
-        // Hoja de Facturas
         const billsData = bills.map(bill => ({
           'Número de Factura': bill.bill_number,
           'Cliente': bill.client_name,
@@ -147,7 +155,6 @@ export default {
         const billsWS = XLSX.utils.json_to_sheet(billsData);
         XLSX.utils.book_append_sheet(wb, billsWS, "Facturas");
 
-        // Hoja de Turnos
         const shiftsData = shifts.map(shift => ({
           'Referencia': shift.ref_shift,
           'Técnico': shift.id,
@@ -161,7 +168,6 @@ export default {
         const shiftsWS = XLSX.utils.json_to_sheet(shiftsData);
         XLSX.utils.book_append_sheet(wb, shiftsWS, "Turnos");
 
-        // Generar archivo
         XLSX.writeFile(wb, `${loggedCompany.value}_reporte_${new Date().toISOString().split('T')[0]}.xlsx`);
         
         showAlert("1", "Reporte descargado exitosamente");
@@ -183,6 +189,19 @@ export default {
       }
     };
 
+    // Nueva función para actualizar el NIT
+    const updateNitNumber = async () => {
+      try {
+        await axios.put(`${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/nit/${newNitNumber.value}`);
+        nitCompany.value = newNitNumber.value;
+        showNitModal.value = false;
+        showAlert("1", "NIT actualizado exitosamente");
+      } catch (error) {
+        console.error("Error al actualizar el NIT", error);
+        showAlert("2", "Error al actualizar el NIT");
+      }
+    };
+
     return {
       loggedCompany,
       workersCount,
@@ -193,9 +212,13 @@ export default {
       workerRole,
       downloadExcel,
       numberCompany,
+      nitCompany, // Añadir al return
       showPhoneModal,
+      showNitModal, // Añadir al return
       newPhoneNumber,
-      updatePhoneNumber
+      newNitNumber, // Añadir al return
+      updatePhoneNumber,
+      updateNitNumber // Añadir al return
     };
   },
 };
@@ -214,11 +237,18 @@ export default {
       <div class="info-cont">
         <div>Teléfono:</div>
         <div>{{ numberCompany }}</div>
-        <button class="edit-phone-btn" @click="showPhoneModal = true">Editar</button>
+        <button class="edit-btn" @click="showPhoneModal = true" v-if="workerRole === 'Gerente'">Editar</button>
+      </div>
+
+      <!-- Nuevo campo para NIT -->
+      <div class="info-cont">
+        <div>NIT:</div>
+        <div>{{ nitCompany || 'No registrado' }}</div>
+        <button class="edit-btn" @click="showNitModal = true" v-if="workerRole === 'Gerente'">Editar</button>
       </div>
     </div>
 
-    <div class="color-picker">
+    <div class="color-picker" v-if="workerRole === 'Gerente'">
       <label for="color">Selecciona un color:</label>
       <input type="color" id="color" v-model="selectedColor" />
     </div>
@@ -230,9 +260,7 @@ export default {
     </button>
     <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
 
-    
-  </section>
-  <!-- Modal para editar teléfono -->
+    <!-- Modal para editar teléfono -->
     <div v-if="showPhoneModal" class="modal-overlay" @click="showPhoneModal = false">
       <div class="modal-content" @click.stop>
         <h3>Editar Número de Teléfono</h3>
@@ -240,7 +268,7 @@ export default {
           type="tel" 
           v-model="newPhoneNumber" 
           placeholder="Ingrese el nuevo número"
-          class="phone-input"
+          class="modal-input"
         />
         <div class="modal-buttons">
           <button class="cancel-btn" @click="showPhoneModal = false">Cancelar</button>
@@ -248,6 +276,24 @@ export default {
         </div>
       </div>
     </div>
+
+    <!-- Nuevo modal para editar NIT -->
+    <div v-if="showNitModal" class="modal-overlay" @click="showNitModal = false">
+      <div class="modal-content" @click.stop>
+        <h3>Editar NIT</h3>
+        <input 
+          type="text" 
+          v-model="newNitNumber" 
+          placeholder="Ingrese el nuevo NIT"
+          class="modal-input"
+        />
+        <div class="modal-buttons">
+          <button class="cancel-btn" @click="showNitModal = false">Cancelar</button>
+          <button class="save-btn" @click="updateNitNumber">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </section>
 </template>
 
 <style scoped>
@@ -297,6 +343,26 @@ export default {
   align-items: center;
   color: white;
   font-size: 1rem;
+}
+
+.edit-btn {
+  background: var(--base);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-btn:hover {
+  background: var(--secondTwo);
+  transform: translateY(-2px);
+}
+
+.edit-btn:active {
+  transform: scale(0.95);
 }
 
 .color-picker {
@@ -359,27 +425,7 @@ export default {
   font-size: 1.25rem;
 }
 
-.edit-phone-btn {
-  background: var(--base);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.edit-phone-btn:hover {
-  background: var(--secondTwo);
-  transform: translateY(-2px);
-}
-
-.edit-phone-btn:active {
-  transform: scale(0.95);
-}
-
-/* Estilos para el modal */
+/* Estilos para los modales */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -415,7 +461,7 @@ export default {
   letter-spacing: 1px;
 }
 
-.phone-input {
+.modal-input {
   width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 0.5rem;
@@ -427,12 +473,12 @@ export default {
   transition: all 0.3s ease;
 }
 
-.phone-input:focus {
+.modal-input:focus {
   background: rgba(255, 255, 255, 0.15);
   box-shadow: 0 0 0 2px var(--base);
 }
 
-.phone-input::placeholder {
+.modal-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
 }
 

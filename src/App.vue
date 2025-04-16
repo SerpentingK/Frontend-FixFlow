@@ -37,12 +37,14 @@ const numbercompany = ref(null);          // Número de la empresa
 const selectedPremise = ref(null);        // Local seleccionado 
 const selectedPremiseId = ref(0);      // ID del local seleccionado
 const premisesCount = ref(0);          // Numero de locales
-const loggedDocument = ref(null);  
+const loggedDocument = ref(null);
 const loggedId = ref(null);       // Documento del trabajador
 const workersCount = ref(0);              // Cantidad de trabajadores
 const workerRole = ref(null);             // Rol del trabajador
 const premiseVault = ref(0);              // Caja del local seleccionado
 const withdrawals = ref([]);              // Lista de retiros
+const nitCompany = ref("0000000000");            // NIT de la empresa
+const selectedPremiseAddress = ref("No disponible");        // Dirección de la empresa
 
 // Estadísticas de teléfonos
 const phonesRepaired = ref(0);            // Teléfonos reparados
@@ -91,7 +93,9 @@ provide('selectedPremise', selectedPremise);
 provide('selectedPremiseId', selectedPremiseId);
 provide('premisesCount', premisesCount);
 provide('premiseVault', premiseVault);
-
+provide('numberCompany', numberCompany);
+provide('nitCompany', nitCompany);
+provide('selectedPremiseAddress', selectedPremiseAddress);
 // Función para cargar información del local
 const loadPremisesVault = async (selectedPremiseId) => {
   try {
@@ -414,12 +418,15 @@ const handlePath = () => {
     router.push('/workers/login-worker');
   } else if (route.path === '/workers/login-worker' && loggedWorker.value) {
     router.push('/workers/worker-profile');
-  } else if (route.path.startsWith('/bills') && selectedPremise.value === null){
+  } else if (route.path.startsWith('/bills') && selectedPremise.value === null) {
     router.push('/premises');
     showAlert("2", "Debes iniciar sesion en un local para acceder a facturacion");
-  } else if (route.path.startsWith('/premises') && workersCount.value === 0){
+  } else if (route.path.startsWith('/premises') && workersCount.value === 0) {
     router.push('/workers/new-worker');
     showAlert("2", "Debes crear un usuario para acceder al módulo de locales");
+  } else if (route.path.startsWith('/shifts') && workerRole.value !== 'Gerente' && workerRole.value !== 'Administrador') {
+    router.push('/workers/worker-profile');
+    showAlert("2", "Debes ser administrador o gerente para acceder al módulo de turnos");
   }
 
   // Control de estado en sección de facturas
@@ -445,7 +452,6 @@ const handlePath = () => {
 const alerts = ref([]);
 const alertType = ref('4');
 const alertMessage = ref('');
-const alertShow = ref(false);
 
 /**
  * Muestra una alerta en la interfaz
@@ -479,23 +485,23 @@ const toSelectPremiseId = ref(null)
 const showAddPremiseModal = ref(false)
 
 const switchSAPM = () => {
-    showAddPremiseModal.value = !showAddPremiseModal.value;
+  showAddPremiseModal.value = !showAddPremiseModal.value;
 }
 
 provide("switchSAPM", switchSAPM)
 
 const switchSLP = (premiseName, premiseId) => {
-    if (showLoginPremise.value) {
-        // Si el modal está abierto, lo cerramos
-        showLoginPremise.value = false;
-    } else {
-        // Si el modal está cerrado y tenemos datos válidos, lo abrimos
-        if (premiseName && !isNaN(premiseId)) {
-            toSelectPremise.value = premiseName;
-            toSelectPremiseId.value = premiseId;
-            showLoginPremise.value = true;
-        }
+  if (showLoginPremise.value) {
+    // Si el modal está abierto, lo cerramos
+    showLoginPremise.value = false;
+  } else {
+    // Si el modal está cerrado y tenemos datos válidos, lo abrimos
+    if (premiseName && !isNaN(premiseId)) {
+      toSelectPremise.value = premiseName;
+      toSelectPremiseId.value = premiseId;
+      showLoginPremise.value = true;
     }
+  }
 }
 
 provide("switchSLP", switchSLP)
@@ -503,6 +509,27 @@ provide("switchSLP", switchSLP)
 // =============================================
 // SUSCRIPCIÓN Y OTRAS FUNCIONALIDADES
 // =============================================
+
+
+const clearData = () => {
+  total_sales.value = 0;
+  total_outs.value = 0;
+  total_revenue.value = 0;
+  loggedDocument.value = null;
+  loggedWorker.value = null;
+  workerRole.value = null;
+  startShift.value = null;
+  phonesDelivered.value = 0;
+  phonesReceived.value = 0;
+  phonesRepaired.value = 0;
+  total_cash.value = 0;
+  total_platform.value = 0;
+  totalInvestment.value = 0;
+  total_user.value = 0;
+  window.location.reload();
+}
+
+provide("clearData", clearData);
 
 const printEnabled = ref(false);
 
@@ -550,7 +577,7 @@ onMounted(() => {
   if (storedLoggedId) {
     loggedId.value = JSON.parse(storedLoggedId);
   }
-  
+
   handlePath();
 });
 
@@ -610,12 +637,7 @@ watch(
       <renewedSuscription v-if="showRenewedSuscription"></renewedSuscription>
     </transition>
     <transition-group name="alert-list" tag="div" class="alerts-container">
-      <alert 
-        v-for="alert in alerts" 
-        :key="alert.id"
-        :type="alert.type" 
-        :message="alert.message"
-      ></alert>
+      <alert v-for="alert in alerts" :key="alert.id" :type="alert.type" :message="alert.message"></alert>
     </transition-group>
     <transition name="opacity-in" mode="out-in">
       <withdrawVault v-if="showWithdrawVault"></withdrawVault>
@@ -630,7 +652,8 @@ watch(
       <withdrawInfo v-if="showVaultInfo"></withdrawInfo>
     </transition>
     <transition name="opacity-in" mode="out-in">
-      <loginPremise v-if="showLoginPremise" :premise-name="toSelectPremise" :premises_id="Number(toSelectPremiseId)"></loginPremise>
+      <loginPremise v-if="showLoginPremise" :premise-name="toSelectPremise" :premises_id="Number(toSelectPremiseId)">
+      </loginPremise>
     </transition>
     <transition name="opacity-in" mode="out-in">
       <addPremiseModal v-if="showAddPremiseModal"></addPremiseModal>

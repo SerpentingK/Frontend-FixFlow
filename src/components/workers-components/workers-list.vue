@@ -193,7 +193,7 @@ export default {
         </span>
       </div>
     </transition>
-    <router-link to="/workers/new-worker" class="add-btn" title="Añadir colaboradores">
+    <router-link to="/workers/new-worker" class="add-btn" title="Añadir colaboradores" v-if="workerRole === 'Administrador' || workerRole === 'Gerente'">
       <ion-icon name="add-circle"></ion-icon>
     </router-link>
   </section>
