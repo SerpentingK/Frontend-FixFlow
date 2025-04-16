@@ -13,11 +13,11 @@ import shiftInfo from './components/shifts-components/shift-info.vue';
 import confirmCloseShift from './components/shifts-components/confirm-close-shift.vue';
 import renewedSuscription from './components/companie-components/renewedSuscription.vue';
 import alert from './components/base-components/alert.vue';
-import withdrawVault from './components/companie-components/withdrawVault.vue';
+import withdrawVault from './components/premises-components/withdrawVault.vue';
 import mailPaswRestore from './components/companie-components/mailPaswRestore.vue';
 import mailTokenRestore from './components/companie-components/mailTokenRestore.vue';
 import Particles from './components/Particles.vue';
-import withdrawInfo from './components/companie-components/withdrawInfo.vue';
+import withdrawInfo from './components/premises-components/premiseInfo.vue';
 import loginPremise from './components/premises-components/login-premise.vue';
 import addPremiseModal from './components/premises-components/add-premise-modal.vue';
 

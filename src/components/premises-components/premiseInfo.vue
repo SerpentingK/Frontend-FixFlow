@@ -378,9 +378,6 @@ const formatTime = (dateString) => {
     padding: 8px 12px;
 }
 
-.withdraw-list button:active {
-    scale: .9;
-}
 
 .fade-enter-active,
 .fade-leave-active {

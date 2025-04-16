@@ -142,7 +142,7 @@ const addNewDevice = async (index) => {
     )
   ) {
     try {
-      await axios.post("${import.meta.env.VITE_API_URL}/newDevice", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/newDevice`, {
         id_brands: id_brands.value,
         name: newDevice.value,
       });

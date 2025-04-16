@@ -36,6 +36,8 @@ export default {
                 );
                 msg.value = answer.data.msg;
                 workersCount.value++;
+                showAlert("1", "Colaborador registrado correctamente");
+                router.push("/workers/workers-list");
             }
         } catch (error) {
             if (error.response && error.response.data) {

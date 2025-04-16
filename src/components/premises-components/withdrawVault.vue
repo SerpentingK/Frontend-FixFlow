@@ -22,6 +22,12 @@ const switchWV = inject("switchWV")
 // Función para registrar el retiro
 const postWithdrawal = async () => {
     try {
+        // Validar que la cantidad sea mayor que 0
+        if (quantity.value <= 0) {
+            showAlert("2", "La cantidad a retirar debe ser mayor que 0");
+            return; // Detener la ejecución si la validación falla
+        }
+        
         const response = await axios.put(`${import.meta.env.VITE_API_URL}/OutFlowVault`, vault.value);
         
         // Actualizar la información de la caja antes de cerrar
@@ -84,7 +90,7 @@ onMounted(() => {
                     :value="formatCurrency(quantity)"
                     @input="(e) => quantity = formatNumberInput(e.target.value)" />
                 </label>
-                <button class="state-btn">Confirmar</button>
+                <button class="state-btn" :disabled="quantity <= 0">Confirmar</button>
             </form>
         </section>
     </div>
