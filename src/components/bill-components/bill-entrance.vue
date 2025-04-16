@@ -260,7 +260,9 @@ const submitForm = () => {
         payment_platform,
         ...rest
       }) => ({
-        ...rest
+        ...rest,
+        payment_physical,
+        payment_platform
       })
     ),
   };
