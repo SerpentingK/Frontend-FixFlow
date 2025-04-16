@@ -25,7 +25,7 @@ button{
     align-items: center;
     justify-content: center;
     font-size: 2rem;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     padding: 5px;
     border-radius: 10px;
     color: white;

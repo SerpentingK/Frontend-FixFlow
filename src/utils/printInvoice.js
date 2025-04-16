@@ -1,10 +1,10 @@
-export function printInvoice(billData, companyUser) {
+export function printInvoice(billData, companyUser, bill_number, tel, nit, address) {
     if (!billData) {
         console.error("No hay datos de factura para imprimir.");
         return;
     }
 
-    const printWindow = window.open("", "", "width=400,height=600");
+    const printWindow = window.open("", "", "width=800,height=600");
     printWindow.document.write(`
         <html>
         <head>
@@ -23,6 +23,7 @@ export function printInvoice(billData, companyUser) {
             <div class="ticket">
                 <h2>${companyUser}</h2>
                 <p>Factura de Venta</p>
+                <p>Numero de Factura: ${bill_number}
                 <p>Cliente: ${billData.client_name}</p>
                 <p>Teléfono: ${billData.client_phone}</p>
                 <hr>
@@ -37,6 +38,9 @@ export function printInvoice(billData, companyUser) {
                 <hr>
                 <h3>Total: $${billData.total_price}</h3>
                 <p>¡Gracias por su compra!</p>
+                <p>Teléfono de contacto: ${tel}</p>
+                <p>NIT: ${nit}</p>
+                <p>Dirección: ${address}</p>
             </div>
             <script>
                 window.onload = function() {

@@ -1,14 +1,14 @@
 
 :root {
-  --baseOrange: #d84b17;
-  --baseGray: #363636;
-  --secGray: rgb(112, 112, 112);
-  --thirdGray: #404040;
+  --base: #d84b17;
+  --second: #363636;
+  --secondTwo: rgb(112, 112, 112);
+  --secondThree: #404040;
   --baseShadow: 0 0 10px 4px rgba(0, 0, 0, 0.676);
   --secShadow: 0 0 5px 1px rgba(0, 0, 0, 0.801);
   --baseFont: "Kanit", sans-serif;
-  --successColor:#28a745;
-  --errorColor:#dc3545;
-  --warningColor:#ffc107;
+  --successColor:#2f8042;
+  --errorColor:#9e353f;
+  --warningColor:#c09e39;
   
 }

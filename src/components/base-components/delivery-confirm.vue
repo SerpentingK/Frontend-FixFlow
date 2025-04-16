@@ -57,7 +57,7 @@ const payment = ref(null)
 
 const getBillRepair = async () =>{
     try{
-        const response = await axios.get(`/api/billRepairPhone/${deliveryRef.value}`)
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/billRepairPhone/${deliveryRef.value}`)
         due.value = response.data[0].due
         client_name.value = response.data[0].client_name
         payment.value = response.data[0].payment
@@ -95,7 +95,7 @@ watch(total_revenue, (newVal) => {
 
 const deliveryPhone = async () => {
     try {
-        const ansawer = await axios.put(`/api/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
+        const ansawer = await axios.put(`${import.meta.env.VITE_API_URL}/deliveredPhone/${deliveryRef.value}/${bill_number.value}`, sales.value);
         updateDelivered();  
 
         // Obtener valores previos del localStorage y sumarlos
@@ -144,6 +144,20 @@ const deliveryPhone = async () => {
     }
 };
 
+const formatCurrency = (value) => {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    minimumFractionDigits: 0,
+  }).format(value || 0);
+};
+
+const formatNumberInput = (value) => {
+  // Eliminar todos los caracteres no numéricos
+  const numericValue = value.toString().replace(/\D/g, '');
+  // Convertir a número
+  return numericValue ? parseInt(numericValue, 10) : 0;
+};
 
 onMounted(() => {
     getBillRepair()
@@ -181,28 +195,44 @@ onMounted(() => {
                 <span>{{ client_name }}</span>
             </div>
             <div class="info-container">
-                <span>Abono:     </span>
-                <span>{{ payment }}</span>
+                <span>Abono: </span>
+                <span>{{ formatCurrency(payment) }}</span>
             </div>
             <div class="info-container">
                 <span>Deuda:</span>
-                <span>{{ due }}</span>
+                <span>{{ formatCurrency(due) }}</span>
             </div>
             <div class="input-container">
                 <span>Pago efectivo:</span>
-                <input type="number" v-model="cashSale" placeholder="0" required />
+                <input 
+                    type="text" 
+                    :value="formatCurrency(cashSale)"
+                    @input="(e) => cashSale = formatNumberInput(e.target.value)"
+                    placeholder="0"
+                />
             </div>
             <div class="input-container">
                 <span>Pago plataforma:</span>
-                <input type="number" v-model="platformSale" placeholder="0" required />
+                <input 
+                    type="text" 
+                    :value="formatCurrency(platformSale)"
+                    @input="(e) => platformSale = formatNumberInput(e.target.value)"
+                    placeholder="0"
+                />
             </div>
             <div class="input-container">
                 <span>Codigo:</span>
-                <input type="number" v-model="codeValue" placeholder="0" required />
+                <input 
+                    type="text" 
+                    :value="formatCurrency(codeValue)"
+                    @input="(e) => codeValue = formatNumberInput(e.target.value)"
+                    placeholder="0" 
+                    required 
+                />
             </div>
             <div class="info-container">
                 <span>Ganancia:</span>
-                <span>{{ revenue_price }}</span>
+                <span>{{ formatCurrency(revenue_price) }}</span>
             </div>
 
             <div style="width: 100%; display: flex; justify-content: space-around; padding: 10px 0;" class="btns">
@@ -228,10 +258,10 @@ onMounted(() => {
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -239,7 +269,7 @@ onMounted(() => {
     overflow-y: scroll;
     scrollbar-width: none;
     transition: all .4s ease;
-    z-index: 10;
+    z-index: 11;
 }
 
 h3 {
@@ -251,7 +281,7 @@ h3 {
 }
 
 .btns button {
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     background-color: transparent;
     padding: 5px 10px;
     color: white;
@@ -267,7 +297,7 @@ h3 {
 }
 
 button.confirm-btn {
-    background-color: var(--baseOrange);
+    background-color: var(--base);
 }
 .conf-container form{
     width: 90%;
@@ -288,6 +318,7 @@ button.confirm-btn {
 .input-container input{
     all: unset;
     width: 60%;
+    text-align: right;
 }
 input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
     display: none;
@@ -298,7 +329,7 @@ input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
     align-items: center;
     justify-content: space-between;
     padding: 5px 10px;
-    color: var(--secGray);
+    color: var(--secondTwo);
 }
 
 @media (min-width: 1024px) {

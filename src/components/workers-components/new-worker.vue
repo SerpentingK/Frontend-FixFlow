@@ -23,7 +23,7 @@ export default {
         try {
             if(workersCount.value == 0){
                 const answer = await axios.post(
-                `/api/insertWorker/${loggedCompany.value}`,
+                `${import.meta.env.VITE_API_URL}/insertWorker/${loggedCompany.value}`,
                 worker.value
                 );
                 msg.value = answer.data.msg;
@@ -31,11 +31,12 @@ export default {
                 router.push("/workers/login-worker");
             }else{
                 const answer = await axios.post(
-                `/api/insertWorker/${loggedCompany.value}`,
+                `${import.meta.env.VITE_API_URL}/insertWorker/${loggedCompany.value}`,
                 worker.value
                 );
                 msg.value = answer.data.msg;
-                workersCount.value++
+                workersCount.value++;
+                showAlert("1", "Colaborador registrado correctamente");
                 router.push("/workers/workers-list");
             }
         } catch (error) {
@@ -96,83 +97,87 @@ export default {
 
 <style scoped>
 .form-container {
-    position: fixed;
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    padding: 20px 10px;
-    width: 75%;
-    border-radius: 10px;
-    background: #363636;
-    box-shadow: -25px -25px 51px #242424,
-        25px 25px 51px #484848;
-    border: 2px solid var(--baseOrange);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(1px, 5px, 10px);
+    width: 80%;
+    max-width: 500px;
+    padding: 2rem;
+    background: var(--second);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 4px solid var(--base);
+    overflow: scroll;
+    scrollbar-width: none;
 }
 
 .form-container h2 {
-    font-size: 25px;
-    font-family: var(--baseFont);
-    text-transform: uppercase;
+    color: white;
+    font-size: 1.5rem;
     text-align: center;
+    margin: 0;
+    font-weight: 500;
     letter-spacing: 1px;
-    color: transparent;
-    background: var(--baseOrange);
-    background: linear-gradient(117deg, var(--baseOrange) 0%, var(--baseOrange) 32%, rgba(230, 140, 107, 1) 72%, rgba(255, 255, 255, 1) 100%, var(--baseOrange) 100%);
-    -webkit-background-clip: text;
 }
 
 .form-container span {
-    color: var(--secGray);
+    color: rgba(255, 255, 255, 0.7);
     text-align: center;
+    font-size: 0.875rem;
 }
 
 .form-container form {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    width: 100%;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }
 
 .input-container {
-    padding: 10px;
-    border-radius: 10px;
-    background: #ffffff;
-    box-shadow: inset -25px -25px 51px #a8a8a8,
-        inset 25px 25px 51px #ffffff;
+    position: relative;
     display: flex;
     align-items: center;
-    width: 80%;
-    margin-top: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
 }
-.input-container ion-icon{
-    margin-left: 10px;
-    scale: 1.3;
+
+.input-container:focus-within {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 0 2px var(--base);
+}
+
+.input-container ion-icon {
+    color: var(--base);
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
 }
 
 .input-container input {
-    all: unset;
-    width: 80%;
-    padding: 0 20px;
+    background: transparent;
+    border: none;
+    color: white;
+    width: 100%;
+    font-size: 1rem;
+    outline: none;
+}
+
+.input-container input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .radio-inputs {
-    margin-top: 20px;
+    margin-top: 1rem;
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    border-radius: 10px;
-    background-color: var(--baseOrange);
-    box-sizing: border-box;
-    box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
     padding: 0.25rem;
-    width: 90%;
-    font-size: 14px;
+    width: 100%;
+    font-size: 0.875rem;
 }
 
 .radio {
@@ -192,72 +197,67 @@ export default {
     border-radius: 0.5rem;
     border: none;
     padding: .5rem 0;
-    color: rgba(51, 65, 85, 1);
+    color: rgba(255, 255, 255, 0.7);
     transition: all .3s ease;
-    border: 3px solid transparent;
 }
 
-.radio-inputs .radio input:checked+.name {
-    background-color: #fff;
-    font-weight: 600;
-    color: black;
-    border-color: var(--baseGray);
-    scale: 1.1;
-    transform: translateY(-5px);
-    box-shadow: var(--secShadow);
+.radio-inputs .radio input:checked + .name {
+    background: var(--base);
+    color: white;
+    font-weight: 500;
 }
 
 .go-btn {
-    background-color: var(--baseOrange);
-    border: 2px solid var(--baseOrange);
-    padding: 10px 20px;
-    border-radius: 15px;
+    background: var(--base);
     color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1rem;
     text-transform: uppercase;
-    letter-spacing: 1.5px;
-    font-weight: bolder;
-    transition: .3s;
+    letter-spacing: 1px;
+}
+
+.go-btn:hover {
+    background: var(--secondTwo);
+    transform: translateY(-2px);
 }
 
 .go-btn:active {
-    scale: 0.9;
+    transform: scale(0.95);
 }
 
-/* Tablets: 768px y mayores */
 @media (min-width: 768px) {
     .form-container {
-        gap: clamp(5px, 10px, 15px);
+        width: 80%;
+        max-width: 600px;
     }
 
     .form-container h2 {
-        font-size: 30px;
+        font-size: 1.75rem;
     }
 
-    .form-container span {
-        font-size: 20px;
+    .input-container input {
+        font-size: 1.1rem;
     }
-
-    .form-container form {
-        gap: 20px;
-    }
-
-    .input-container {
-        padding: 15px;
-    }
-
-    .radio .name {
-        border: 4px solid transparent;
-    }
-
 }
 
-/* Portátiles: 1024px y mayores */
 @media (min-width: 1024px) {
     .form-container {
-        width: 40%;
-        padding: 10px 30px;
-        gap: clamp(5px, 10px, 15px);
+        width: 70%;
+        max-width: 500px;
+        max-height: 70vh;
     }
 }
 
+@media (min-width: 1280px) {
+    .form-container {
+        width: 40%;
+        max-width: 450px;
+    }
+}
 </style>

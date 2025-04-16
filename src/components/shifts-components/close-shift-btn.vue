@@ -6,7 +6,7 @@ const switchCS = inject("switchCS")
 
 <template>
     <button @click="switchCS">
-        <span>Cerrar Sesion</span>
+        <span>Terminar turno</span>
         <ion-icon name="exit"></ion-icon>
     </button>
 </template>
@@ -14,11 +14,11 @@ const switchCS = inject("switchCS")
 <style scoped>
 button{
     all: unset;
-    z-index: 99999;
+    z-index: 9;
     position: fixed;
     left: 10px;
     bottom: 10px;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     padding:10px;
     border-radius: 10px;
     display: flex;
@@ -26,5 +26,6 @@ button{
     gap: 10px;
     color: white;
     box-shadow: var(--baseShadow);
+    cursor: pointer;
 }
 </style>

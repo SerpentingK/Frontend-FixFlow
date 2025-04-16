@@ -34,12 +34,12 @@ const updateRepaired = () => {
 };
 
 const getbillnumber = async () => {
-    const ansawer = await axios.get(`/api/getBillNumber/${repairRef.value}`);
+    const ansawer = await axios.get(`${import.meta.env.VITE_API_URL}/getBillNumber/${repairRef.value}`);
     bill_number.value = ansawer.data[0].bill_number;
 };
 
 const repairPhone = async () => {
-    const ansawer = await axios.put(`/api/repairphone/${repairRef.value}/${startShift.value}/${bill_number.value}`);
+    const ansawer = await axios.put(`${import.meta.env.VITE_API_URL}/repairphone/${repairRef.value}/${startShift.value}/${bill_number.value}`);
     // Actualizar el estado del teléfono en infoBill
     const phone = infoBill.value.phones.find(p => p.phone_ref === repairRef.value);
     if (phone) {
@@ -81,10 +81,10 @@ onMounted(() => {
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -92,7 +92,7 @@ onMounted(() => {
     overflow-y: scroll;
     scrollbar-width: none;
     transition: all .4s ease;
-    z-index: 10;
+    z-index: 11;
 }
 
 h3 {
@@ -103,7 +103,7 @@ h3 {
     letter-spacing: 2px;
 }
 .btns button{
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     background-color: transparent;
     padding: 5px 10px;
     color: white;
@@ -117,7 +117,7 @@ h3 {
     scale: .9;
 }
 button.confirm-btn{
-    background-color: var(--baseOrange);
+    background-color: var(--base);
 }
 @media (min-width: 1024px) {
     .container{

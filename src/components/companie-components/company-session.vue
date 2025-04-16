@@ -1,7 +1,8 @@
 <script>
-import { inject, onMounted, provide, ref } from "vue";
+import { inject, onMounted, provide, ref, computed } from "vue";
 import router from "@/routers/routes";
 import axios from "axios";
+import * as XLSX from 'xlsx';
 
 export default {
   setup() {
@@ -10,30 +11,88 @@ export default {
     const loggedWorker = inject("loggedWorker", ref(null));
     const workerRole = inject("workerRole");
     const showAlert = inject("showAlert");
-    const switchWV = inject("switchWV");
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
-    const getCompanyVault = inject("getCompanyVault");
+    const getCompanyColor = inject("getCompanyColor");    
+    const numberCompany = inject("numberCompany", ref(0));
+    const nitCompany = ref(""); // Nuevo ref para el NIT
+    const premisesCount = inject("premisesCount", ref(0));
+    const showPhoneModal = ref(false);
+    const showNitModal = ref(false); // Nuevo modal para NIT
+    const newPhoneNumber = ref("");
+    const newNitNumber = ref(""); // Nuevo ref para editar NIT
 
-        const getWorkersCount = async () => {
-            try {
-                if (loggedCompany.value) {
-                    const answer = await axios.get(
-                        `/api/company/${loggedCompany.value}/count`
-                    );
-                    workersCount.value = answer.data.count;
-                }
-            } catch (error) {
-                console.error("Error al obtener el conteo de trabajadores", error);
-            }
-        };
+    const getWorkersCount = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/count`
+          );
+          workersCount.value = answer.data.count;
+        }
+      } catch (error) {
+        console.error("Error al obtener el conteo de trabajadores", error);
+      }
+    };
+
+    const getPremisesCount = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `${import.meta.env.VITE_API_URL}/premises/${loggedCompany.value}/count`
+          );
+          premisesCount.value = answer.data.count;
+        }
+      } catch (error) {
+        console.error("Error al obtener el conteo de locales", error);
+      }
+    };
+
+    const getWorkerNumber = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/number`
+          );
+          numberCompany.value = answer.data.number;
+        }
+      } catch (error) {
+        console.error("Error al obtener el numero de la empresa", error);
+      }
+    };
+
+    // Nueva función para obtener el NIT de la empresa
+    const getCompanyNit = async () => {
+      try {
+        if (loggedCompany.value) {
+          const answer = await axios.get(
+            `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/nit`
+          );
+          nitCompany.value = answer.data.nit;
+        }
+      } catch (error) {
+        console.error("Error al obtener el NIT de la empresa", error);
+      }
+    };
+
+    const isColorTooLight = (color) => {
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+      return brightness > 200;
+    };
 
     const updateColor = async () => {
       try {
+        if (isColorTooLight(selectedColor.value)) {
+          showAlert("2", "Este color es demasiado claro. Por favor, elige un color más oscuro.");
+          return;
+        }
         const encodedColor = encodeURIComponent(selectedColor.value);
         await axios.put(
-          `/api/company/${loggedCompany.value}/baseColor/${encodedColor}`
+          `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/baseColor/${encodedColor}`
         );
         resetColor(selectedColor.value);
       } catch (error) {
@@ -42,24 +101,23 @@ export default {
     };
 
     const resetColor = (color) => {
-      document.documentElement.style.setProperty(
-        "--baseOrange",
-        color
-      );
+      document.documentElement.style.setProperty("--base", color);
       localStorage.setItem("baseOrange", color);
-      window.location.reload()
+      window.location.reload();
     };
 
     provide("resetColor", resetColor);
 
     onMounted(() => {
       getWorkersCount();
-      getCompanyVault();
+      getCompanyColor();
+      getWorkerNumber();
+      getCompanyNit(); // Llamar a la nueva función al montar
+      getPremisesCount();
 
-      // Restaurar el color desde localStorage al cargar
       const storedColor = localStorage.getItem("baseOrange");
       if (storedColor) {
-        document.documentElement.style.setProperty("--baseOrange", storedColor);
+        document.documentElement.style.setProperty("--base", storedColor);
         selectedColor.value = storedColor;
       }
     });
@@ -69,9 +127,78 @@ export default {
         showAlert("2", "Se debe cerrar turno para cerrar sesión.");
       } else {
         localStorage.removeItem("loggedCompany");
+        localStorage.removeItem("premiseCount");
         resetColor(defaultColor.value);
         loggedCompany.value = null;
         router.push("/loginCompany");
+      }
+    };
+
+    const downloadExcel = async () => {
+      try {
+        const billsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfBill/${loggedCompany.value}`);
+        const bills = billsResponse.data;
+
+        const shiftsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompany/${loggedCompany.value}`);
+        const shifts = shiftsResponse.data;
+
+        const wb = XLSX.utils.book_new();
+
+        const billsData = bills.map(bill => ({
+          'Número de Factura': bill.bill_number,
+          'Cliente': bill.client_name,
+          'Teléfono': bill.client_phone,
+          'Fecha': bill.entry_date,
+          'Total': bill.total_price,
+          'Técnico': bill.wname
+        }));
+        const billsWS = XLSX.utils.json_to_sheet(billsData);
+        XLSX.utils.book_append_sheet(wb, billsWS, "Facturas");
+
+        const shiftsData = shifts.map(shift => ({
+          'Referencia': shift.ref_shift,
+          'Técnico': shift.id,
+          'Fecha': shift.date_shift,
+          'Hora Inicio': shift.start_time,
+          'Hora Fin': shift.finish_time,
+          'Total Recibido': shift.total_received,
+          'Ganancia': shift.total_gain,
+          'Salidas': shift.total_outs
+        }));
+        const shiftsWS = XLSX.utils.json_to_sheet(shiftsData);
+        XLSX.utils.book_append_sheet(wb, shiftsWS, "Turnos");
+
+        XLSX.writeFile(wb, `${loggedCompany.value}_reporte_${new Date().toISOString().split('T')[0]}.xlsx`);
+        
+        showAlert("1", "Reporte descargado exitosamente");
+      } catch (error) {
+        console.error("Error al generar el reporte:", error);
+        showAlert("2", "Error al generar el reporte");
+      }
+    };
+
+    const updatePhoneNumber = async () => {
+      try {
+        await axios.put(`${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/number/${newPhoneNumber.value}`);
+        numberCompany.value = newPhoneNumber.value;
+        showPhoneModal.value = false;
+        showAlert("1", "Número de teléfono actualizado exitosamente");
+      } catch (error) {
+        console.error("Error al actualizar el número de teléfono", error);
+        showAlert("2", "Error al actualizar el número de teléfono");
+      }
+    };
+
+    // Nueva función para actualizar el NIT
+    const updateNitNumber = async () => {
+      try {
+        await axios.put(`${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/nit/${newNitNumber.value}`);
+        nitCompany.value = newNitNumber.value;
+        showNitModal.value = false;
+        showAlert("1", "NIT actualizado exitosamente");
+      } catch (error) {
+        console.error("Error al actualizar el NIT", error);
+        showAlert("2", "Error al actualizar el NIT");
       }
     };
 
@@ -83,250 +210,345 @@ export default {
       selectedColor,
       updateColor,
       workerRole,
-      switchWV,
+      downloadExcel,
+      numberCompany,
+      nitCompany, // Añadir al return
+      showPhoneModal,
+      showNitModal, // Añadir al return
+      newPhoneNumber,
+      newNitNumber, // Añadir al return
+      updatePhoneNumber,
+      updateNitNumber // Añadir al return
     };
   },
 };
 </script>
 
 <template>
-  <section class="session-container">
+  <section class="session-cont">
     <div class="info-container">
-      <h3 style="color: black">{{ loggedCompany }}</h3>
-      <div class="info-cont">
-        <div>Total en boveda:</div>
-        <div>{{ totalInCash }}</div>
-      </div>
+      <h3>{{ loggedCompany }}</h3>
+
       <div class="info-cont">
         <div>Número de trabajadores:</div>
         <div>{{ workersCount }}</div>
       </div>
+
+      <div class="info-cont">
+        <div>Teléfono:</div>
+        <div>{{ numberCompany }}</div>
+        <button class="edit-btn" @click="showPhoneModal = true" v-if="workerRole === 'Gerente'">Editar</button>
+      </div>
+
+      <!-- Nuevo campo para NIT -->
+      <div class="info-cont">
+        <div>NIT:</div>
+        <div>{{ nitCompany || 'No registrado' }}</div>
+        <button class="edit-btn" @click="showNitModal = true" v-if="workerRole === 'Gerente'">Editar</button>
+      </div>
     </div>
 
-    <div class="color-picker">
+    <div class="color-picker" v-if="workerRole === 'Gerente'">
       <label for="color">Selecciona un color:</label>
       <input type="color" id="color" v-model="selectedColor" />
     </div>
 
     <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
+    <button class="download-btn" @click="downloadExcel">
+      <ion-icon name="download"></ion-icon>
+      Descargar Reporte
+    </button>
     <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
-    <ion-icon
-      v-if="workerRole === 'Gerente' || workerRole === 'Administrador'"
-      class="withdraw-btn"
-      name="cash-outline"
-      @click="switchWV"
-      title="Retirar dinero de la boveda"
-    ></ion-icon>
+
+    <!-- Modal para editar teléfono -->
+    <div v-if="showPhoneModal" class="modal-overlay" @click="showPhoneModal = false">
+      <div class="modal-content" @click.stop>
+        <h3>Editar Número de Teléfono</h3>
+        <input 
+          type="tel" 
+          v-model="newPhoneNumber" 
+          placeholder="Ingrese el nuevo número"
+          class="modal-input"
+        />
+        <div class="modal-buttons">
+          <button class="cancel-btn" @click="showPhoneModal = false">Cancelar</button>
+          <button class="save-btn" @click="updatePhoneNumber">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuevo modal para editar NIT -->
+    <div v-if="showNitModal" class="modal-overlay" @click="showNitModal = false">
+      <div class="modal-content" @click.stop>
+        <h3>Editar NIT</h3>
+        <input 
+          type="text" 
+          v-model="newNitNumber" 
+          placeholder="Ingrese el nuevo NIT"
+          class="modal-input"
+        />
+        <div class="modal-buttons">
+          <button class="cancel-btn" @click="showNitModal = false">Cancelar</button>
+          <button class="save-btn" @click="updateNitNumber">Guardar</button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.session-container {
+.session-cont {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 20px;
+  gap: 1.5rem;
   align-items: center;
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 10px 5px;
-  width: 75%;
-  border-radius: 10px;
-  background: #363636;
-  box-shadow: -25px -25px 51px #242424, 25px 25px 51px #484848;
-  border: 2px solid var(--baseOrange);
+  width: 80%;
+  max-width: 500px;
+  padding: 2rem;
+  border-radius: 1rem;
+  background: var(--second);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 4px solid var(--base);
+  overflow-y: auto;
+  scrollbar-width: none;
 }
 
 .info-container {
-  width: 90%;
-  height: auto;
-  border-radius: 10px;
+  width: 100%;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  background: #ffffff;
-  box-shadow: inset -25px -25px 51px #a8a8a8, inset 25px 25px 51px #ffffff;
-  display: flex;
-  padding: 10px 0;
-}
-
-.info-container ion-icon {
-  font-size: 250px;
-  color: var(--baseOrange);
-  margin-top: 10px;
-}
-
-.company-img {
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  /* Recorta la imagen para llenar el contenedor sin deformarse */
-  border-radius: 10px;
-  /* Opcional, para esquinas redondeadas */
-  display: block;
-  filter: drop-shadow(0 0 15px rgba(39, 39, 39, 0.877));
+  gap: 1rem;
 }
 
 .info-container h3 {
-  font-family: var(--baseFont);
+  color: var(--base);
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0;
+  font-weight: bolder;
   text-transform: uppercase;
-  font-size: clamp(15px, 20px, 25px);
+  letter-spacing: 1px;
 }
 
 .info-cont {
   display: flex;
-  width: 90%;
-  padding: 10px;
   justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-size: 1rem;
 }
 
-.close-btn {
-  all: unset;
-  background-color: var(--baseOrange);
-  color: #ffffff;
-  padding: 10px 20px;
-  border-radius: 5px;
+.edit-btn {
+  background: var(--base);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
   cursor: pointer;
-  font-family: var(--baseFont);
-  font-size: 18px;
   transition: all 0.3s ease;
 }
 
-.close-btn:active {
-  background-color: var(--baseGray);
-  box-shadow: var(--secShadow);
-  scale: 0.9;
+.edit-btn:hover {
+  background: var(--secondTwo);
+  transform: translateY(-2px);
+}
+
+.edit-btn:active {
+  transform: scale(0.95);
 }
 
 .color-picker {
-  margin-top: 10px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 80%;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .color-picker label {
-  font-size: 1.2rem;
-  margin-bottom: 5px;
   color: white;
+  font-size: 1rem;
 }
+
 .color-picker input {
   cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
-.apply-color-btn {
-  all: unset;
+.apply-color-btn, .close-btn, .download-btn {
+  background: var(--base);
   color: white;
-  padding: 8px 15px;
-  border-radius: 5px;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 16px;
   transition: all 0.3s ease;
+  width: 100%;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.apply-color-btn{
+  background: none;
+  border: 2px solid var(--base);
 }
 
-.apply-color-btn:hover {
-  opacity: 0.8;
+.apply-color-btn:hover, .close-btn:hover, .download-btn:hover {
+  background: var(--secondTwo);
+  transform: translateY(-2px);
 }
 
-.withdraw-btn {
-  position: absolute;
-  top: 0;
-  right: -50px;
-  background-color: var(--baseOrange);
-  padding: 5px;
-  color: white;
+.apply-color-btn:active, .close-btn:active, .download-btn:active {
+  transform: scale(0.95);
+}
+
+.download-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 5px;
-  box-shadow: var(--secShadow);
-  font-size: 1.4rem;
+  gap: 0.5rem;
+}
+
+.download-btn ion-icon {
+  font-size: 1.25rem;
+}
+
+/* Estilos para los modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--second);
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 4px solid var(--base);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content h3 {
+  color: white;
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: 1px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  font-size: 1rem;
+  outline: none;
   transition: all 0.3s ease;
+}
+
+.modal-input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 2px var(--base);
+}
+
+.modal-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.cancel-btn, .save-btn {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.withdraw-btn:hover {
-  scale: 1.2;
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
-/* Tablets: 768px y mayores */
+.save-btn {
+  background: var(--base);
+  color: white;
+}
+
+.cancel-btn:hover, .save-btn:hover {
+  transform: translateY(-2px);
+}
+
+.cancel-btn:active, .save-btn:active {
+  transform: scale(0.95);
+}
+
 @media (min-width: 768px) {
-  .session-container {
-    gap: 30px;
-    height: auto;
-    max-height: 90%;
-  }
-
-  .info-container {
+  .session-cont {
     width: 80%;
-  }
-
-  .info-container ion-icon {
-    font-size: 300px;
+    max-width: 600px;
   }
 
   .info-container h3 {
-    font-size: 35px;
+    font-size: 1.75rem;
   }
 
-  .close-btn {
-    scale: 1.3;
-  }
-
-  .upload-btn:hover ion-icon {
-    animation: uploadAnimation 1.5s ease 1 forwards;
-  }
-
-  @keyframes uploadAnimation {
-    0% {
-      transform: translateY(0%);
-    }
-
-    25% {
-      transform: translateY(-150%);
-    }
-
-    26% {
-      transform: translateY(150%);
-    }
-
-    60% {
-      transform: translateY(-150%);
-    }
-
-    61% {
-      transform: translateY(150%);
-    }
-
-    100% {
-      transform: translateY(0%);
-    }
+  .info-cont {
+    font-size: 1.1rem;
   }
 }
 
-/* Computadoras de escritorio: 1280px y mayores */
+@media (min-width: 1024px) {
+  .session-cont {
+    width: 70%;
+    max-width: 500px;
+    max-height: 70vh;
+  }
+}
+
 @media (min-width: 1280px) {
-  .session-container {
-    width: 30%;
-    height: 75%;
-    gap: 40px;
+  .session-cont {
+    width: 40%;
+    max-width: 450px;
   }
 
-  .info-container ion-icon {
-    font-size: 200px;
-  }
-
-  .info-container h3 {
-    font-size: 25px;
-  }
-
-  .close-btn {
-    scale: 0.9;
+  .modal-content {
+    width: 40%;
+    max-width: 450px;
   }
 }
 </style>

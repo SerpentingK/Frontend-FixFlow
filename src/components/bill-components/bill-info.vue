@@ -2,8 +2,11 @@
 import axios from "axios";
 import { inject, watch, onMounted } from "vue";
 
+import { printInvoice } from "@/utils/printInvoice"; 
+
 const switch_sbf = inject("switch_sbf");
 const bill_number = inject("bill_number");
+const loggedCompany = inject("loggedCompany", null);
 
 const infoBill = inject("infoBill", null);
 
@@ -46,7 +49,10 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 </script>
 
 <template>
-  <section class="info-container">
+  <section class="inf-cont">
+    <button @click="printInvoice(infoBill, loggedCompany, bill_number)" class="print-btn">
+      <ion-icon name="print"></ion-icon>
+    </button>
     <button @click="switch_sbf()" class="close-btn">
       <ion-icon name="close"></ion-icon>
     </button>
@@ -73,42 +79,43 @@ const handleDelivery = async (phoneRef, brandName, device) => {
     </div>
     <article class="phones-container">
       <div
-        class="phone-info-container"
+        class="phone-inf-cont"
         v-for="phone in infoBill.phones"
         :key="phone.phone_ref"
       >
-        <span class="info-span">
-          <div>Referencia dispositivo:</div>
-          <div>{{ phone.phone_ref.split("-").slice(1).join("-") }}</div>
-        </span>
-        <span class="info-span">
-          <div>Dispositivo:</div>
-          <div>{{ phone.brand_name }} {{ phone.device }}</div>
-        </span>
-        <span class="info-span">
-          <div>Descripcion:</div>
-          <div>{{ phone.details }}</div>
-        </span>
-        <span class="info-span">
-          <div>Precio Estimado:</div>
-          <div>{{ phone.individual_price }}</div>
-        </span>
-        <span class="info-span">
-          <div>Pendiente:</div>
-          <div>{{ phone.due }}</div>
-        </span>
-        <span class="info-span">
-          <div>Abono:</div>
-          <div>{{ phone.payment }}</div>
-        </span>
-        <span v-if="phone.date_delivered" class="info-span">
-          <div>Fecha de entrega:</div>
-          <div>{{ phone.date_delivered }}</div>
-        </span>
-        <span v-if="phone.final_price" class="info-span">
-          <div>Precio Final:</div>
-          <div>{{ phone.final_price }}</div>
-        </span>
+        <div class="info-row">
+          <span class="info-label">Referencia dispositivo:</span>
+          <span>{{ phone.phone_ref.split("-").slice(1).join("-") }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Dispositivo:</span>
+          <span>{{ phone.brand_name }} {{ phone.device }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Descripción:</span>
+          <span>{{ phone.details }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Precio Estimado:</span>
+          <span>{{ phone.individual_price }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Pendiente:</span>
+          <span>{{ phone.due }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Abono:</span>
+          <span>{{ phone.payment }}</span>
+        </div>
+        <div v-if="phone.date_delivered" class="info-row">
+          <span class="info-label">Fecha de entrega:</span>
+          <span>{{ phone.date_delivered }}</span>
+        </div>
+        <div v-if="phone.final_price" class="info-row">
+          <span class="info-label">Precio Final:</span>
+          <span>{{ phone.final_price }}</span>
+        </div>
+        <hr class="divider" />
         <span class="state-info">
           <button
             class="state-btn"
@@ -137,69 +144,71 @@ const handleDelivery = async (phoneRef, brandName, device) => {
 </template>
 
 <style scoped>
-.info-container {
-  z-index: 10;
+.inf-cont {
   position: fixed;
-  top: 50%;
   left: 50%;
+  top: 50%;
   transform: translate(-50%, -50%);
-  background-color: var(--baseGray);
-  width: 90%;
+  padding: 20px;
+  width: 80%;
   border-radius: 10px;
-  border: 4px solid var(--baseOrange);
-  box-shadow: var(--baseShadow);
+  background: var(--second);
+  box-shadow: -10px -10px 30px #242424, 10px 10px 30px #484848;
+  border: 4px solid var(--base);
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
-  overflow: hidden;
+  max-height: 80%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  gap: 20px;
+  z-index: 11;
 }
 
-.info-container h2 {
-  color: white;
+.inf-cont h2 {
+  color: var(--base);
   letter-spacing: 3px;
-  text-shadow: 0 0 10px black;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
 }
 
 .info-row {
   display: flex;
-  gap: 10px;
-  width: 90%;
   justify-content: space-between;
-  color: var(--secGray);
+  width: 100%;
+  color: var(--secondTwo);
+  font-weight: bold;
 }
+
 .info-label {
+  color: var(--base);
   text-transform: uppercase;
 }
 
 .phones-container {
-  max-height: 200px;
-  overflow: scroll;
-  background-color: white;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+}
+
+.phone-inf-cont {
+  border-radius: 10px;
+  padding: 15px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  scrollbar-width: none;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
 }
 
-.phone-info-container {
-  background-color: var(--baseGray);
-  border-radius: 10px;
-  padding: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.info-span {
-  background-color: white;
-  display: flex;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  box-shadow: var(--secShadow);
+.divider {
+  border: none;
+  border-top: 2px dashed var(--base);
+  margin: 10px 0;
+  width: 100%;
 }
 
 .state-info {
@@ -207,55 +216,78 @@ const handleDelivery = async (phoneRef, brandName, device) => {
   gap: 10px;
   width: 100%;
   justify-content: space-around;
+  margin-top: 10px;
 }
 
 .state-btn {
   all: unset;
   cursor: pointer;
-  background-color: var(--baseGray);
-  padding: 10px;
-  border: 2px solid var(--baseOrange);
-  border-radius: 10px;
+  background-color: var(--second);
+  padding: 10px 20px;
+  border: 2px solid var(--base);
+  border-radius: 8px;
   color: white;
   display: flex;
   gap: 5px;
   align-items: center;
+  font-weight: bold;
+  transition: 0.3s ease;
 }
 
 .state-btn.active {
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   color: white;
-  box-shadow: var(--secShadow);
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
 }
 
-.close-btn {
+.state-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.close-btn, .print-btn {
   all: unset;
   position: absolute;
-  right: 10px;
-  top: 10px;
-  background-color: var(--baseOrange);
+  background-color: var(--base);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 10px;
-  border-radius: 5px;
-  box-shadow: var(--secShadow);
+  border-radius: 8px;
+  box-shadow: 0px 2px 8px rgba(0,0,0,0.15);
   color: white;
-  transition: 0.3s;
+  transition: 0.3s ease;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-btn {
+  right: 10px;
+  top: 10px;
+}
+
+.print-btn {
+  left: 10px;
+  top: 10px;
+}
+
+.close-btn:hover, .print-btn:hover {
+  transform: scale(1.1);
 }
 
 @media (min-width: 768px) {
-  .info-container {
-    font-size: 1.3rem;
+  * {
+    font-size: 1.1rem;
+  }
+
+  .inf-cont {
+    width: 60%;
   }
 }
+
 @media (min-width: 1024px) {
-  .info-container {
-    font-size: 1rem;
+  .inf-cont {
     width: 40%;
-  }
-  .close-btn:hover {
-    scale: 1.1;
   }
 }
 </style>

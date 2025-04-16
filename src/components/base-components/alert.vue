@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, inject } from 'vue';
+import { ref, onMounted, computed, inject, nextTick } from 'vue';
 
 const props = defineProps({
     type: {
@@ -11,16 +11,29 @@ const props = defineProps({
         type: String,
         default: "Predeterminado",
         required: true
+    },
+    duration: {
+        type: Number,
+        default: 3000
     }
 });
 
 const showAlert = inject("showAlert");
-const overlayAlpha = ref(0);
+const isVisible = ref(false);
+const isExiting = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick();
+  setTimeout(() => {
+    isVisible.value = true;
+  }, 100);
+  
+  setTimeout(() => {
+    isExiting.value = true;
     setTimeout(() => {
-        overlayAlpha.value = 0.5;
-    }, 100); // Pequeño retraso antes de iniciar la animación
+      showAlert();
+    }, 300);
+  }, props.duration);
 });
 
 const alertStyles = computed(() => {
@@ -35,77 +48,69 @@ const alertStyles = computed(() => {
 </script>
 
 <template>
-    <div class="overlay" :style="{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }">
+    <div class="alert-wrapper" :class="{ 'visible': isVisible, 'exiting': isExiting }">
         <div class="alert-container">
             <ion-icon :name="alertStyles.icon" class="alert-icon" :style="{ color: alertStyles.color }"></ion-icon>
             <p class="alert-message">{{ message }}</p>
-            <button class="alert-button" @click="showAlert">Aceptar</button>
         </div>
     </div>
 </template>
 
 <style scoped>
-/* Fondo oscuro que bloquea interacciones */
-.overlay {
+.alert-wrapper {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0);
-    /* Empieza completamente transparente */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    bottom: 20px;
+    right: 20px;
     z-index: 1000;
-    transition: background-color .5s ease-in-out;
-    /* Transición suave del fondo */
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+    display: grid;
+    grid-template-rows: auto;
+    gap: 10px;
+    pointer-events: none;
 }
 
-/* Contenedor de la alerta */
+.alert-wrapper.visible {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.alert-wrapper.exiting {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
 .alert-container {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 10px;
-    padding: 20px;
+    padding: 12px 20px;
     border-radius: 8px;
     color: white;
     font-family: Arial, sans-serif;
-    max-width: 80%;
-    text-align: center;
-    background: var(--baseGray);
-    border: 4px solid var(--baseOrange);
+    background: var(--second);
+    border: 2px solid var(--base);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    min-width: 200px;
+    max-width: 400px;
+    pointer-events: auto;
 }
 
-/* Icono de la alerta */
 .alert-icon {
-    font-size: 40px;
+    font-size: 24px;
+    flex-shrink: 0;
 }
 
-/* Mensaje */
 .alert-message {
-    font-size: 1rem;
+    font-size: 0.9rem;
+    margin: 0;
     word-wrap: break-word;
 }
 
-/* Botón */
-.alert-button {
-    background-color: var(--baseOrange);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.alert-button:hover {
-    background-color: var(--secGray);
-    transform: scale(1.05);
-}
-
-.alert-button:active {
-    transform: scale(0.95);
+@media (min-width: 1024px) {
+    .alert-container {
+        min-width: 300px;
+    }
 }
 </style>

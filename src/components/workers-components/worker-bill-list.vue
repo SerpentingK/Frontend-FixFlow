@@ -103,7 +103,7 @@
         all: unset;
         cursor: pointer;
         width: 85%;
-        background-color: var(--baseOrange);
+        background-color: var(--base);
         border-radius: 10px;
         padding: 10px;
         color: white;
@@ -117,7 +117,7 @@
         width: 40%;
     }
     .no-phones-message {
-        color: #f44336; /* Color rojo para el mensaje */
+        color:var(--base); /* Color rojo para el mensaje */
         font-size: 1.2rem;
         margin-top: 20px;
     }

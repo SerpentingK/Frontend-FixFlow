@@ -2,16 +2,32 @@
 import axios from 'axios';
 import { ref, inject, watch, onMounted } from 'vue';
 
-
 const startShift = inject("startShift");
 const msg = ref("");
 const total_outs = inject("total_outs");
+const showVerification = ref(false);
+const showAlert = inject("showAlert");
 
 const outFlows = ref({
-        ref_shift : startShift.value,
-        details:"",
-        price: 0
-    });
+    ref_shift: startShift.value,
+    details: "",
+    price: 0
+});
+
+// Función para formatear moneda
+const formatCurrency = (value) => {
+    return new Intl.NumberFormat("es-CO", {
+        style: "currency",
+        currency: "COP",
+        minimumFractionDigits: 0,
+    }).format(value || 0);
+};
+
+// Función para formatear input numérico
+const formatNumberInput = (value) => {
+    const numericValue = value.toString().replace(/\D/g, '');
+    return numericValue ? parseInt(numericValue, 10) : 0;
+};
 
 watch(total_outs, (newVal) => {
     localStorage.setItem("total_outs", JSON.stringify(newVal))
@@ -19,7 +35,7 @@ watch(total_outs, (newVal) => {
 
 const postOutFlows = async () => {
     try {
-        const ansawer = await axios.post('/api/insertOutflow', outFlows.value)
+        const ansawer = await axios.post(`${import.meta.env.VITE_API_URL}/insertOutflow`, outFlows.value)
         msg.value = ansawer.data.msg;
 
         const previousOuts = JSON.parse(localStorage.getItem("total_outs")) || 0;
@@ -29,13 +45,19 @@ const postOutFlows = async () => {
         localStorage.setItem("total_outs", JSON.stringify(total_outs.value))
 
         outFlows.value = {
-            ref_shift : "",
-            details:"",
+            ref_shift: "",
+            details: "",
             price: 0
         };
+        showVerification.value = false;
+        showAlert("1", "Salida registrada correctamente");
     } catch (error) {
         console.error('Error en ventas: ', error);
     }
+}
+
+const verifyOutflow = () => {
+    showVerification.value = true;
 }
 
 onMounted(() => {
@@ -45,81 +67,175 @@ onMounted(() => {
 </script>
 
 <template>
-    <section class="out-container">
-        <form @submit.prevent="postOutFlows">
-            <div class="input-container">
+    <section class="sales-container">
+        <form @submit.prevent="verifyOutflow">
+            <div class="info-cont">
                 <span>Razon: </span>
-                <input type="text" placeholder="Ej: Almuerzo" v-model="outFlows.details" required/>
+                <input type="text" placeholder="Ej: Almuerzo" v-model="outFlows.details" required class="input-field"/>
             </div>
-            <div class="input-container">
+            <div class="info-cont">
                 <span>Salida:</span>
-                <input type="number" v-model="outFlows.price" required/>
+                <input 
+                    type="text" 
+                    :value="formatCurrency(outFlows.price)"
+                    @input="(e) => outFlows.price = formatNumberInput(e.target.value)"
+                    required 
+                    class="input-field"
+                />
             </div>
-            <button class="confirm-btn">Confirmar</button>
+            <div class="btns">
+                <button type="button" @click="$emit('close')">Cancelar</button>
+                <button type="submit" class="confirm-btn">Verificar Salida</button>
+            </div>
         </form>
+
+        <!-- Ventana de verificación -->
+        <div v-if="showVerification" class="verification-modal">
+            <div class="verification-content">
+                <h4>Verificar Salida</h4>
+                <div class="info-cont">
+                    <span>Razón:</span>
+                    <span class="value-display">{{outFlows.details}}</span>
+                </div>
+                <div class="info-cont">
+                    <span>Monto:</span>
+                    <span class="value-display">{{formatCurrency(outFlows.price)}}</span>
+                </div>
+                <div class="btns">
+                    <button @click="showVerification = false">Cancelar</button>
+                    <button @click="postOutFlows" class="confirm-btn">Confirmar Salida</button>
+                </div>
+            </div>
+        </div>
     </section>
 </template>
 
 <style scoped>
-.out-container{
-    margin-top: 30px;
+.sales-container {
     width: 100%;
-    display: flex;
-    justify-content: start;
-    align-items: center;
-    flex-direction: column;
-    max-height: 400px;
-    overflow-y: scroll;
-    scrollbar-width: none;
-}
-.out-container form{
-    width: 90%;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
-.input-container{
-    width: 90%;
+
+h4 {
+    color: var(--base);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 1.3rem;
+    margin: 10px 0;
+    width: 100%;
+    text-align: center;
+}
+
+.info-cont {
+    width: 95%;
+    margin: auto;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    background-color: white;
-    padding: 5px 10px;
+    align-items: center;
+    color: white;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.input-field {
+    background: white;
+    border: none;
     border-radius: 5px;
+    padding: 5px 10px;
+    width: 50%;
+    color: #333;
 }
-.input-container input{
-    all: unset;
-    width: 60%;
+
+.value-display {
+    font-weight: bold;
+    color: var(--base);
 }
-input::-webkit-outer-spin-button, input::-webkit-inner-spin-button{
-    display: none;
-}
-.info-container{
-    width: 90%;
+
+.btns {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 10px;
-    color: var(--secGray);
+    gap: 20px;
+    margin: 15px 0 10px;
+    width: 100%;
 }
-.confirm-btn{
+
+.btns button {
+    flex: 1;
+    border: 2px solid var(--base);
     background-color: transparent;
-    border: 2px solid var(--baseOrange);
-    padding: 5px 10px;
+    padding: 10px;
     color: white;
     text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 1.5px;
     border-radius: 5px;
-    letter-spacing: 1px;
+    transition: all 0.3s;
     cursor: pointer;
-    transition: .3s;
 }
-.confirm-btn:active{
-    scale: .9;
+
+.btns button:hover {
+    transform: translateY(-2px);
 }
+
+.btns button:active {
+    transform: translateY(0);
+    scale: 0.98;
+}
+
+button.confirm-btn {
+    background-color: var(--base);
+}
+
+.verification-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.verification-content {
+    background: var(--second);
+    padding: 20px;
+    border-radius: 10px;
+    border: 4px solid var(--base);
+    width: 80%;
+    max-width: 500px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+@media (min-width: 768px) {
+    .sales-container {
+        width: 90%;
+        max-width: 700px;
+    }
+
+    .info-cont {
+        font-size: 1.1rem;
+    }
+
+    .input-field {
+        padding: 8px 12px;
+    }
+}
+
 @media (min-width: 1024px) {
-    .out-container{
-        width: 70%;
+    .sales-container {
+        width: 80%;
+        max-width: 800px;
+        padding: 25px;
+    }
+
+    .btns button {
+        padding: 12px;
     }
 }
 </style>

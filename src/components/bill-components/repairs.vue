@@ -16,7 +16,7 @@ const searchs = debounce(async () => {
         return
     }
     try {
-        const ansawer = await axios.get(`/api/phoneBySearch/${loggedCompany.value}/${search.value}`)
+        const ansawer = await axios.get(`${import.meta.env.VITE_API_URL}/phoneBySearch/${loggedCompany.value}/${search.value}`)
         phonesRepair.value = ansawer.data
         isEmpty.value = phonesRepair.value.length === 0;
     } catch (error) {
@@ -83,10 +83,10 @@ const handleRepair = async (phoneRef, brandName, device) => {
     padding: 5px 20px;
     width: 80%;
     border-radius: 10px;
-    background: var(--baseGray);
+    background: var(--second);
     box-shadow: -25px -25px 51px #242424,
         25px 25px 51px #484848;
-    border: 4px solid var(--baseOrange);
+    border: 4px solid var(--base);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -128,9 +128,9 @@ const handleRepair = async (phoneRef, brandName, device) => {
 }
 
 .search-form button {
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     color: white;
-    border: 2px solid var(--baseOrange);
+    border: 2px solid var(--base);
     border-radius: 5px;
     padding: 5px 10px;
     transition: .3s;
@@ -141,8 +141,8 @@ const handleRepair = async (phoneRef, brandName, device) => {
 }
 .phone-container{
     border-radius: 5px;
-    border: 2px solid var(--secGray);
-    background: var(--thirdGray);
+    border: 2px solid var(--secondTwo);
+    background: var(--secondThree);
     color: white;
     display: flex;
     align-items: center;
@@ -162,13 +162,14 @@ const handleRepair = async (phoneRef, brandName, device) => {
 }
 .repair-btn{
     all: unset;
-    background-color: var(--baseOrange);
+    background-color: var(--base);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 5px;
     border-radius: 5px;
     transition: .2s;
+    cursor: pointer;
 }
 .repair-btn:active{
     scale: .9;

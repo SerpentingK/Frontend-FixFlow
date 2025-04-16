@@ -2,8 +2,8 @@
 
 
 body {
-    background: var(--baseOrange);
-    background: linear-gradient(117deg, var(--baseOrange) 0%, rgba(54,54,54,1) 28%, rgba(255,255,255,1) 75%, var(--baseOrange) 100%);
+    background: var(--base);
+    background: linear-gradient(117deg, var(--base) 0%, rgba(54,54,54,1) 28%, rgba(255,255,255,1) 75%, var(--base) 100%);
     background-size: 400% 400%;
     animation: gradientAnimation 25s ease infinite;
     height: 100vh;

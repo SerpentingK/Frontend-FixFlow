@@ -13,6 +13,10 @@ import sales from "@/components/bill-components/sales.vue";
 import outflows from "@/components/bill-components/outflows.vue";
 import outs from "@/components/bill-components/outs.vue";
 import shifts from "@/components/shifts-components/shifts.vue";
+import premises from "@/components/premises-components/premises.vue";
+import newPremise from "@/components/premises-components/new-premise.vue";
+import selectPremise from "@/components/premises-components/select-premise.vue";
+import brands from "@/components/bill-components/brands.vue";
 
 const routes = [
   {
@@ -28,6 +32,24 @@ const routes = [
     path: "/companySession",
     name: "companySession",
     component: companySession
+  },
+  {
+    path: "/premises",
+    name: "premises",
+    component: premises,
+    redirect: "/premises/select-premise",
+    children: [
+      {
+        path: "new-premise",
+        name: "newPremise",
+        component: newPremise
+      },
+      {
+        path: "select-premise",
+        name: "selectPremise",
+        component: selectPremise
+      }
+    ]
   },
   {
     path: "/workers",
@@ -78,6 +100,11 @@ const routes = [
         component: billList,
       },
       {
+        path: "brands",
+        name: "brands",
+        component: brands,
+      },
+      {
         path: "outflows",
         name: "outflows",
         component: outflows,
@@ -95,7 +122,7 @@ const routes = [
           }
         ]
       }
-]
+    ]
   }
 
 ]

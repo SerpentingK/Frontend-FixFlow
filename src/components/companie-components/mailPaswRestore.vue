@@ -30,7 +30,7 @@ const handleRecovery = async () => {
     msg.value = "";
     try {
         if (step.value === 1) {
-            const response = await axios.post(`/api/passwordRecovery`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/passwordRecovery`, {
                 Email: email.value
             });
             
@@ -41,7 +41,7 @@ const handleRecovery = async () => {
                 msg.value = "Error al enviar el correo.";
             }
         } else if (step.value === 2) {
-            const response = await axios.post(`/api/verify-pin`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/verify-pin`, {
                 Email: email.value,
                 code: code.value
             });
@@ -56,7 +56,7 @@ const handleRecovery = async () => {
                 msg.value = "Las contraseñas no coinciden.";
                 return;
             }
-            const response = await axios.put(`/api/confirmPassword`, {
+            const response = await axios.put(`${import.meta.env.VITE_API_URL}/confirmPassword`, {
                 Email: email.value,
                 password: newPassword.value
             });
@@ -132,10 +132,10 @@ const handleRecovery = async () => {
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-        background-color: var(--baseGray);
+        background-color: var(--second);
         width: 90%;
         border-radius: 10px;
-        border: 4px solid var(--baseOrange);
+        border: 4px solid var(--base);
         box-shadow: var(--baseShadow);
         padding: 20px;
         display: flex;
@@ -185,9 +185,9 @@ const handleRecovery = async () => {
 
     .state-btn {
         all: unset;
-        background-color: var(--baseGray);
+        background-color: var(--second);
         padding: 10px;
-        border: 2px solid var(--baseOrange);
+        border: 2px solid var(--base);
         border-radius: 10px;
         color: white;
         text-transform: uppercase;
@@ -203,7 +203,7 @@ const handleRecovery = async () => {
     }
 
     .back-btn {
-        background-color: var(--baseOrange);
+        background-color: var(--base);
         margin-top: 10px;
     }
 
@@ -211,7 +211,7 @@ const handleRecovery = async () => {
         position: absolute;
         top: 10px;
         right: 10px;
-        background-color: var(--baseOrange);
+        background-color: var(--base);
         padding: 5px;
         color: white;
         border-radius: 5px;
