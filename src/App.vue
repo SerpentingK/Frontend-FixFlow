@@ -33,7 +33,7 @@ import axios from 'axios';
 // Datos de la empresa y trabajador
 const loggedCompany = ref(null);          // Empresa logueada
 const loggedWorker = ref(null);           // Trabajador logueado
-const numbercompany = ref(null);          // Número de la empresa
+const numberCompany = ref(null);          // Número de la empresa
 const selectedPremise = ref(null);        // Local seleccionado 
 const selectedPremiseId = ref(0);      // ID del local seleccionado
 const premisesCount = ref(0);          // Numero de locales
@@ -71,7 +71,7 @@ const totalInCash = ref(0);               // Efectivo en caja
 // Proveer estados a componentes hijos
 
 provide('loggedId', loggedId);
-provide('numbercompany', numbercompany);
+provide('numberCompany', numberCompany);
 provide('totalInvestment', totalInvestment)
 provide('totalInCash', totalInCash);
 provide('total_user', total_user);
