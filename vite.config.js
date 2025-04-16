@@ -12,14 +12,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  server: {
-    proxy: {
-      '${import.meta.env.VITE_API_URL}': {
-        target: 'http://127.0.0.1:8000',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\${import.meta.env.VITE_API_URL}/, '')
-      }
-    }
-  },
   base: './',
 })
