@@ -8,6 +8,7 @@ const loggedDocument = inject("loggedDocument", null);
 const loggedId = inject("loggedId", ref(null));
 const selectedPremiseId = inject("selectedPremiseId", ref(null));
 const selectedPremise = ref(null);
+const dataString = ref(null);
 
 const workerStats = ref({
     totalShifts: 0,
@@ -34,6 +35,16 @@ const getWorkerStats = async () => {
     }
 };
 
+const getWorkerDateEntry = async () => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/workerDateEntry/${loggedId.value}`);
+        dataString.value = response.data.Date;
+        console.log(response.data.Date);
+        console.log(dateString.value);
+    } catch (error) {
+        console.error("Error al obtener estadísticas del trabajador:", error);
+    }
+};
 onMounted(() => {
     // Cargar el estado del local activo
     const storedPremise = localStorage.getItem("activePremise");
@@ -43,6 +54,7 @@ onMounted(() => {
         selectedPremiseId.value = premise.id;
     }
     getWorkerStats();
+    getWorkerDateEntry();
 });
 </script>
 
@@ -85,7 +97,7 @@ onMounted(() => {
                 <ion-icon name="calendar-outline"></ion-icon>
                 <div class="info-content">
                     <h3>Fecha de Ingreso</h3>
-                    <p>{{ formatDate(workerStats.joinDate) }}</p>
+                    <p>{{ formatDate(dataString) }}</p>
                 </div>
             </div>
         </div>
