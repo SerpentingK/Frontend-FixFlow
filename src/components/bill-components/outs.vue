@@ -6,6 +6,7 @@ const startShift = inject("startShift");
 const msg = ref("");
 const total_outs = inject("total_outs");
 const showVerification = ref(false);
+const showAlert = inject("showAlert");
 
 const outFlows = ref({
     ref_shift: startShift.value,
@@ -34,7 +35,7 @@ watch(total_outs, (newVal) => {
 
 const postOutFlows = async () => {
     try {
-        const ansawer = await axios.post('${import.meta.env.VITE_API_URL}/insertOutflow', outFlows.value)
+        const ansawer = await axios.post(`${import.meta.env.VITE_API_URL}/insertOutflow`, outFlows.value)
         msg.value = ansawer.data.msg;
 
         const previousOuts = JSON.parse(localStorage.getItem("total_outs")) || 0;
@@ -49,6 +50,7 @@ const postOutFlows = async () => {
             price: 0
         };
         showVerification.value = false;
+        showAlert("1", "Salida registrada correctamente");
     } catch (error) {
         console.error('Error en ventas: ', error);
     }
