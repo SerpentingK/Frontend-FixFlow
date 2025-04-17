@@ -3,8 +3,13 @@ import { inject, onMounted, provide, ref, computed } from "vue";
 import router from "@/routers/routes";
 import axios from "axios";
 import * as XLSX from 'xlsx';
+import { plans } from '@/data/plans';
+import SubscriptionPlans from './subscription-plans.vue';
 
 export default {
+  components: {
+    SubscriptionPlans
+  },
   setup() {
     const workersCount = inject("workersCount", ref(0));
     const loggedCompany = inject("loggedCompany", ref(null));
@@ -22,6 +27,8 @@ export default {
     const showNitModal = ref(false); // Nuevo modal para NIT
     const newPhoneNumber = ref("");
     const newNitNumber = ref(""); // Nuevo ref para editar NIT
+    const showPlansModal = ref(false);
+    const currentPlan = ref(null);
 
     const getWorkersCount = async () => {
       try {
@@ -114,6 +121,7 @@ export default {
       getWorkerNumber();
       getCompanyNit(); // Llamar a la nueva función al montar
       getPremisesCount();
+      getCurrentPlan();
 
       const storedColor = localStorage.getItem("baseOrange");
       if (storedColor) {
@@ -203,6 +211,38 @@ export default {
       }
     };
 
+    // Añadir función para obtener el plan actual
+    const getCurrentPlan = async () => {
+      try {
+        if (loggedCompany.value) {
+          const response = await axios.get(
+            `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/plan`
+          );
+          currentPlan.value = plans.find(p => p.id === response.data.planId);
+        }
+      } catch (error) {
+        console.error("Error al obtener el plan actual", error);
+      }
+    };
+
+    const handlePlanSelection = async (plan) => {
+      if (plan.id === 3) {
+        showAlert("2", "El Plan Premium no está disponible en este momento");
+        return;
+      }
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/plan/${plan.id}`
+        );
+        currentPlan.value = plan;
+        showPlansModal.value = false;
+        showAlert("1", "Plan actualizado exitosamente");
+      } catch (error) {
+        console.error("Error al actualizar el plan", error);
+        showAlert("2", "Error al actualizar el plan");
+      }
+    };
+
     return {
       loggedCompany,
       workersCount,
@@ -219,7 +259,10 @@ export default {
       newPhoneNumber,
       newNitNumber, // Añadir al return
       updatePhoneNumber,
-      updateNitNumber // Añadir al return
+      updateNitNumber, // Añadir al return
+      showPlansModal,
+      currentPlan,
+      handlePlanSelection
     };
   },
 };
@@ -246,6 +289,17 @@ export default {
         <div>NIT:</div>
         <div>{{ nitCompany || 'No registrado' }}</div>
         <button class="edit-btn" @click="showNitModal = true" v-if="workerRole === 'Gerente'">Editar</button>
+      </div>
+
+      <!-- Añadir información del plan actual -->
+      <div class="info-cont plan-info">
+        <div>Plan Actual:</div>
+        <div class="current-plan">
+          <span>{{ currentPlan?.name || 'No definido' }}</span>
+          <button class="change-plan-btn" @click="showPlansModal = true" v-if="workerRole === 'Gerente'">
+            Cambiar Plan
+          </button>
+        </div>
       </div>
     </div>
 
@@ -295,6 +349,15 @@ export default {
       </div>
     </div>
   </section>
+  
+  <!-- Modal de Planes -->
+  <Teleport to="body">
+    <SubscriptionPlans
+      v-if="showPlansModal"
+      @planSelected="handlePlanSelection"
+      @close="showPlansModal = false"
+    />
+  </Teleport>
 </template>
 
 <style scoped>
@@ -316,6 +379,7 @@ export default {
   border: 4px solid var(--base);
   overflow-y: auto;
   scrollbar-width: none;
+  z-index: 1;
 }
 
 .info-container {
@@ -518,6 +582,39 @@ export default {
   transform: scale(0.95);
 }
 
+.plan-info {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.current-plan {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.change-plan-btn {
+  background: var(--base);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.change-plan-btn:hover {
+  background: var(--secondTwo);
+  transform: translateY(-2px);
+}
+
+.change-plan-btn:active {
+  transform: scale(0.95);
+}
+
 @media (min-width: 768px) {
   .session-cont {
     width: 80%;
@@ -551,5 +648,9 @@ export default {
     width: 40%;
     max-width: 450px;
   }
+}
+
+:deep(.plans-modal) {
+  z-index: 1100;
 }
 </style>

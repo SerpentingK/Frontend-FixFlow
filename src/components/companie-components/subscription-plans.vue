@@ -1,103 +1,48 @@
 <script setup>
 import { ref, defineEmits } from 'vue';
+import { allFeatures, plans, hasFeature, getFeatureValue } from '@/data/plans';
+import ConfirmAlert from '../base-components/confirm-alert.vue';
 
-const emit = defineEmits(['planSelected']);
+const emit = defineEmits(['planSelected', 'close']);
 
 const selectedPlan = ref(null);
-
-// Modificar las características posibles
-const allFeatures = [
-  'Gestión de Ventas',
-  'Control de Salidas de Dinero',
-  'Sistema de Contabilidad',
-  'Gestión de Turnos',
-  'Inventario de Dispositivos y facturacion',
-  'Control de Reparaciones',
-  'Gestión de Entregas',
-  'Gestión de Repuestos',
-  'Soporte por Correo',
-  'Soporte 24/7',
-  'Personalización',
-  'Número de Locales por defecto'
-];
-
-const plans = [
-  {
-    id: 1,
-    name: 'Plan Básico',
-    price: '49999',
-    period: 'mes',
-    locations: 2,
-    features: [
-      'Gestión de Ventas',
-      'Control de Salidas de Dinero',
-      'Sistema de Contabilidad',
-      'Gestión de Turnos',
-      'Soporte por Correo',
-      'Personalización'
-    ]
-  },
-  {
-    id: 2,
-    name: 'Plan Estándar',
-    price: '79999',
-    period: 'mes',
-    locations: 3,
-    features: [
-      'Gestión de Ventas',
-      'Control de Salidas de Dinero',
-      'Sistema de Contabilidad',
-      'Gestión de Turnos',
-      'Inventario de Dispositivos y facturacion',
-      'Control de Reparaciones',
-      'Gestión de Entregas',
-      'Soporte por Correo',
-      'Personalización'
-    ]
-  },
-  {
-    id: 3,
-    name: 'Plan Premium',
-    price: '150000',
-    period: 'mes',
-    locations: 5,
-    features: [
-      'Gestión de Ventas',
-      'Control de Salidas de Dinero',
-      'Sistema de Contabilidad',
-      'Gestión de Turnos',
-      'Inventario de Dispositivos y facturacion',
-      'Control de Reparaciones',
-      'Gestión de Entregas',
-      'Gestión de Repuestos',
-      'Soporte por Correo',
-      'Soporte 24/7',
-      'Personalización'
-    ]
-  }
-];
-
-const hasFeature = (plan, feature) => {
-  return plan.features.includes(feature);
-};
-
-const getFeatureValue = (plan, feature) => {
-  if (feature === 'Número de Locales') {
-    return plan.locations;
-  }
-  return hasFeature(plan, feature);
-};
+const showConfirmAlert = ref(false);
+const tempSelectedPlan = ref(null);
 
 const selectPlan = (plan) => {
-  selectedPlan.value = plan;
-  emit('planSelected', plan);
+  if (plan.id === 3) {
+    emit('planSelected', plan);
+    return;
+  }
+  tempSelectedPlan.value = plan;
+  showConfirmAlert.value = true;
+};
+
+const handleConfirm = () => {
+  selectedPlan.value = tempSelectedPlan.value;
+  emit('planSelected', tempSelectedPlan.value);
+  showConfirmAlert.value = false;
+};
+
+const handleCancel = () => {
+  showConfirmAlert.value = false;
+  tempSelectedPlan.value = null;
+};
+
+const closeModal = () => {
+  emit('close');
 };
 </script>
 
 <template>
-  <div class="plans-modal">
-    <div class="plans-container">
-      <h2>Selecciona tu Plan</h2>
+  <div class="plans-modal" @click="closeModal">
+    <div class="plans-container" @click.stop>
+      <div class="modal-header">
+        <h2>Selecciona tu Plan</h2>
+        <button class="close-modal-btn" @click="closeModal">
+          <ion-icon name="close"></ion-icon>
+        </button>
+      </div>
       
       <!-- Vista Desktop -->
       <div class="plans-table-container">
@@ -137,10 +82,19 @@ const selectPlan = (plan) => {
               <td v-for="plan in plans" :key="plan.id">
                 <button 
                   class="select-btn" 
-                  :class="{ 'selected': selectedPlan?.id === plan.id }"
+                  :class="{ 
+                    'selected': selectedPlan?.id === plan.id,
+                    'disabled': plan.id === 3
+                  }"
                   @click="selectPlan(plan)"
+                  :disabled="plan.id === 3"
                 >
-                  {{ selectedPlan?.id === plan.id ? 'Seleccionado' : 'Seleccionar' }}
+                  <template v-if="plan.id === 3">
+                    Próximamente
+                  </template>
+                  <template v-else>
+                    {{ selectedPlan?.id === plan.id ? 'Seleccionado' : 'Seleccionar' }}
+                  </template>
                 </button>
               </td>
             </tr>
@@ -179,16 +133,34 @@ const selectPlan = (plan) => {
           </ul>
           <button 
             class="select-btn" 
-            :class="{ 'selected': selectedPlan?.id === plan.id }"
+            :class="{ 
+              'selected': selectedPlan?.id === plan.id,
+              'disabled': plan.id === 3
+            }"
             @click="selectPlan(plan)"
+            :disabled="plan.id === 3"
           >
-            {{ selectedPlan?.id === plan.id ? 'Seleccionado' : 'Seleccionar' }}
+            <template v-if="plan.id === 3">
+              Próximamente
+            </template>
+            <template v-else>
+              {{ selectedPlan?.id === plan.id ? 'Seleccionado' : 'Seleccionar' }}
+            </template>
           </button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Alerta de confirmación -->
+  <ConfirmAlert
+    :is-visible="showConfirmAlert"
+    :message="`¿Estás seguro que deseas cambiar al ${tempSelectedPlan?.name}? Este cambio afectará las funcionalidades disponibles en tu cuenta.`"
+    @confirm="handleConfirm"
+    @cancel="handleCancel"
+  />
 </template>
+
 <style scoped>
 /* Estilos base */
 .plans-modal {
@@ -201,9 +173,11 @@ const selectPlan = (plan) => {
   justify-content: center;
   align-items: center;
   background: rgba(0, 0, 0, 0.9);
-  z-index: 1000;
+  z-index: 1100;
   padding: 1rem;
   overflow: auto;
+  width: 100%;
+  height: 100%;
 }
 
 .plans-container {
@@ -211,12 +185,14 @@ const selectPlan = (plan) => {
   background: var(--second);
   border-radius: 1rem;
   padding: 2.5rem;
-  width: 90%;
+  width: 95%;
+  max-width: 1200px;
   max-height: 80vh;
   overflow-y: auto;
   border: 3px solid var(--base);
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   color: white;
+  margin: 2rem auto;
   scrollbar-width: none;
 }
 
@@ -395,14 +371,15 @@ h2 {
 /* Media Queries */
 @media (max-width: 767px) {
   .plans-modal {
-    padding: 0.5rem;
-    align-items: flex-start;
+    padding: 0;
   }
   
   .plans-container {
-    padding: 1.5rem;
-    max-height: 90vh;
-    margin: 0.5rem 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
   }
   
   .mobile-plan-card {
@@ -472,5 +449,62 @@ h2 {
 /* Corrección específica para iconos */
 ion-icon {
   color: inherit;
+}
+
+.select-btn.disabled {
+  background: rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.select-btn.disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.mobile-plan-card:nth-child(3) {
+  opacity: 0.7;
+  position: relative;
+}
+
+.mobile-plan-card:nth-child(3)::after {
+  content: 'Próximamente';
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--base);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-modal-btn:hover {
+  color: var(--base);
+  transform: scale(1.1);
 }
 </style>
