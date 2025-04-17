@@ -15,7 +15,9 @@ export default {
         const showAlert = inject("showAlert");
         const premises = ref([]);
         const loggedWorker = inject("loggedWorker");
-        const selectedPremiseAddress = inject("selectedPremiseAddress");
+        const startShift = inject("startShift");
+        const shiftPremise = ref(null);
+
 
 
         // Estados para los modales
@@ -143,17 +145,38 @@ export default {
             }
         };
 
-        
+        const checkShiftPremise = async () => { 
+            const answer = await axios.get(`${import.meta.env.VITE_API_URL}/shift/premises/${startShift.value}`);
+            shiftPremise.value = answer.data.Local;
+        }
 
+        const addPremiseToShift = async () => {
+            try {
+                await axios.put(`${import.meta.env.VITE_API_URL}/shift/addpremise`, {
+                    ref_shift: startShift.value,
+                    ref_premises: selectedPremiseId.value
+                });
+                console.log("Premisa asignada al turno correctamente");
+            } catch (error) {
+                console.error("Error al asignar premisa al turno:", error);
+            }
+        }
+
+        
         onMounted(async () => {
             await loadPremises();
-            
+            await checkShiftPremise();
             // Cargar el estado del local activo
             const storedPremise = localStorage.getItem("activePremise");
             if (storedPremise) {
                 const premise = JSON.parse(storedPremise);
                 selectedPremise.value = premise.name;
                 selectedPremiseId.value = premise.id;
+                
+                // Si hay un ID de premisa seleccionado, enviar petición PUT para añadir el campo ref_premise
+                if (shiftPremise.value === null) {
+                    await addPremiseToShift();
+                }
             }
         });
 

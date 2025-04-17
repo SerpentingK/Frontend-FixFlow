@@ -39,7 +39,7 @@ export default {
                     const answer = await axios.post(`${import.meta.env.VITE_API_URL}/loginWorker/${loggedCompany.value}`, loginData);
                     
                     // Guardar datos del trabajador
-                    loggedDocument.value = answer.data.id;
+                    loggedDocument.value = answer.data.document;
                     localStorage.setItem("loggedDocument", JSON.stringify(answer.data.document));
                     msg.value = answer.data.status;
                     loggedId.value = answer.data.id;

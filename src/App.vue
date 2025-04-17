@@ -466,7 +466,6 @@ const alertMessage = ref('');
  * @param {string} message - Mensaje a mostrar
  */
 const showAlert = (type, message) => {
-  console.log(type, message)
   if (type && message) {
     // Añadir nueva alerta
     alerts.value.push({

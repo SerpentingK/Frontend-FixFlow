@@ -14,10 +14,23 @@ const selectedPremise = inject("selectedPremise", ref(null));
 const premiseVault = inject("premiseVault", ref(0));
 const isLoading = ref(false);
 const search = ref("");
-const searchType = ref("worker"); // 'worker' o 'date'
+const searchType = ref(1); // 'worker' o 'date'
 const overlayAlpha = ref(0);
 const loadPremisesVault = inject("loadPremisesVault");
 const loadAllWithdrawals = inject("loadAllWithdrawals");
+const workers = ref([]); // Lista de trabajadores del local
+
+// Función para cargar los trabajadores del local
+const fetchWorkers = async () => {
+  try {
+    if (selectedPremiseId.value) {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/workersByPremise/${selectedPremiseId.value}/${loggedCompany.value}`);
+      workers.value = Array.isArray(response.data) ? response.data : [response.data];
+    }
+  } catch (error) {
+    console.error("Error al cargar los trabajadores del local:", error);
+  }
+};
 
 // Función para cargar todos los retiros
 const fetchWithdrawals = async () => {
@@ -36,25 +49,35 @@ provide('loadAllWithdrawals', fetchWithdrawals);
 
 // Función de búsqueda con tipo dinámico
 const searchWithdrawals = debounce(async () => {
-  if (!search.value.trim()) {
-    fetchWithdrawals();
-    return;
-  }
-
   try {
     isLoading.value = true;
+    if (!search.value.trim()) {
+      console.log("No hay término de búsqueda, cargando todos los retiros");
+      await fetchWithdrawals();
+      return;
+    }
+    
     let url = '';
     
-    if (searchType.value === 'worker') {
+    if (searchType.value === 1) {
+      // Buscar por trabajador
       url = `${import.meta.env.VITE_API_URL}/searchWithdrawalsByWorker/${loggedCompany.value}/${search.value}`;
-    } else if (searchType.value === 'date') {
+      console.log("URL de búsqueda por trabajador:", url);
+    } else if (searchType.value === 2) {
+      // Buscar por fecha
       url = `${import.meta.env.VITE_API_URL}/searchWithdrawalsByDate/${loggedCompany.value}/${search.value}`;
     }
     
     const response = await axios.get(url);
-    withdrawals.value = Array.isArray(response.data) ? response.data : [response.data];
+    // Si no hay resultados, establecer withdrawals como un array vacío
+    if (!response.data || (Array.isArray(response.data) && response.data.length === 0)) {
+      withdrawals.value = [];
+    } else {
+      withdrawals.value = Array.isArray(response.data) ? response.data : [response.data];
+    }
   } catch (error) {
     console.error("Error al realizar la búsqueda:", error);
+    withdrawals.value = []; // En caso de error, establecer withdrawals como un array vacío
   } finally {
     isLoading.value = false;
   }
@@ -68,12 +91,17 @@ const changeSearchType = (type) => {
 };
 
 // Observador para activar la búsqueda
-watch(search, searchWithdrawals);
+watch(search, () => {
+  if (search.value !== undefined) {
+    searchWithdrawals();
+  }
+});
 
 // Cargar datos al montar el componente
 onMounted(() => {
   loadPremisesVault(selectedPremiseId.value);
   fetchWithdrawals();
+  fetchWorkers(); // Cargar los trabajadores del local
   
   setTimeout(() => {
     overlayAlpha.value = 0.5;
@@ -132,14 +160,14 @@ const formatTime = (dateString) => {
             <!-- Selector de tipo de búsqueda -->
             <div class="search-options">
                 <button 
-                    @click="changeSearchType('worker')" 
-                    :class="{ active: searchType === 'worker' }"
+                    @click="changeSearchType(1)" 
+                    :class="{ active: searchType === 1 }"
                 >
                     Buscar por Colaborador
                 </button>
                 <button 
-                    @click="changeSearchType('date')" 
-                    :class="{ active: searchType === 'date' }"
+                    @click="changeSearchType(2)" 
+                    :class="{ active: searchType === 2 }"
                 >
                     Buscar por Fecha
                 </button>
@@ -148,22 +176,23 @@ const formatTime = (dateString) => {
             <!-- Formulario de búsqueda dinámico -->
             <form @submit.prevent="searchWithdrawals" class="search-form">
                 <select 
-                    v-if="searchType === 'worker'" 
-                    v-model="search"
+                    v-if="searchType === 1" 
                     class="worker-select"
+                    v-model="search"
                 >
-                    <option value="">Seleccione un colaborador</option>
+                    <option value="">Todos los colaboradores</option>
+                    
                     <option 
                         v-for="worker in workers" 
-                        :key="worker.id" 
-                        :value="worker.id"
+                        :key="worker.wname" 
+                        :value="worker.wname"
                     >
-                        {{ worker.name }} ({{ worker.document }})
+                        {{ worker.wname }} 
                     </option>
                 </select>
                 
                 <input 
-                    v-else-if="searchType === 'date'" 
+                    v-else-if="searchType === 2" 
                     type="date" 
                     v-model="search"
                     placeholder="Seleccione una fecha"
