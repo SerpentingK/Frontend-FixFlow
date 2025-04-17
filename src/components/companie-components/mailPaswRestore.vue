@@ -96,7 +96,7 @@ const handleRecovery = async () => {
             <div v-if="step === 2">
                 <label class="input-container">
                     <span class="info-label">Código de verificación:</span>
-                    <input type="text" placeholder="Ingrese el código" required v-model="code" />
+                    <input type="text" placeholder="0" required v-model="code" />
                 </label>
             </div>
 

@@ -503,6 +503,7 @@ export default {
     justify-content: center;
     gap: 10px;
     margin-top: 20px;
+    flex-direction: row-reverse;
 }
 
 .confirm-btn, .cancel-btn {
@@ -515,12 +516,12 @@ export default {
 }
 
 .confirm-btn {
-    background-color: var(--successColor);
+    background-color: var(--base);
     color: white;
 }
 
 .cancel-btn {
-    background-color: var(--errorColor);
+    background-color: transparent;
     color: white;
 }
 
@@ -530,6 +531,9 @@ export default {
 
 .form-group {
     margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .form-group label {
@@ -539,7 +543,7 @@ export default {
 }
 
 .form-group input {
-    width: 100%;
+    width: 90%;
     padding: 8px;
     border-radius: 5px;
     border: 1px solid var(--base);

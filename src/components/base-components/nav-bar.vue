@@ -48,12 +48,12 @@ const handleKeyPress = (event) => {
         router.push('/companySession');
       }
       break;
-    case 'x':
+    case 'c':
       if (loggedCompany.value) {
         router.push('/premises/select-premise');
       }
       break;
-    case 'c':
+    case 'x':
       router.push('/workers/login-worker');
       break;
     case 'v':
@@ -93,12 +93,12 @@ onBeforeUnmount(() => {
       Compañia
       <span class="keyboard-shortcut">Z</span>
     </router-link>
-    <router-link to="/premises/select-premise" v-if="loggedCompany" class="nav-router" :class="{ active: isActive('/premises') }">
-      Locales
-      <span class="keyboard-shortcut">X</span>
-    </router-link>
     <router-link to="/workers/login-worker" class="nav-router" :class="{ active: isActive('/workers') }">
       Colaboradores
+      <span class="keyboard-shortcut">X</span>
+    </router-link>
+    <router-link to="/premises/select-premise" v-if="loggedCompany" class="nav-router" :class="{ active: isActive('/premises') }">
+      Locales
       <span class="keyboard-shortcut">C</span>
     </router-link>
     <router-link v-if="loggedWorker" to="/bills" class="nav-router" :class="{ active: isActive('/bills') }">

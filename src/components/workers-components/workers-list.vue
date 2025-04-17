@@ -153,7 +153,7 @@ export default {
             </button>
             
             <!-- Botón para descargar datos del trabajador -->
-            <button class="action-btn three" @click="switchSDownload(worker.document)">
+            <button class="action-btn three" @click="switchSDownload(worker.document)" v-if="workerRole === 'Gerente' || workerRole === 'Administrador'">
               <ion-icon name="download" title="Descargar datos del colaborador"></ion-icon>
             </button>
           </div>

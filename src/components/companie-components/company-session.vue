@@ -130,6 +130,7 @@ export default {
         localStorage.removeItem("premiseCount");
         resetColor(defaultColor.value);
         loggedCompany.value = null;
+        localStorage.clear();
         router.push("/loginCompany");
       }
     };
@@ -253,8 +254,8 @@ export default {
       <input type="color" id="color" v-model="selectedColor" />
     </div>
 
-    <button class="apply-color-btn" @click="updateColor">Aplicar Color</button>
-    <button class="download-btn" @click="downloadExcel">
+    <button class="apply-color-btn" @click="updateColor" v-if="workerRole === 'Gerente'">Aplicar Color</button>
+    <button class="download-btn" @click="downloadExcel" v-if="workerRole === 'Gerente'">
       <ion-icon name="download"></ion-icon>
       Descargar Reporte
     </button>

@@ -10,10 +10,8 @@ const selectedPremiseId = inject("selectedPremiseId", ref(null));
 const selectedPremise = ref(null);
 const dataString = ref(null);
 
-const workerStats = ref({
-    totalShifts: 0,
-    joinDate: null
-});
+const totalShifts = ref(0);
+
 
 const formatDate = (dateString) => {
     if (!dateString) return 'No disponible';
@@ -29,7 +27,7 @@ const getWorkerStats = async () => {
     try {
         console.log(loggedId.value);
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/workerStats/${loggedId.value}/${selectedPremiseId.value}`);
-        workerStats.value = response.data.count;
+        totalShifts.value = response.data.count;
     } catch (error) {
         console.error("Error al obtener estadísticas del trabajador:", error);
     }
@@ -89,7 +87,7 @@ onMounted(() => {
                 <ion-icon name="time-outline"></ion-icon>
                 <div class="info-content">
                     <h3>Turnos Realizados</h3>
-                    <p>{{ workerStats }}</p>
+                    <p>{{ totalShifts }}</p>
                 </div>
             </div>
 
