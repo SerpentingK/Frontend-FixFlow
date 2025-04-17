@@ -3,10 +3,12 @@ import { computed, inject, ref, onMounted } from "vue";
 import router from "@/routers/routes";
 import axios from "axios";
 import HelpModal from '../base-components/help-modal.vue';
+import SubscriptionPlans from './subscription-plans.vue';
 
 export default {
   components: {
-    HelpModal
+    HelpModal,
+    SubscriptionPlans
   },
   setup() {
     const switchSP = inject("switchSP");
@@ -30,6 +32,8 @@ export default {
       identifier: "",
       password: "",
     });
+    const showPlans = ref(false);
+    const selectedPlan = ref(null);
 
     const openHelpModal = () => {
       switchSP();
@@ -70,10 +74,24 @@ export default {
           showAlert("2", "Las contraseñas no coinciden.");
           return;
         }
-        isLoading.value = true; // Activar pantalla de carga
+        
+        if (!selectedPlan.value) {
+          showPlans.value = true;
+          return;
+        }
+
+        isLoading.value = true;
+        
+        // Añadir el plan seleccionado a los datos de la compañía
+        const companyData = {
+          ...company.value,
+          subscription_plan: selectedPlan.value.id,
+          subscription_price: selectedPlan.value.price
+        };
+
         const answer = await axios.post(
           `${import.meta.env.VITE_API_URL}/insertCompany`,
-          company.value
+          companyData
         );
         showAlert("1", 'Registro exitoso. Por favor revisa tu correo para verificar tu cuenta.\nPodria estar en "Spam" o en "No deseados".\nTienes 24 horas de otra manera tendras que hacer la verificacion nuevamente en el apartado "Verifica tu correo".');
         msg.value = answer.data.msg;
@@ -111,6 +129,12 @@ export default {
       showHelpModal.value = !showHelpModal.value;
     };
 
+    const handlePlanSelected = (plan) => {
+      selectedPlan.value = plan;
+      showPlans.value = false;
+      signupCompany(); // Intentar registrar nuevamente con el plan seleccionado
+    };
+
     onMounted(() => {
       const storedUser = localStorage.getItem("loggedCompany");
       if (storedUser) {
@@ -133,7 +157,9 @@ export default {
       switchSMTR,
       isLoading,
       showHelpModal,
-      toggleHelpModal
+      toggleHelpModal,
+      showPlans,
+      handlePlanSelected
     };
   },
 };
@@ -232,6 +258,10 @@ export default {
     <ion-icon name="help-circle"></ion-icon>
   </button>
   <HelpModal :is-open="showHelpModal" @close="toggleHelpModal" />
+  <SubscriptionPlans 
+    v-if="showPlans" 
+    @planSelected="handlePlanSelected"
+  />
 </template>
 
 <style scoped>

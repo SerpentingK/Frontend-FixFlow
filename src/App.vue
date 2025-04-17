@@ -68,6 +68,10 @@ const total_platform = ref(0);            // Pagos por plataforma
 const total_user = ref(0);                // Usuario total
 const totalInCash = ref(0);               // Efectivo en caja
 
+// Añadir estas variables al estado de la aplicación
+const subscriptionPlan = ref(null);
+const subscriptionExpiry = ref(null);
+
 // Proveer estados a componentes hijos
 
 provide('loggedId', loggedId);
@@ -96,6 +100,9 @@ provide('premiseVault', premiseVault);
 provide('numberCompany', numberCompany);
 provide('nitCompany', nitCompany);
 provide('selectedPremiseAddress', selectedPremiseAddress);
+provide('subscriptionPlan', subscriptionPlan);
+provide('subscriptionExpiry', subscriptionExpiry);
+
 // Función para cargar información del local
 const loadPremisesVault = async (selectedPremiseId) => {
   try {
@@ -577,6 +584,12 @@ onMounted(() => {
     loggedId.value = JSON.parse(storedLoggedId);
   }
 
+  const storedUser = localStorage.getItem("loggedCompany");
+  if (storedUser) {
+    loggedCompany.value = JSON.parse(storedUser).name;
+    checkSubscription();
+  }
+
   handlePath();
 });
 
@@ -590,6 +603,22 @@ watch(
     }, 150);
   }
 );
+
+// Modificar la función que verifica la suscripción
+const checkSubscription = async () => {
+  try {
+    if (loggedCompany.value) {
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/subscription`
+      );
+      subscriptionPlan.value = response.data.plan;
+      subscriptionExpiry.value = response.data.expiry;
+      suscripctionRenewed.value = new Date(response.data.expiry) > new Date();
+    }
+  } catch (error) {
+    console.error("Error al verificar la suscripción:", error);
+  }
+};
 </script>
 
 <template>
