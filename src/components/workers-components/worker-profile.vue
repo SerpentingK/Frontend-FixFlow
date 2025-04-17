@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const loggedWorker = inject("loggedWorker", null);
 const workerRole = inject("workerRole", null);
-const loggedDocument = inject("loggedDocument", null);
+const loggedDocument = inject("loggedDocument");
 const loggedId = inject("loggedId", ref(null));
 const selectedPremiseId = inject("selectedPremiseId", ref(null));
 const selectedPremise = ref(null);
@@ -23,10 +23,9 @@ const formatDate = (dateString) => {
     });
 };
 
-const getWorkerStats = async () => {
+const getWorkerTotalShifts = async () => {
     try {
-        console.log(loggedId.value);
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/workerStats/${loggedId.value}/${selectedPremiseId.value}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/workerTotalShift/${loggedId.value}`);
         totalShifts.value = response.data.count;
     } catch (error) {
         console.error("Error al obtener estadísticas del trabajador:", error);
@@ -37,8 +36,6 @@ const getWorkerDateEntry = async () => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/workerDateEntry/${loggedId.value}`);
         dataString.value = response.data.Date;
-        console.log(response.data.Date);
-        console.log(dateString.value);
     } catch (error) {
         console.error("Error al obtener estadísticas del trabajador:", error);
     }
@@ -51,7 +48,7 @@ onMounted(() => {
         selectedPremise.value = premise.name;
         selectedPremiseId.value = premise.id;
     }
-    getWorkerStats();
+    getWorkerTotalShifts();
     getWorkerDateEntry();
 });
 </script>

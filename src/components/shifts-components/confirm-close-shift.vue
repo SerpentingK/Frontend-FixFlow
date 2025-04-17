@@ -45,15 +45,28 @@ const showAlert = inject("showAlert")
 
 const putShift = async () => {
     try {
+        let url = `${import.meta.env.VITE_API_URL}/closeshift/${startShift.value}`;
+
+        // Create the request configuration
+        const config = {
+            params: {}
+        };
+
+        // Only add the premise ID as a query parameter if it exists and is greater than 0
+        if (selectedPremiseId.value !== null && selectedPremiseId.value > 0) {
+            config.params.ref_premises = selectedPremiseId.value;
+        }
+
         const response = await axios.put(
-            `${import.meta.env.VITE_API_URL}/closeshift/${startShift.value}/${selectedPremiseId.value}`,
+            url,
             {
                 total_gain: total_revenue.value,
                 total_received: adjustedTotalSales.value,
                 total_outs: total_outs.value,
                 vault: totalMoney.value,
-            }
-        )
+            },
+            config
+        );
 
         if (response.status === 200) {
             ["total_sales", "total_outs", "total_revenue", "loggedDocument", "loggedWorker",
@@ -63,9 +76,10 @@ const putShift = async () => {
         }
     } catch (error) {
         console.error("Error al cerrar el turno:", error);
-        showAlert("2", `No se ha podido cerrar sesión, intente nuevamente${error}`);
+        showAlert("2", `No se ha podido cerrar sesión, intente nuevamente. ${error}`);
     }
 };
+
 
 
 

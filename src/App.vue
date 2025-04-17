@@ -117,7 +117,7 @@ provide('loadPremisesVault', loadPremisesVault);
 // Función para cargar todos los retiros
 const loadAllWithdrawals = async () => {
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfOutVault/${selectedPremiseId.value}`);
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOutVault/${selectedPremiseId.value}`);
     withdrawals.value = response.data;
     return response.data;
   } catch (error) {
