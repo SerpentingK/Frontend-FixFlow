@@ -36,8 +36,6 @@ const getWorkerDateEntry = async () => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/workerDateEntry/${loggedId.value}`);
         dataString.value = response.data.Date;
-        console.log(response.data.Date);
-        console.log(dateString.value);
     } catch (error) {
         console.error("Error al obtener estadísticas del trabajador:", error);
     }

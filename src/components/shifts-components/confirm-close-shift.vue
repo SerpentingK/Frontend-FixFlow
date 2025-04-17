@@ -47,9 +47,14 @@ const putShift = async () => {
     try {
         let url = `${import.meta.env.VITE_API_URL}/closeshift/${startShift.value}`;
 
-        // Solo agregar el parámetro si hay un ID seleccionado
+        // Create the request configuration
+        const config = {
+            params: {}
+        };
+
+        // Only add the premise ID as a query parameter if it exists
         if (selectedPremiseId.value !== null) {
-            url += `/${selectedPremiseId.value}`;
+            config.params.ref_premises = selectedPremiseId.value;
         }
 
         const response = await axios.put(
@@ -59,7 +64,8 @@ const putShift = async () => {
                 total_received: adjustedTotalSales.value,
                 total_outs: total_outs.value,
                 vault: totalMoney.value,
-            }
+            },
+            config
         );
 
         if (response.status === 200) {
