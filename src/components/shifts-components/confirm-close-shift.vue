@@ -52,8 +52,8 @@ const putShift = async () => {
             params: {}
         };
 
-        // Only add the premise ID as a query parameter if it exists
-        if (selectedPremiseId.value !== null) {
+        // Only add the premise ID as a query parameter if it exists and is greater than 0
+        if (selectedPremiseId.value !== null && selectedPremiseId.value > 0) {
             config.params.ref_premises = selectedPremiseId.value;
         }
 
