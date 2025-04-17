@@ -45,15 +45,22 @@ const showAlert = inject("showAlert")
 
 const putShift = async () => {
     try {
+        let url = `${import.meta.env.VITE_API_URL}/closeshift/${startShift.value}`;
+
+        // Solo agregar el parámetro si hay un ID seleccionado
+        if (selectedPremiseId.value !== null) {
+            url += `/${selectedPremiseId.value}`;
+        }
+
         const response = await axios.put(
-            `${import.meta.env.VITE_API_URL}/closeshift/${startShift.value}/${selectedPremiseId.value}`,
+            url,
             {
                 total_gain: total_revenue.value,
                 total_received: adjustedTotalSales.value,
                 total_outs: total_outs.value,
                 vault: totalMoney.value,
             }
-        )
+        );
 
         if (response.status === 200) {
             ["total_sales", "total_outs", "total_revenue", "loggedDocument", "loggedWorker",
@@ -63,9 +70,10 @@ const putShift = async () => {
         }
     } catch (error) {
         console.error("Error al cerrar el turno:", error);
-        showAlert("2", `No se ha podido cerrar sesión, intente nuevamente${error}`);
+        showAlert("2", `No se ha podido cerrar sesión, intente nuevamente. ${error}`);
     }
 };
+
 
 
 
