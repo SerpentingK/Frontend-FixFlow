@@ -92,9 +92,9 @@ const searchsShifts = debounce(async () => {
         let response;
         if (searchType.value === 'date') {
             // Búsqueda por fecha
-            response = await axios.get(`${import.meta.env.VITE_API_URL}/searchDateShift/${loggedCompany.value}/${selectedPremiseId.value}`);
+            response = await axios.get(`${import.meta.env.VITE_API_URL}/searchDateShift/${loggedCompany.value}/${search.value}`);
         } else if (searchType.value === 'local') {
-            response = await axios.get(`${import.meta.env.VITE_API_URL}/searchpremiseshift/${loggedCompany.value}/${selectedPremiseId.value}`);
+            response = await axios.get(`${import.meta.env.VITE_API_URL}/searchpremiseshift/${loggedCompany.value}/${search.value}`);
         }
 
         // Procesar los resultados para incluir los nombres de los trabajadores
@@ -193,10 +193,10 @@ onMounted(() => {
                 <option value="">Seleccione un local</option>
                 <option 
                     v-for="local in premises" 
-                    :key="local.ref_premises" 
-                    :value="local.ref_premises"
+                    :key="local.name" 
+                    :value="local.name"
                 >
-                    {{ local.name }} ({{ local.address }})
+                    {{ local.name }} 
                 </option>
             </select>
             
