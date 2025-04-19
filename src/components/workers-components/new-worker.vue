@@ -1,5 +1,5 @@
 <script>
-import { inject, ref } from 'vue';
+import { inject, ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 
@@ -19,8 +19,54 @@ export default {
 
     const router = useRouter();
 
+    const passwordStrength = computed(() => {
+        const password = worker.value.password;
+        if (!password) return 0;
+        
+        let strength = 0;
+        if (password.length >= 6) strength += 1;
+        if (/[A-Z]/.test(password)) strength += 1;
+        if (/[0-9]/.test(password)) strength += 1;
+        if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+        
+        return strength;
+    });
+
+    const getPasswordStrengthColor = computed(() => {
+        const strength = passwordStrength.value;
+        switch(strength) {
+            case 0: return 'var(--errorColor)';
+            case 1: return 'var(--errorColor)';
+            case 2: return 'var(--warningColor)';
+            case 3: return 'var(--base)';
+            case 4: return 'var(--successColor)';
+            default: return 'var(--errorColor)';
+        }
+    });
+
+    const getPasswordStrengthText = computed(() => {
+        const strength = passwordStrength.value;
+        switch(strength) {
+            case 0: return 'Muy débil';
+            case 1: return 'Débil';
+            case 2: return 'Media';
+            case 3: return 'Fuerte';
+            case 4: return 'Muy fuerte';
+            default: return 'Muy débil';
+        }
+    });
+
+    const isPasswordValid = computed(() => {
+        const password = worker.value.password;
+        return password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password);
+    });
+
     const registerWorker = async () => {
         try {
+            if (!isPasswordValid.value) {
+                showAlert("2", "La contraseña debe tener al menos 6 caracteres, una mayúscula y un número.");
+                return;
+            }
             if(workersCount.value == 0){
                 const answer = await axios.post(
                 `${import.meta.env.VITE_API_URL}/insertWorker/${loggedCompany.value}`,
@@ -52,7 +98,11 @@ export default {
 
     return {
         worker,
-        registerWorker
+        registerWorker,
+        passwordStrength,
+        getPasswordStrengthColor,
+        getPasswordStrengthText,
+        isPasswordValid
     };
 
     }
@@ -76,6 +126,18 @@ export default {
                 <ion-icon name="lock-closed"></ion-icon>
                 <input type="password" name="" placeholder="Clave" required v-model="worker.password">
             </label>
+            <div class="password-strength">
+                <div class="strength-indicator">
+                    <div class="strength-bar" :style="{ backgroundColor: getPasswordStrengthColor }"></div>
+                    <div class="strength-dots">
+                        <div class="dot" :class="{ active: passwordStrength >= 1 }"></div>
+                        <div class="dot" :class="{ active: passwordStrength >= 2 }"></div>
+                        <div class="dot" :class="{ active: passwordStrength >= 3 }"></div>
+                        <div class="dot" :class="{ active: passwordStrength >= 4 }"></div>
+                    </div>
+                </div>
+                <span class="strength-text">{{ getPasswordStrengthText }}</span>
+            </div>
             <div class="radio-inputs">
                 <label for="ger-inp" class="radio">
                     <input type="radio" name="radio" id="ger-inp" v-model="worker.wrole" value="Gerente">
@@ -229,6 +291,54 @@ export default {
 
 .go-btn:active {
     transform: scale(0.95);
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.strength-indicator {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.strength-bar {
+    height: 4px;
+    width: 100%;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    background-color: var(--secondTwo);
+}
+
+.strength-dots {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--secondTwo);
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background-color: var(--base);
+    transform: scale(1.2);
+}
+
+.strength-text {
+    font-size: 0.75rem;
+    color: white;
+    text-align: center;
+    font-weight: 500;
+    letter-spacing: 0.5px;
 }
 
 @media (min-width: 768px) {
