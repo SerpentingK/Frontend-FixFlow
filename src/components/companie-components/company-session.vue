@@ -210,6 +210,26 @@ export default {
               console.log(`No se encontraron registros de caja para el local ${premise.name}`);
             }
 
+            // Get sales for the premise
+            let sales = [];
+            try {
+              const salesResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allSalesPremises/${premise.ref_premises}`);
+              sales = salesResponse.data || [];
+              console.log(`Ventas obtenidas para ${premise.name}: ${sales.length}`);
+            } catch (salesError) {
+              console.log(`No se encontraron ventas para el local ${premise.name}`);
+            }
+
+            // Get outflows for the premise
+            let outflows = [];
+            try {
+              const outflowsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allOutflowsPremises/${premise.ref_premises}`);
+              outflows = outflowsResponse.data || [];
+              console.log(`Gastos obtenidos para ${premise.name}: ${outflows.length}`);
+            } catch (outflowsError) {
+              console.log(`No se encontraron gastos para el local ${premise.name}`);
+            }
+
             // Create sheets for each premise
             const premiseName = premise.name || `Local_${premise.ref_premises}`;
 
@@ -304,6 +324,36 @@ export default {
               XLSX.utils.book_append_sheet(wb, vaultWS, `${premiseName}_Caja`);
               hasData = true;
             }
+
+            // Sales data for this premise
+            if (sales && sales.length > 0) {
+              const salesData = sales.map(sale => ({
+                'Referencia': sale.ref_delivery || '',
+                'Fecha': sale.date_shift || '',
+                'Producto': sale.product || '',
+                'Venta': sale.sale || 0,
+                'Precio Original': sale.original_price || 0,
+                'Precio de Ingreso': sale.revenue_price || 0,
+                'Técnico': sale.wname || ''
+              }));
+              const salesWS = XLSX.utils.json_to_sheet(salesData);
+              XLSX.utils.book_append_sheet(wb, salesWS, `${premiseName}_Ventas`);
+              hasData = true;
+            }
+
+            // Outflows data for this premise
+            if (outflows && outflows.length > 0) {
+              const outflowsData = outflows.map(outflow => ({
+                'Referencia': outflow.ref_outflow || '',
+                'Fecha': outflow.date_shift || '',
+                'Precio': outflow.price || 0,
+                'Detalles': outflow.details || '',
+                'Técnico': outflow.wname || ''
+              }));
+              const outflowsWS = XLSX.utils.json_to_sheet(outflowsData);
+              XLSX.utils.book_append_sheet(wb, outflowsWS, `${premiseName}_Gastos`);
+              hasData = true;
+            }
           } catch (premiseError) {
             console.error(`Error al procesar el local ${premise.name || premise.ref_premises}:`, premiseError);
             console.error("Detalles del error:", {
@@ -314,44 +364,6 @@ export default {
             });
             showAlert("2", `Error al procesar datos del local ${premise.name || premise.ref_premises}`);
           }
-        }
-
-        // Get all sales for the company
-        const salesResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allSalesCompany/${loggedCompany.value}`);
-        const allSales = salesResponse.data || [];
-
-        // Get all outflows for the company
-        const outflowsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allOutflowsCompany/${loggedCompany.value}`);
-        const allOutflows = outflowsResponse.data || [];
-
-        // Crear hoja con todas las ventas de la compañía
-        if (allSales && allSales.length > 0) {
-          const allSalesData = allSales.map(sale => ({
-            'Referencia': sale.ref_sale || '',
-            'Fecha': sale.date_sale || '',
-            'Producto': sale.product || '',
-            'Venta': sale.sale || 0,
-            'Precio Original': sale.original_price || 0,
-            'Precio de Ingreso': sale.revenue_price || 0,
-            'Técnico': sale.wname || ''
-          }));
-          const allSalesWS = XLSX.utils.json_to_sheet(allSalesData);
-          XLSX.utils.book_append_sheet(wb, allSalesWS, `VentasTotales`);
-          hasData = true;
-        }
-
-        // Crear hoja con todos los gastos de la compañía
-        if (allOutflows && allOutflows.length > 0) {
-          const allOutflowsData = allOutflows.map(outflow => ({
-            'Referencia': outflow.ref_outflow || '',
-            'Fecha': outflow.date_outflow || '',
-            'Precio': outflow.price || 0,
-            'Detalles': outflow.details || '',
-            'Técnico': outflow.wname || ''
-          }));
-          const allOutflowsWS = XLSX.utils.json_to_sheet(allOutflowsData);
-          XLSX.utils.book_append_sheet(wb, allOutflowsWS, `gastoTotales`);
-          hasData = true;
         }
 
         if (!hasData) {
