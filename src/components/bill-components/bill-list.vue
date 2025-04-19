@@ -11,13 +11,14 @@ const isLoading = ref(false); // Indicador de carga
 const search = ref(""); // Texto de búsqueda
 const searchType = ref("1"); // Tipo de búsqueda
 const loggedCompany = inject("loggedCompany");
+const selectedPremiseId = inject("selectedPremiseId");
 
 // Función para cargar todas las facturas
 const loadAllBills = async () => {
   try {
     isLoading.value = true; // Activar indicador de carga
     const answer = await axios.get(
-      `${import.meta.env.VITE_API_URL}/someDataOfBill/${loggedCompany.value}`
+      `${import.meta.env.VITE_API_URL}/someDataOfBill/${selectedPremiseId.value}`
     );
     bills.value = answer.data;
   } catch (error) {

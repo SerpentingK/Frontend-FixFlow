@@ -1,5 +1,5 @@
 <script>
-import { inject, onMounted, provide, ref, computed } from "vue";
+import { inject, onMounted, provide, ref } from "vue";
 import router from "@/routers/routes";
 import axios from "axios";
 import * as XLSX from 'xlsx';
@@ -145,44 +145,225 @@ export default {
 
     const downloadExcel = async () => {
       try {
-        const billsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfBill/${loggedCompany.value}`);
-        const bills = billsResponse.data;
+        // Get all premises for the company
+        const premisesResponse = await axios.get(`${import.meta.env.VITE_API_URL}/getPremisesCompany/${loggedCompany.value}`);
+        const premises = premisesResponse.data;
 
-        const shiftsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompany/${loggedCompany.value}`);
-        const shifts = shiftsResponse.data;
+        console.log("Locales obtenidos:", premises);
+
+        if (!premises || premises.length === 0) {
+          showAlert("2", "No se encontraron locales para esta empresa");
+          return;
+        }
+
+        // Validar la estructura de los datos de los locales
+        const validPremises = premises.filter(premise => {
+          const isValid = premise && premise.ref_premises && premise.name;
+          if (!isValid) {
+            console.error("Local con estructura inválida:", premise);
+          }
+          return isValid;
+        });
+
+        console.log("Locales válidos a procesar:", validPremises);
+
+        if (validPremises.length === 0) {
+          showAlert("2", "No se encontraron locales válidos para procesar");
+          return;
+        }
 
         const wb = XLSX.utils.book_new();
+        let hasData = false;
 
-        const billsData = bills.map(bill => ({
-          'Número de Factura': bill.bill_number,
-          'Cliente': bill.client_name,
-          'Teléfono': bill.client_phone,
-          'Fecha': bill.entry_date,
-          'Total': bill.total_price,
-          'Técnico': bill.wname
-        }));
-        const billsWS = XLSX.utils.json_to_sheet(billsData);
-        XLSX.utils.book_append_sheet(wb, billsWS, "Facturas");
+        // Process each premise
+        for (const premise of validPremises) {
+          try {
+            console.log(`Iniciando procesamiento del local: ${premise.name} (ID: ${premise.ref_premises})`);
+            
+            let bills = [];
+            try {
+              // Get bills for the premise
+              const billsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfBill/${premise.ref_premises}/excel`);
+              bills = billsResponse.data || [];
+              console.log(`Facturas obtenidas para ${premise.name}: ${bills.length}`);
+            } catch (billError) {
+              console.log(`No se encontraron facturas para el local ${premise.name}`);
+            }
 
-        const shiftsData = shifts.map(shift => ({
-          'Referencia': shift.ref_shift,
-          'Técnico': shift.id,
-          'Fecha': shift.date_shift,
-          'Hora Inicio': shift.start_time,
-          'Hora Fin': shift.finish_time,
-          'Total Recibido': shift.total_received,
-          'Ganancia': shift.total_gain,
-          'Salidas': shift.total_outs
-        }));
-        const shiftsWS = XLSX.utils.json_to_sheet(shiftsData);
-        XLSX.utils.book_append_sheet(wb, shiftsWS, "Turnos");
+            let shifts = [];
+            try {
+              // Get shifts for the premise
+              const shiftsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompanyPremises/excel/${premise.ref_premises}`);
+              shifts = shiftsResponse.data || [];
+              console.log(`Turnos obtenidos para ${premise.name}: ${shifts.length}`);
+            } catch (shiftError) {
+              console.log(`No se encontraron turnos para el local ${premise.name}`);
+            }
+
+            let vaultRecords = [];
+            try {
+              // Get vault records for the premise
+              const vaultResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOutVault/${premise.ref_premises}`);
+              vaultRecords = vaultResponse.data || [];
+              console.log(`Registros de caja obtenidos para ${premise.name}: ${vaultRecords.length}`);
+            } catch (vaultError) {
+              console.log(`No se encontraron registros de caja para el local ${premise.name}`);
+            }
+
+            // Create sheets for each premise
+            const premiseName = premise.name || `Local_${premise.ref_premises}`;
+
+            // Data of bills
+            if (bills && bills.length > 0) {
+              const billsData = bills.map(bill => ({
+                'Número de Factura': bill.bill_number || '',
+                'Cliente': bill.client_name || '',
+                'Teléfono': bill.client_phone || '',
+                'Fecha': bill.entry_date || '',
+                'Total': bill.total_price || 0,
+                'Técnico': bill.wname || ''
+              }));
+              const billsWS = XLSX.utils.json_to_sheet(billsData);
+              XLSX.utils.book_append_sheet(wb, billsWS, `${premiseName}_Facturas`);
+              hasData = true;
+            }
+
+            // Shifts data
+            if (shifts && shifts.length > 0) {
+              // Obtener los nombres de los técnicos para cada turno
+              const shiftsWithNames = await Promise.all(
+                shifts.map(async (shift) => {
+                  try {
+                    // Extraer el documento del ID del turno
+                    let workerDocument;
+                    if (shift.document) {
+                      workerDocument = shift.document;
+                    } else if (shift.id) {
+                      if (!isNaN(shift.id)) {
+                        workerDocument = shift.id;
+                      } else {
+                        workerDocument = shift.id.split('_')[1];
+                      }
+                    } else if (shift.ref_shift) {
+                      workerDocument = shift.ref_shift.split('_')[1];
+                    } else {
+                      return {
+                        ...shift,
+                        worker_name: "Técnico desconocido"
+                      };
+                    }
+                    
+                    // Consultar el nombre del técnico
+                    const workerResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
+                    
+                    if (workerResponse.data && workerResponse.data.wname) {
+                      return {
+                        ...shift,
+                        worker_name: workerResponse.data.wname
+                      };
+                    } else {
+                      return {
+                        ...shift,
+                        worker_name: "Técnico desconocido"
+                      };
+                    }
+                  } catch (error) {
+                    console.error(`Error al obtener el nombre del técnico para el turno:`, error);
+                    return {
+                      ...shift,
+                      worker_name: "Técnico desconocido"
+                    };
+                  }
+                })
+              );
+
+              // Crear hoja de turnos
+              const shiftsData = shiftsWithNames.map(shift => ({
+                'Referencia': shift.ref_shift ? shift.ref_shift.split('_')[1] || shift.ref_shift : '',
+                'Técnico': shift.worker_name || 'Técnico desconocido',
+                'Fecha': shift.date_shift || '',
+                'Hora Inicio': shift.start_time || '',
+                'Hora Fin': shift.finish_time || '',
+                'Total Recibido': shift.total_received || 0,
+                'Ganancia': shift.total_gain || 0,
+                'Salidas': shift.total_outs || 0
+              }));
+              const shiftsWS = XLSX.utils.json_to_sheet(shiftsData);
+              XLSX.utils.book_append_sheet(wb, shiftsWS, `${premiseName}_Turnos`);
+              hasData = true;
+            }
+
+            // Vault records data
+            if (vaultRecords && vaultRecords.length > 0) {
+              const vaultData = vaultRecords.map(record => ({
+                'Fecha': record.date || '',
+                'Usuario': record.wname || '',
+                'Cantidad Retirada': record.quantity || 0,
+              }));
+              const vaultWS = XLSX.utils.json_to_sheet(vaultData);
+              XLSX.utils.book_append_sheet(wb, vaultWS, `${premiseName}_Caja`);
+              hasData = true;
+            }
+          } catch (premiseError) {
+            console.error(`Error al procesar el local ${premise.name || premise.ref_premises}:`, premiseError);
+            console.error("Detalles del error:", {
+              premiseId: premise.ref_premises,
+              premiseName: premise.name,
+              errorMessage: premiseError.message,
+              errorResponse: premiseError.response?.data
+            });
+            showAlert("2", `Error al procesar datos del local ${premise.name || premise.ref_premises}`);
+          }
+        }
+
+        // Get all sales for the company
+        const salesResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allSalesCompany/${loggedCompany.value}`);
+        const allSales = salesResponse.data || [];
+
+        // Get all outflows for the company
+        const outflowsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allOutflowsCompany/${loggedCompany.value}`);
+        const allOutflows = outflowsResponse.data || [];
+
+        // Crear hoja con todas las ventas de la compañía
+        if (allSales && allSales.length > 0) {
+          const allSalesData = allSales.map(sale => ({
+            'Referencia': sale.ref_sale || '',
+            'Fecha': sale.date_sale || '',
+            'Producto': sale.product || '',
+            'Venta': sale.sale || 0,
+            'Precio Original': sale.original_price || 0,
+            'Precio de Ingreso': sale.revenue_price || 0,
+            'Técnico': sale.wname || ''
+          }));
+          const allSalesWS = XLSX.utils.json_to_sheet(allSalesData);
+          XLSX.utils.book_append_sheet(wb, allSalesWS, `VentasTotales`);
+          hasData = true;
+        }
+
+        // Crear hoja con todos los gastos de la compañía
+        if (allOutflows && allOutflows.length > 0) {
+          const allOutflowsData = allOutflows.map(outflow => ({
+            'Referencia': outflow.ref_outflow || '',
+            'Fecha': outflow.date_outflow || '',
+            'Precio': outflow.price || 0,
+            'Detalles': outflow.details || '',
+            'Técnico': outflow.wname || ''
+          }));
+          const allOutflowsWS = XLSX.utils.json_to_sheet(allOutflowsData);
+          XLSX.utils.book_append_sheet(wb, allOutflowsWS, `gastoTotales`);
+          hasData = true;
+        }
+
+        if (!hasData) {
+          showAlert("2", "No se encontraron datos para generar el reporte");
+          return;
+        }
 
         XLSX.writeFile(wb, `${loggedCompany.value}_reporte_${new Date().toISOString().split('T')[0]}.xlsx`);
-        
         showAlert("1", "Reporte descargado exitosamente");
       } catch (error) {
         console.error("Error al generar el reporte:", error);
-        showAlert("2", "Error al generar el reporte");
+        showAlert("2", "Error al generar el reporte. Por favor, intente nuevamente");
       }
     };
 
@@ -201,7 +382,7 @@ export default {
     // Nueva función para actualizar el NIT
     const updateNitNumber = async () => {
       try {
-        await axios.put(`${import.meta.env.VITE_API_URL}/company/${loggedCompany.value}/nit/${newNitNumber.value}`);
+        await axios.put(`${import.meta.env.VITE_API_URL}/changeNit/${loggedCompany.value}/${newNitNumber.value}`);
         nitCompany.value = newNitNumber.value;
         showNitModal.value = false;
         showAlert("1", "NIT actualizado exitosamente");

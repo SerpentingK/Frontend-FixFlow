@@ -10,6 +10,7 @@ const props = defineProps({
     default: () => ({
       ref_shift: "",
       document: "",
+      id: "",
       start_time: "",
       finish_time: "",
       total_received: 0,
@@ -38,17 +39,43 @@ const workerName = ref("");
 
 const getWorkerName = async () => {
   try {
-    const workerDocument = props.shift.id.split('_').slice(1).join('_');
+    console.log('Datos del turno recibidos:', props.shift);
     
+    // Intentar obtener el documento del trabajador de diferentes maneras
+    let workerDocument;
+    if (props.shift.document) {
+      workerDocument = props.shift.document;
+      console.log('Usando document:', workerDocument);
+    } else if (props.shift.id) {
+      // Si el id es un número directo, usarlo como documento
+      if (!isNaN(props.shift.id)) {
+        workerDocument = props.shift.id;
+      } else {
+        workerDocument = props.shift.id.split('_')[1];
+      }
+      console.log('Usando id:', workerDocument);
+    } else if (props.shift.ref_shift) {
+      workerDocument = props.shift.ref_shift.split('_')[1];
+      console.log('Usando ref_shift:', workerDocument);
+    } else {
+      console.error('No se encontró ningún identificador válido en el turno');
+      throw new Error('No se pudo encontrar el documento del trabajador');
+    }
+    
+    console.log('Consultando worker con documento:', workerDocument);
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
+    console.log('Respuesta del servidor:', response.data);
     
     if (response.data && response.data.wname) {
       workerName.value = response.data.wname;
+      console.log('Nombre del trabajador asignado:', workerName.value);
     } else {
+      console.warn('Respuesta del servidor no contiene wname:', response.data);
       workerName.value = "Técnico desconocido";
     }
   } catch (error) {
-    console.error("Error al obtener el nombre del técnico:", error);
+    console.error("Error detallado al obtener el nombre del técnico:", error);
+    console.error("Datos del turno que causaron el error:", props.shift);
     workerName.value = "Error al obtener datos";
   }
 };

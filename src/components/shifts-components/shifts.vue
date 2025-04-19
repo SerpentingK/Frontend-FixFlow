@@ -5,7 +5,6 @@ import { inject, onMounted, ref, watch } from 'vue';
 
 const switchSI = inject("switchSI")
 const loggedCompany = inject('loggedCompany')
-const selectedPremiseId = inject("selectedPremiseId", ref(null));
 
 const shifts = ref([]);
 const premises = ref([]); // Para almacenar la lista de locales
@@ -35,17 +34,29 @@ const loadPremises = async () => {
 
 const loadAllShifts = async () => {
     try {
-        const answer = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompanyPremises/${loggedCompany.value}/${selectedPremiseId.value}`);
+        const answer = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompanyPremises/${loggedCompany.value}`);
 
         // Obtener los nombres de los técnicos para cada turno
         const shiftsWithNames = await Promise.all(
             answer.data.map(async (shift) => {
                 try {
                     // Extraer el documento del ID del turno
-                    const workerDocument = shift.id.split('_').slice(1).join('_');
+                    const workerDocument = shift.id.split('_')[1];
                     
                     // Consultar el nombre del técnico
                     const workerResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
+                    
+                    // Obtener el nombre del local
+                    let premiseName = "Local no asignado";
+                    if (shift.ref_premises) {
+                        try {
+                            const premiseResponse = await axios.get(`${import.meta.env.VITE_API_URL}/premises/${shift.ref_premises}`);
+                            premiseName = premiseResponse.data.name;
+                        } catch (error) {
+                            console.error(`Error al obtener el nombre del local ${shift.ref_premises}:`, error);
+                            premiseName = `Local ${shift.ref_premises}`;
+                        }
+                    }
                     
                     // Verificar si la respuesta tiene el formato esperado
                     if (workerResponse.data && workerResponse.data.wname) {
@@ -53,7 +64,8 @@ const loadAllShifts = async () => {
                             ...shift,
                             start_time: formatTime(shift.start_time),
                             finish_time: formatTime(shift.finish_time),
-                            worker_name: workerResponse.data.wname
+                            worker_name: workerResponse.data.wname,
+                            premise_name: premiseName
                         };
                     } else {
                         console.warn(`Respuesta inesperada para el trabajador ${workerDocument}:`, workerResponse.data);
@@ -61,7 +73,8 @@ const loadAllShifts = async () => {
                             ...shift,
                             start_time: formatTime(shift.start_time),
                             finish_time: formatTime(shift.finish_time),
-                            worker_name: "Técnico desconocido"
+                            worker_name: "Técnico desconocido",
+                            premise_name: premiseName
                         };
                     }
                 } catch (error) {
@@ -70,7 +83,8 @@ const loadAllShifts = async () => {
                         ...shift,
                         start_time: formatTime(shift.start_time),
                         finish_time: formatTime(shift.finish_time),
-                        worker_name: "Técnico desconocido"
+                        worker_name: "Técnico desconocido",
+                        premise_name: "Local no asignado"
                     };
                 }
             })
@@ -97,40 +111,62 @@ const searchsShifts = debounce(async () => {
             response = await axios.get(`${import.meta.env.VITE_API_URL}/searchpremiseshift/${loggedCompany.value}/${search.value}`);
         }
 
+        console.log('Datos recibidos de la búsqueda:', response.data);
+
         // Procesar los resultados para incluir los nombres de los trabajadores
         const shiftsWithNames = await Promise.all(
             response.data.map(async (shift) => {
                 try {
                     // Extraer el documento del ID del turno
-                    const workerDocument = shift.id.split('_').slice(1).join('_');
+                    const workerDocument = shift.document;
                     
                     // Consultar el nombre del técnico
                     const workerResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
                     
+                    // Obtener el nombre del local
+                    let premiseName = "Local no asignado";
+                    if (shift.ref_premises) {
+                        try {
+                            const premiseResponse = await axios.get(`${import.meta.env.VITE_API_URL}/premises/${shift.ref_premises}`);
+                            premiseName = premiseResponse.data.name;
+                        } catch (error) {
+                            console.error(`Error al obtener el nombre del local ${shift.ref_premises}:`, error);
+                            premiseName = `Local ${shift.ref_premises}`;
+                        }
+                    }
+                    
                     // Verificar si la respuesta tiene el formato esperado
                     if (workerResponse.data && workerResponse.data.wname) {
-                        return {
+                        const formattedShift = {
                             ...shift,
-                            start_time: formatTime(shift.start_time),
-                            finish_time: formatTime(shift.finish_time),
-                            worker_name: workerResponse.data.wname
+                            id: shift.document, // Usar el documento como id para la búsqueda del trabajador
+                            start_time: shift.start_time ? formatTime(shift.start_time) : "Sesion En turno",
+                            finish_time: shift.finish_time ? formatTime(shift.finish_time) : "Sesion En turno",
+                            worker_name: workerResponse.data.wname,
+                            premise_name: premiseName
                         };
+                        console.log('Turno formateado:', formattedShift);
+                        return formattedShift;
                     } else {
                         console.warn(`Respuesta inesperada para el trabajador ${workerDocument}:`, workerResponse.data);
                         return {
                             ...shift,
-                            start_time: formatTime(shift.start_time),
-                            finish_time: formatTime(shift.finish_time),
-                            worker_name: "Técnico desconocido"
+                            id: shift.document, // Usar el documento como id para la búsqueda del trabajador
+                            start_time: shift.start_time ? formatTime(shift.start_time) : "Sesion En turno",
+                            finish_time: shift.finish_time ? formatTime(shift.finish_time) : "Sesion En turno",
+                            worker_name: "Técnico desconocido",
+                            premise_name: premiseName
                         };
                     }
                 } catch (error) {
-                    console.error(`Error al obtener el nombre del técnico para el turno ${shift.id}:`, error);
+                    console.error(`Error al obtener el nombre del técnico para el turno ${shift.ref_shift}:`, error);
                     return {
                         ...shift,
-                        start_time: formatTime(shift.start_time),
-                        finish_time: formatTime(shift.finish_time),
-                        worker_name: "Técnico desconocido"
+                        id: shift.document, // Usar el documento como id para la búsqueda del trabajador
+                        start_time: shift.start_time ? formatTime(shift.start_time) : "Sesion En turno",
+                        finish_time: shift.finish_time ? formatTime(shift.finish_time) : "Sesion En turno",
+                        worker_name: "Técnico desconocido",
+                        premise_name: "Local no asignado"
                     };
                 }
             })
@@ -193,8 +229,8 @@ onMounted(() => {
                 <option value="">Seleccione un local</option>
                 <option 
                     v-for="local in premises" 
-                    :key="local.name" 
-                    :value="local.name"
+                    :key="local.ref_premises" 
+                    :value="local.ref_premises"
                 >
                     {{ local.name }} 
                 </option>
@@ -209,9 +245,9 @@ onMounted(() => {
             <li v-for="shift in shifts" :key="shift" class="shift">
                 <fieldset @click="switchSI(shift)">
                     <legend>{{ shift.worker_name }}</legend>
-                    <span>{{ shift.id.split('_').slice(1).join('_') }}</span>
-                    <span>{{ shift.date_shift }}</span>
-                    <span v-if="shift.local_name">Local: {{ shift.local_name }}</span>
+                    <span>Turno: {{ shift.ref_shift.split('_')[1] }}</span>
+                    <span>Fecha: {{ shift.date_shift }}</span>
+                    <span v-if="shift.ref_premises">Local: {{ shift.premise_name }}</span>
                 </fieldset>
             </li>
         </ul>
