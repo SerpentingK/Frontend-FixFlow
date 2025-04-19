@@ -288,23 +288,20 @@ export default {
             <input type="password" id="pasw-input" class="form-input" placeholder="Contraseña"
               v-model="company.password" />
           </label>
-          <div class="password-strength">
-            <div class="strength-indicator">
-              <div class="strength-bar" :style="{ backgroundColor: getPasswordStrengthColor }"></div>
-              <div class="strength-dots">
-                <div class="dot" :class="{ active: passwordStrength >= 1 }"></div>
-                <div class="dot" :class="{ active: passwordStrength >= 2 }"></div>
-                <div class="dot" :class="{ active: passwordStrength >= 3 }"></div>
-                <div class="dot" :class="{ active: passwordStrength >= 4 }"></div>
-              </div>
-            </div>
-            <span class="strength-text">{{ getPasswordStrengthText }}</span>
-          </div>
           <label for="confirm-pasw-input" class="input-wrapper">
             <ion-icon name="lock-closed"></ion-icon>
             <input type="password" id="confirm-pasw-input" class="form-input" v-model="confirmPassword"
               placeholder="Confirmar Contraseña" />
           </label>
+          <div class="password-strength">
+            <div class="strength-dots">
+              <div class="dot" :class="{ active: passwordStrength >= 1 }" :style="{ backgroundColor: passwordStrength >= 1 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
+              <div class="dot" :class="{ active: passwordStrength >= 2 }" :style="{ backgroundColor: passwordStrength >= 2 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
+              <div class="dot" :class="{ active: passwordStrength >= 3 }" :style="{ backgroundColor: passwordStrength >= 3 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
+              <div class="dot" :class="{ active: passwordStrength >= 4 }" :style="{ backgroundColor: passwordStrength >= 4 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
+            </div>
+            <span class="strength-text">{{ getPasswordStrengthText }}</span>
+          </div>
         </div>
         <div class="button-group">
           <button class="btn-primary" type="submit">
@@ -596,20 +593,6 @@ export default {
   gap: 0.5rem;
 }
 
-.strength-indicator {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.strength-bar {
-  height: 4px;
-  width: 100%;
-  border-radius: 2px;
-  transition: all 0.3s ease;
-  background-color: var(--secondTwo);
-}
-
 .strength-dots {
   display: flex;
   gap: 0.5rem;
@@ -617,15 +600,14 @@ export default {
 }
 
 .dot {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background-color: var(--secondTwo);
   transition: all 0.3s ease;
 }
 
 .dot.active {
-  background-color: var(--base);
   transform: scale(1.2);
 }
 

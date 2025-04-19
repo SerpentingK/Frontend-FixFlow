@@ -19,9 +19,9 @@ export default {
     const totalInCash = inject("totalInCash", ref(0));
     const defaultColor = inject("defaultColor");
     const selectedColor = inject("selectedColor");
-    const getCompanyColor = inject("getCompanyColor");    
+    const getCompanyColor = inject("getCompanyColor");
     const numberCompany = inject("numberCompany", ref(0));
-    const nitCompany = ref(""); // Nuevo ref para el NIT
+    const nitCompany = inject("nitCompany", ref("")); // Nuevo ref para el NIT
     const premisesCount = inject("premisesCount", ref(0));
     const showPhoneModal = ref(false);
     const showNitModal = ref(false); // Nuevo modal para NIT
@@ -179,7 +179,7 @@ export default {
         for (const premise of validPremises) {
           try {
             console.log(`Iniciando procesamiento del local: ${premise.name} (ID: ${premise.ref_premises})`);
-            
+
             let bills = [];
             try {
               // Get bills for the premise
@@ -252,10 +252,10 @@ export default {
                         worker_name: "Técnico desconocido"
                       };
                     }
-                    
+
                     // Consultar el nombre del técnico
                     const workerResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
-                    
+
                     if (workerResponse.data && workerResponse.data.wname) {
                       return {
                         ...shift,
@@ -496,48 +496,34 @@ export default {
     </button>
     <button class="close-btn" @click="closeCompany">Cerrar Sesión</button>
 
-    <!-- Modal para editar teléfono -->
-    <div v-if="showPhoneModal" class="modal-overlay" @click="showPhoneModal = false">
-      <div class="modal-content" @click.stop>
-        <h3>Editar Número de Teléfono</h3>
-        <input 
-          type="tel" 
-          v-model="newPhoneNumber" 
-          placeholder="Ingrese el nuevo número"
-          class="modal-input"
-        />
-        <div class="modal-buttons">
-          <button class="cancel-btn" @click="showPhoneModal = false">Cancelar</button>
-          <button class="save-btn" @click="updatePhoneNumber">Guardar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Nuevo modal para editar NIT -->
-    <div v-if="showNitModal" class="modal-overlay" @click="showNitModal = false">
-      <div class="modal-content" @click.stop>
-        <h3>Editar NIT</h3>
-        <input 
-          type="text" 
-          v-model="newNitNumber" 
-          placeholder="Ingrese el nuevo NIT"
-          class="modal-input"
-        />
-        <div class="modal-buttons">
-          <button class="cancel-btn" @click="showNitModal = false">Cancelar</button>
-          <button class="save-btn" @click="updateNitNumber">Guardar</button>
-        </div>
-      </div>
-    </div>
   </section>
-  
+
+  <!-- Modal para editar teléfono -->
+  <div v-if="showPhoneModal" class="modal-overlay" @click="showPhoneModal = false">
+    <div class="modal-content" @click.stop>
+      <h3>Editar Número de Teléfono</h3>
+      <input type="tel" v-model="newPhoneNumber" placeholder="Ingrese el nuevo número" class="modal-input" />
+      <div class="modal-buttons">
+        <button class="cancel-btn" @click="showPhoneModal = false">Cancelar</button>
+        <button class="save-btn" @click="updatePhoneNumber">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nuevo modal para editar NIT -->
+  <div v-if="showNitModal" class="modal-overlay" @click="showNitModal = false">
+    <div class="modal-content" @click.stop>
+      <h3>Editar NIT</h3>
+      <input type="text" v-model="newNitNumber" placeholder="Ingrese el nuevo NIT" class="modal-input" />
+      <div class="modal-buttons">
+        <button class="cancel-btn" @click="showNitModal = false">Cancelar</button>
+        <button class="save-btn" @click="updateNitNumber">Guardar</button>
+      </div>
+    </div>
+  </div>
   <!-- Modal de Planes -->
   <Teleport to="body">
-    <SubscriptionPlans
-      v-if="showPlansModal"
-      @planSelected="handlePlanSelection"
-      @close="showPlansModal = false"
-    />
+    <SubscriptionPlans v-if="showPlansModal" @planSelected="handlePlanSelection" @close="showPlansModal = false" />
   </Teleport>
 </template>
 
@@ -632,7 +618,9 @@ export default {
   padding: 0;
 }
 
-.apply-color-btn, .close-btn, .download-btn {
+.apply-color-btn,
+.close-btn,
+.download-btn {
   background: var(--base);
   color: white;
   border: none;
@@ -646,17 +634,22 @@ export default {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
-.apply-color-btn{
+
+.apply-color-btn {
   background: none;
   border: 2px solid var(--base);
 }
 
-.apply-color-btn:hover, .close-btn:hover, .download-btn:hover {
+.apply-color-btn:hover,
+.close-btn:hover,
+.download-btn:hover {
   background: var(--secondTwo);
   transform: translateY(-2px);
 }
 
-.apply-color-btn:active, .close-btn:active, .download-btn:active {
+.apply-color-btn:active,
+.close-btn:active,
+.download-btn:active {
   transform: scale(0.95);
 }
 
@@ -678,11 +671,12 @@ export default {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  backdrop-filter: blur(5px);
 }
 
 .modal-content {
@@ -691,11 +685,25 @@ export default {
   border-radius: 1rem;
   width: 90%;
   max-width: 400px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   border: 4px solid var(--base);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  gap: 1.5rem;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-content h3 {
@@ -703,46 +711,52 @@ export default {
   font-size: 1.5rem;
   text-align: center;
   margin: 0;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .modal-input {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
+  width: 90%;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
   background: rgba(255, 255, 255, 0.1);
-  border: none;
+  border: 2px solid rgba(255, 255, 255, 0.1);
   color: white;
-  font-size: 1rem;
+  font-size: 1.1rem;
   outline: none;
   transition: all 0.3s ease;
 }
 
 .modal-input:focus {
   background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 0 0 2px var(--base);
+  border-color: var(--base);
+  box-shadow: 0 0 0 3px rgba(var(--base-rgb), 0.2);
 }
 
 .modal-input::placeholder {
   color: rgba(255, 255, 255, 0.5);
+  font-size: 1rem;
 }
 
 .modal-buttons {
   display: flex;
   gap: 1rem;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
 }
 
-.cancel-btn, .save-btn {
+.cancel-btn,
+.save-btn {
   flex: 1;
-  padding: 0.75rem 1.5rem;
+  padding: 0.875rem 1.5rem;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .cancel-btn {
@@ -755,12 +769,62 @@ export default {
   color: white;
 }
 
-.cancel-btn:hover, .save-btn:hover {
+.cancel-btn:hover,
+.save-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.cancel-btn:active, .save-btn:active {
-  transform: scale(0.95);
+.cancel-btn:active,
+.save-btn:active {
+  transform: scale(0.98);
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .modal-content h3 {
+    font-size: 1.25rem;
+  }
+
+  .modal-input {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .save-btn {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .modal-content {
+    padding: 2.5rem;
+  }
+
+  .modal-content h3 {
+    font-size: 1.75rem;
+  }
+
+  .modal-input {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .modal-content {
+    max-width: 450px;
+  }
 }
 
 .plan-info {

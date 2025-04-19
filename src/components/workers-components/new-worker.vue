@@ -58,13 +58,13 @@ export default {
 
     const isPasswordValid = computed(() => {
         const password = worker.value.password;
-        return password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password);
+        return password.length >= 6;
     });
 
     const registerWorker = async () => {
         try {
             if (!isPasswordValid.value) {
-                showAlert("2", "La contraseña debe tener al menos 6 caracteres, una mayúscula y un número.");
+                showAlert("2", "La contraseña debe tener al menos 6 caracteres.");
                 return;
             }
             if(workersCount.value == 0){
@@ -127,14 +127,11 @@ export default {
                 <input type="password" name="" placeholder="Clave" required v-model="worker.password">
             </label>
             <div class="password-strength">
-                <div class="strength-indicator">
-                    <div class="strength-bar" :style="{ backgroundColor: getPasswordStrengthColor }"></div>
-                    <div class="strength-dots">
-                        <div class="dot" :class="{ active: passwordStrength >= 1 }"></div>
-                        <div class="dot" :class="{ active: passwordStrength >= 2 }"></div>
-                        <div class="dot" :class="{ active: passwordStrength >= 3 }"></div>
-                        <div class="dot" :class="{ active: passwordStrength >= 4 }"></div>
-                    </div>
+                <div class="strength-dots">
+                    <div class="dot" :class="{ active: passwordStrength >= 1 }" :style="{ backgroundColor: passwordStrength >= 1 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
+                    <div class="dot" :class="{ active: passwordStrength >= 2 }" :style="{ backgroundColor: passwordStrength >= 2 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
+                    <div class="dot" :class="{ active: passwordStrength >= 3 }" :style="{ backgroundColor: passwordStrength >= 3 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
+                    <div class="dot" :class="{ active: passwordStrength >= 4 }" :style="{ backgroundColor: passwordStrength >= 4 ? getPasswordStrengthColor : 'var(--secondTwo)' }"></div>
                 </div>
                 <span class="strength-text">{{ getPasswordStrengthText }}</span>
             </div>
@@ -300,20 +297,6 @@ export default {
     gap: 0.5rem;
 }
 
-.strength-indicator {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-
-.strength-bar {
-    height: 4px;
-    width: 100%;
-    border-radius: 2px;
-    transition: all 0.3s ease;
-    background-color: var(--secondTwo);
-}
-
 .strength-dots {
     display: flex;
     gap: 0.5rem;
@@ -321,15 +304,14 @@ export default {
 }
 
 .dot {
-    width: 8px;
-    height: 8px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     background-color: var(--secondTwo);
     transition: all 0.3s ease;
 }
 
 .dot.active {
-    background-color: var(--base);
     transform: scale(1.2);
 }
 

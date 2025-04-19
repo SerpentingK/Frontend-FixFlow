@@ -235,10 +235,6 @@ onMounted(() => {
                     {{ local.name }} 
                 </option>
             </select>
-            
-            <button type="submit" class="search-button">
-                Buscar
-            </button>
         </form>
         
         <ul class="shifts-list">

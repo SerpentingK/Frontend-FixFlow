@@ -12,11 +12,22 @@ const search = ref(""); // Texto de búsqueda
 const searchType = ref("1"); // Tipo de búsqueda
 const loggedCompany = inject("loggedCompany");
 const selectedPremiseId = inject("selectedPremiseId");
+const premises = ref([]); // Para almacenar la lista de locales
+
+// Función para cargar todos los locales
+const loadPremises = async () => {
+    try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfPremises/${loggedCompany.value}`);
+        premises.value = response.data;
+    } catch (error) {
+        console.error("Error al cargar los locales:", error);
+    }
+};
 
 // Función para cargar todas las facturas
 const loadAllBills = async () => {
   try {
-    isLoading.value = true; // Activar indicador de carga
+    isLoading.value = true;
     const answer = await axios.get(
       `${import.meta.env.VITE_API_URL}/someDataOfBill/${selectedPremiseId.value}`
     );
@@ -24,53 +35,54 @@ const loadAllBills = async () => {
   } catch (error) {
     console.error("Error al cargar todas las facturas:", error);
   } finally {
-    isLoading.value = false; // Desactivar indicador de carga
+    isLoading.value = false;
   }
 };
 
 // Función de búsqueda
 const searchBills = debounce(async () => {
   if (!search.value.trim()) {
-    loadAllBills(); // Mostrar todas las facturas si el campo está vacío
+    loadAllBills();
     return;
   }
 
   try {
-    isLoading.value = true; // Activar indicador de carga
+    isLoading.value = true;
     let url = "";
 
-    // Determinar la URL según el tipo de búsqueda
     if (searchType.value === "1") {
-      // Filtrar por número de factura
       url = `${import.meta.env.VITE_API_URL}/searchBillsByNumber/${loggedCompany.value}/${search.value}`;
     } else if (searchType.value === "2") {  
-      // Filtrar por fecha
       url = `${import.meta.env.VITE_API_URL}/searchBillsByDate/${loggedCompany.value}/${search.value}`;
     } else if (searchType.value === "3") {
-      // Filtrar por cliente
       url = `${import.meta.env.VITE_API_URL}/searchBillsByName/${loggedCompany.value}/${search.value}`;
+    } else if (searchType.value === "4") {
+      url = `${import.meta.env.VITE_API_URL}/searchBillsByPremise/${loggedCompany.value}/${search.value}`;
     }
 
     const tempBills = await axios.get(url);
-    // Si no hay resultados, establecer bills como un array vacío
-    if (!tempBills.data || (Array.isArray(tempBills.data) && tempBills.data.length === 0)) {
-      bills.value = [];
-    } else {
-      bills.value = Array.isArray(tempBills.data) ? tempBills.data : [tempBills.data];
-    }
+    bills.value = Array.isArray(tempBills.data) ? tempBills.data : [tempBills.data];
   } catch (error) {
     console.error("Error al realizar la búsqueda:", error);
-    bills.value = []; // En caso de error, establecer bills como un array vacío
+    bills.value = [];
   } finally {
-    isLoading.value = false; // Desactivar indicador de carga
+    isLoading.value = false;
   }
-}, 500); // Retardo de 500 ms
+}, 500);
 
-// Observador para activar la búsqueda mientras el usuario escribe
+// Cambiar el tipo de búsqueda
+const changeSearchType = (type) => {
+    searchType.value = type;
+    search.value = "";
+    loadAllBills();
+};
+
 watch(search, searchBills);
 
-// Cargar todas las facturas al montar el componente
-onMounted(loadAllBills);
+onMounted(() => {
+    loadAllBills();
+    loadPremises();
+});
 </script>
 
 <template>
@@ -79,20 +91,65 @@ onMounted(loadAllBills);
             <div class="spinner"></div>
         </div>
         <h2>LISTA DE FACTURAS</h2>
+        
+        <div class="search-options">
+            <button 
+                @click="changeSearchType('1')" 
+                :class="{ active: searchType === '1' }"
+            >
+                Número de Factura
+            </button>
+            <button 
+                @click="changeSearchType('2')" 
+                :class="{ active: searchType === '2' }"
+            >
+                Fecha
+            </button>
+            <button 
+                @click="changeSearchType('3')" 
+                :class="{ active: searchType === '3' }"
+            >
+                Cliente
+            </button>
+            <button 
+                @click="changeSearchType('4')" 
+                :class="{ active: searchType === '4' }"
+            >
+                Local
+            </button>
+        </div>
+
         <form @submit.prevent="searchBills" class="search-form">
-            <select v-model="searchType">
-                <option value="1">Numero de Factura</option>
-                <option value="2">Fecha</option>
-                <option value="3">Cliente</option>
+            <input 
+                v-if="searchType === '2'" 
+                type="date" 
+                v-model="search"
+                placeholder="Seleccione una fecha"
+            >
+            <select 
+                v-else-if="searchType === '4'" 
+                v-model="search"
+                class="local-select"
+                @change="searchBills"
+            >
+                <option value="">Seleccione un local</option>
+                <option 
+                    v-for="local in premises" 
+                    :key="local.ref_premises" 
+                    :value="local.ref_premises"
+                >
+                    {{ local.name }} 
+                </option>
             </select>
             <input 
-                :type="searchType === '2' ? 'date' : 'text'" 
-                :placeholder="searchType === '2' ? '' : 'Buscar'" 
+                v-else
+                type="text" 
+                placeholder="Buscar" 
                 v-model="search" 
             />
         </form>
+
         <ol class="bill-list">
-            <!-- Lista de facturas -->
             <transition-group name="fade">
                 <button 
                     v-for="bill in bills" 
@@ -106,7 +163,6 @@ onMounted(loadAllBills);
                     </fieldset>
                 </button>
             </transition-group>
-            <!-- Mensaje cuando no hay facturas o no se encuentran resultados -->
             <div v-if="bills.length === 0" class="no-bills-message">
                 No se han encontrado facturas
             </div>
@@ -120,8 +176,8 @@ onMounted(loadAllBills);
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    padding: 5px 20px;
-    width: 80%;
+    padding: 20px 10px;
+    width: 75%;
     border-radius: 10px;
     background: var(--second);
     box-shadow: -25px -25px 51px #242424,
@@ -131,44 +187,70 @@ onMounted(loadAllBills);
     flex-direction: column;
     align-items: center;
     max-height: 70%;
-    transition: all .4s ease;
+    overflow-y: scroll;
+    scrollbar-width: none;
 }
 
-.container h2{
+.container h2 {
     color: white;
-    letter-spacing: 2px;
-    text-align: center;
+    letter-spacing: 3px;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
 }
 
-.search-form{
+.search-options {
     display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
 }
 
-.search-form *{
-    background-color: white;
-    color: black;
-    border-radius: 10px;
-    padding: 5px 10px;
-}
-
-.search-form button{
-    all: unset;
-    border-radius: 10px;
-    padding: 5px 10px;
-    background-color: var(--base);
+.search-options button {
+    padding: 8px 15px;
+    border-radius: 5px;
+    border: none;
+    background-color: var(--secondThree);
     color: white;
     cursor: pointer;
-    transition: .3s;
+    transition: all 0.3s ease;
 }
 
-.search-form button:active{
-    scale: .9;
+.search-options button.active {
+    background-color: var(--base);
+    font-weight: bold;
 }
 
-.bill-list{
+.search-options button:hover {
+    background-color: var(--secondTwo);
+}
+
+.search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.search-form input,
+.search-form select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--secondTwo);
+    background-color: var(--secondThree);
+    color: white;
+    cursor: pointer;
+    min-width: 200px;
+}
+
+.search-form select option {
+    background-color: var(--second);
+    color: white;
+}
+
+.bill-list {
     list-style: none;
     padding: 0;
     margin-top: 10px;
@@ -183,27 +265,29 @@ onMounted(loadAllBills);
     padding: 5px 10px;
 }
 
-.bill-list button{
+.bill-list button {
     all: unset;
-    border-radius: 5px;
-    transition: background-color 0.3s;
     width: 100%;
     display: flex;
-    color: white;
-    transition: .3s;
-    cursor: pointer;
+    justify-content: center;
+    align-items: center;
 }
 
-.bill-list button fieldset{
-    width: 100%;
+.bill-list button fieldset {
+    width: 90%;
     display: flex;
     justify-content: space-between;
     border: 2px solid var(--secondTwo);
     border-radius: 10px;
+    background-color: var(--secondThree);
+    color: white;
+    padding: 10px;
+    transition: all .3s ease;
 }
 
-.bill-list button:active{
-    scale: .9;
+.bill-list button:hover fieldset {
+    background-color: var(--secondTwo);
+    box-shadow: var(--secShadow);
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -212,17 +296,6 @@ onMounted(loadAllBills);
 
 .fade-enter, .fade-leave-to {
     opacity: 0;
-}
-
-button.load-btn{
-    all: unset;
-    background-color: var(--base);
-    color: white;
-    border-radius: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: .3s;
 }
 
 .overlay {
@@ -248,31 +321,8 @@ button.load-btn{
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-@media (min-width: 768px) {
-    *{
-        font-size: 1.3rem;
-    }
-    .bill-list{
-        max-height: 500px;
-    }
-}
-
-@media (min-width: 1024px) {
-    *{
-        font-size: 1.2rem;
-    }
-    .container{
-        max-height: 80%;
-        width: 45%;
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .no-bills-message {
@@ -283,5 +333,34 @@ button.load-btn{
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     margin-top: 10px;
+}
+
+@media (min-width: 768px) {
+    * {
+        font-size: 1.3rem;
+    }
+    .bill-list {
+        max-height: 500px;
+    }
+}
+
+@media (min-width: 1024px) {
+    * {
+        font-size: 1.1rem;
+    }
+    .container {
+        width: 40%;
+        max-height: 80%;
+    }
+    
+    .bill-list button fieldset {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .bill-list button fieldset span {
+        flex: 1;
+        min-width: 120px;
+    }
 }
 </style>
