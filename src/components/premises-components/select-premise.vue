@@ -1,6 +1,7 @@
 <script>
 import { inject, ref, onMounted } from 'vue';
 import axios from 'axios';  
+import * as XLSX from 'xlsx';
 
 export default {
     setup() {
@@ -17,14 +18,14 @@ export default {
         const loggedWorker = inject("loggedWorker");
         const startShift = inject("startShift");
         const shiftPremise = ref(null);
-
-
+        const selectedPremiseForReport = ref(null);
 
         // Estados para los modales
         const showLogoutModal = ref(false);
         const showEditModal = ref(false);
         const showDeactivateModal = ref(false);
         const showActivateModal = ref(false);
+        const showDownloadModal = ref(false);
         const currentPremiseId = ref(null);
         const editForm = ref({
             name: '',
@@ -162,7 +163,210 @@ export default {
             }
         }
 
-        
+        const downloadPremiseExcel = async (premise) => {
+            try {
+                if (!premise || !premise.ref_premises) {
+                    showAlert("2", "No se pudo identificar el local para generar el reporte");
+                    return;
+                }
+
+                console.log(`Iniciando descarga de reporte para el local: ${premise.name} (ID: ${premise.ref_premises})`);
+                
+                const wb = XLSX.utils.book_new();
+                let hasData = false;
+                const premiseName = premise.name || `Local_${premise.ref_premises}`;
+
+                // Get bills for the premise
+                let bills = [];
+                try {
+                    const billsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOfBill/${premise.ref_premises}/excel`);
+                    bills = billsResponse.data || [];
+                    console.log(`Facturas obtenidas para ${premise.name}: ${bills.length}`);
+                } catch (billError) {
+                    console.log(`No se encontraron facturas para el local ${premise.name}`);
+                }
+
+                // Get shifts for the premise
+                let shifts = [];
+                try {
+                    const shiftsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allShiftCompanyPremises/excel/${premise.ref_premises}`);
+                    shifts = shiftsResponse.data || [];
+                    console.log(`Turnos obtenidos para ${premise.name}: ${shifts.length}`);
+                } catch (shiftError) {
+                    console.log(`No se encontraron turnos para el local ${premise.name}`);
+                }
+
+                // Get vault records for the premise
+                let vaultRecords = [];
+                try {
+                    const vaultResponse = await axios.get(`${import.meta.env.VITE_API_URL}/someDataOutVault/${premise.ref_premises}`);
+                    vaultRecords = vaultResponse.data || [];
+                    console.log(`Registros de caja obtenidos para ${premise.name}: ${vaultRecords.length}`);
+                } catch (vaultError) {
+                    console.log(`No se encontraron registros de caja para el local ${premise.name}`);
+                }
+
+                // Data of bills
+                if (bills && bills.length > 0) {
+                    const billsData = bills.map(bill => ({
+                        'Número de Factura': bill.bill_number || '',
+                        'Cliente': bill.client_name || '',
+                        'Teléfono': bill.client_phone || '',
+                        'Fecha': bill.entry_date || '',
+                        'Total': bill.total_price || 0,
+                        'Técnico': bill.wname || ''
+                    }));
+                    const billsWS = XLSX.utils.json_to_sheet(billsData);
+                    XLSX.utils.book_append_sheet(wb, billsWS, `${premiseName}_Facturas`);
+                    hasData = true;
+                }
+
+                // Shifts data
+                if (shifts && shifts.length > 0) {
+                    // Obtener los nombres de los técnicos para cada turno
+                    const shiftsWithNames = await Promise.all(
+                        shifts.map(async (shift) => {
+                            try {
+                                // Extraer el documento del ID del turno
+                                let workerDocument;
+                                if (shift.document) {
+                                    workerDocument = shift.document;
+                                } else if (shift.id) {
+                                    if (!isNaN(shift.id)) {
+                                        workerDocument = shift.id;
+                                    } else {
+                                        workerDocument = shift.id.split('_')[1];
+                                    }
+                                } else if (shift.ref_shift) {
+                                    workerDocument = shift.ref_shift.split('_')[1];
+                                } else {
+                                    return {
+                                        ...shift,
+                                        worker_name: "Técnico desconocido"
+                                    };
+                                }
+                                
+                                // Consultar el nombre del técnico
+                                const workerResponse = await axios.get(`${import.meta.env.VITE_API_URL}/worker/${workerDocument}/${loggedCompany.value}`);
+                                
+                                if (workerResponse.data && workerResponse.data.wname) {
+                                    return {
+                                        ...shift,
+                                        worker_name: workerResponse.data.wname
+                                    };
+                                } else {
+                                    return {
+                                        ...shift,
+                                        worker_name: "Técnico desconocido"
+                                    };
+                                }
+                            } catch (error) {
+                                console.error(`Error al obtener el nombre del técnico para el turno:`, error);
+                                return {
+                                    ...shift,
+                                    worker_name: "Técnico desconocido"
+                                };
+                            }
+                        })
+                    );
+
+                    // Crear hoja de turnos
+                    const shiftsData = shiftsWithNames.map(shift => ({
+                        'Referencia': shift.ref_shift ? shift.ref_shift.split('_')[1] || shift.ref_shift : '',
+                        'Técnico': shift.worker_name || 'Técnico desconocido',
+                        'Fecha': shift.date_shift || '',
+                        'Hora Inicio': shift.start_time || '',
+                        'Hora Fin': shift.finish_time || '',
+                        'Total Recibido': shift.total_received || 0,
+                        'Ganancia': shift.total_gain || 0,
+                        'Salidas': shift.total_outs || 0
+                    }));
+                    const shiftsWS = XLSX.utils.json_to_sheet(shiftsData);
+                    XLSX.utils.book_append_sheet(wb, shiftsWS, `${premiseName}_Turnos`);
+                    hasData = true;
+                }
+
+                // Vault records data
+                if (vaultRecords && vaultRecords.length > 0) {
+                    const vaultData = vaultRecords.map(record => ({
+                        'Fecha': record.date || '',
+                        'Usuario': record.wname || '',
+                        'Cantidad Retirada': record.quantity || 0,
+                    }));
+                    const vaultWS = XLSX.utils.json_to_sheet(vaultData);
+                    XLSX.utils.book_append_sheet(wb, vaultWS, `${premiseName}_Caja`);
+                    hasData = true;
+                }
+
+                // Get sales for the premise
+                let sales = [];
+                try {
+                    const salesResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allSalesPremises/${premise.ref_premises}`);
+                    sales = salesResponse.data || [];
+                    console.log(`Ventas obtenidas para ${premise.name}: ${sales.length}`);
+                } catch (salesError) {
+                    console.log(`No se encontraron ventas para el local ${premise.name}`);
+                }
+
+                // Sales data
+                if (sales && sales.length > 0) {
+                    const salesData = sales.map(sale => ({
+                        'Referencia': sale.ref_sale || '',
+                        'Fecha': sale.date_sale || '',
+                        'Producto': sale.product || '',
+                        'Venta': sale.sale || 0,
+                        'Precio Original': sale.original_price || 0,
+                        'Precio de Ingreso': sale.revenue_price || 0,
+                        'Técnico': sale.wname || ''
+                    }));
+                    const salesWS = XLSX.utils.json_to_sheet(salesData);
+                    XLSX.utils.book_append_sheet(wb, salesWS, `${premiseName}_Ventas`);
+                    hasData = true;
+                }
+
+                // Get outflows for the premise
+                let outflows = [];
+                try {
+                    const outflowsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/allOutflowsPremises/${premise.ref_premises}`);
+                    outflows = outflowsResponse.data || [];
+                    console.log(`Gastos obtenidos para ${premise.name}: ${outflows.length}`);
+                } catch (outflowsError) {
+                    console.log(`No se encontraron gastos para el local ${premise.name}`);
+                }
+
+                // Outflows data
+                if (outflows && outflows.length > 0) {
+                    const outflowsData = outflows.map(outflow => ({
+                        'Referencia': outflow.ref_outflow || '',
+                        'Fecha': outflow.date_outflow || '',
+                        'Precio': outflow.price || 0,
+                        'Detalles': outflow.details || '',
+                        'Técnico': outflow.wname || ''
+                    }));
+                    const outflowsWS = XLSX.utils.json_to_sheet(outflowsData);
+                    XLSX.utils.book_append_sheet(wb, outflowsWS, `${premiseName}_Gastos`);
+                    hasData = true;
+                }
+
+                if (!hasData) {
+                    showAlert("2", "No se encontraron datos para generar el reporte de este local");
+                    return;
+                }
+
+                XLSX.writeFile(wb, `${premiseName}_reporte_${new Date().toISOString().split('T')[0]}.xlsx`);
+                showAlert("1", "Reporte descargado exitosamente");
+                showDownloadModal.value = false;
+            } catch (error) {
+                console.error("Error al generar el reporte:", error);
+                showAlert("2", "Error al generar el reporte. Por favor, intente nuevamente");
+            }
+        };
+
+        const openDownloadModal = (premise) => {
+            selectedPremiseForReport.value = premise;
+            showDownloadModal.value = true;
+        };
+
         onMounted(async () => {
             await loadPremises();
             await checkShiftPremise();
@@ -193,6 +397,7 @@ export default {
             showEditModal,
             showDeactivateModal,
             showActivateModal,
+            showDownloadModal,
             editForm,
             saveEditPremise,
             confirmDeactivate,
@@ -201,7 +406,10 @@ export default {
             switchSAPM,
             premises,
             switchSLM,
-            activatePremise
+            activatePremise,
+            openDownloadModal,
+            downloadPremiseExcel,
+            selectedPremiseForReport
         };
     }
 };
@@ -242,7 +450,7 @@ export default {
                             v-if="workerRole === 'Gerente' || workerRole === 'Administrador'">
                             <ion-icon name="alert-circle"></ion-icon>
                         </button>
-                        <button class="action-btn info" @click="switchSVI" title="Descargar Reporte"
+                        <button class="action-btn info" @click="openDownloadModal(premise)" title="Descargar Reporte"
                             v-if="workerRole === 'Gerente' || workerRole === 'Administrador'">
                             <ion-icon name="download-outline"></ion-icon>
                         </button>
@@ -309,6 +517,18 @@ export default {
             <div class="modal-buttons">
                 <button @click="confirmActivate" class="confirm-btn">Confirmar</button>
                 <button @click="showActivateModal = false" class="cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Descarga de Reporte -->
+    <div class="modal" v-if="showDownloadModal">
+        <div class="modal-content">
+            <h3>Descargar Reporte</h3>
+            <p>¿Deseas descargar el reporte para el local <strong>{{ selectedPremiseForReport?.name }}</strong>?</p>
+            <div class="modal-buttons">
+                <button @click="downloadPremiseExcel(selectedPremiseForReport)" class="confirm-btn">Descargar</button>
+                <button @click="showDownloadModal = false" class="cancel-btn">Cancelar</button>
             </div>
         </div>
     </div>
